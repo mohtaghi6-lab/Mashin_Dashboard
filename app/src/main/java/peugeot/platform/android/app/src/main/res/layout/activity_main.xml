@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:orientation="vertical"
+android:gravity="center"
+android:background="#05080D">
+
+
+<TextView
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:text="PEUGEOT"
+android:textColor="#6CCEFF"
+android:textSize="24sp"/>
+
+
+<TextView
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:text="VEHICLE OS v31"
+android:textColor="#FFFFFF"
+android:textSize="32sp"
+android:textStyle="bold"/>
+
+
+<TextView
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:layout_marginTop="40dp"
+android:text="0 km/h"
+android:textColor="#FFFFFF"
+android:textSize="70sp"/>
+
+
+<TextView
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:text="RPM 0"
+android:textColor="#66CCFF"
+android:textSize="30sp"/>
+
+
+<TextView
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:layout_marginTop="40dp"
+android:text="AI   •   MUSIC   •   NAVIGATION   •   VEHICLE"
+android:textColor="#9FBACC"
+android:textSize="18sp"/>
+
+
+</LinearLayout>
