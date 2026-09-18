@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
+import peugeot.platform.android.ai.AIEngine
 import peugeot.platform.android.ai.AIState
 import peugeot.platform.android.ai.VoiceManager
 import peugeot.platform.android.dashboard.DashboardView
@@ -15,9 +16,8 @@ import peugeot.platform.android.vehicle.VehicleData
 class MainActivity : Activity() {
 
     private lateinit var displayBootManager: DisplayBootManager
-
     private lateinit var voiceManager: VoiceManager
-
+    private lateinit var aiEngine: AIEngine
     private lateinit var dashboard: DashboardView
 
     private var pendingVoiceStart = false
@@ -52,21 +52,53 @@ class MainActivity : Activity() {
         displayBootManager = DisplayBootManager()
         displayBootManager.onWindowReady()
 
+        aiEngine = AIEngine(this)
+
         voiceManager = VoiceManager(
             context = this,
 
             onResult = { text ->
+
                 runOnUiThread {
 
-                    // متن فارسی تشخیص داده‌شده
-                    // در مرحله بعد به موتور AI ارسال می‌شود.
+                    dashboard.setAIState(
+                        AIState.THINKING
+                    )
 
+                    aiEngine.process(
+                        text = text,
+
+                        onResponse = { response ->
+
+                            runOnUiThread {
+
+                                dashboard.setAIState(
+                                    AIState.SPEAKING
+                                )
+
+                                // پاسخ AI در مرحله بعد
+                                // به صدای فارسی تبدیل می‌شود.
+                            }
+                        },
+
+                        onError = { error ->
+
+                            runOnUiThread {
+
+                                dashboard.setAIState(
+                                    AIState.ERROR
+                                )
+                            }
+                        }
+                    )
                 }
             },
 
             onStateChanged = { state ->
+
                 runOnUiThread {
-                    updateAIState(state)
+
+                    dashboard.setAIState(state)
                 }
             }
         )
@@ -124,6 +156,7 @@ class MainActivity : Activity() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
+
         super.onRequestPermissionsResult(
             requestCode,
             permissions,
@@ -133,7 +166,8 @@ class MainActivity : Activity() {
         if (
             requestCode == AUDIO_PERMISSION_REQUEST &&
             grantResults.isNotEmpty() &&
-            grantResults[0] == PackageManager.PERMISSION_GRANTED
+            grantResults[0] ==
+            PackageManager.PERMISSION_GRANTED
         ) {
 
             if (pendingVoiceStart) {
