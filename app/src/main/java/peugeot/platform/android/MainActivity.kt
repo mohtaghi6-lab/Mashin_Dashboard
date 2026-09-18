@@ -9,6 +9,7 @@ import android.view.Window
 import android.view.WindowManager
 import peugeot.platform.android.ai.AIEngine
 import peugeot.platform.android.ai.AIState
+import peugeot.platform.android.ai.SpeechManager
 import peugeot.platform.android.ai.VoiceManager
 import peugeot.platform.android.dashboard.DashboardView
 import peugeot.platform.android.vehicle.VehicleData
@@ -18,6 +19,7 @@ class MainActivity : Activity() {
     private lateinit var displayBootManager: DisplayBootManager
     private lateinit var voiceManager: VoiceManager
     private lateinit var aiEngine: AIEngine
+    private lateinit var speechManager: SpeechManager
     private lateinit var dashboard: DashboardView
 
     private var pendingVoiceStart = false
@@ -54,6 +56,17 @@ class MainActivity : Activity() {
 
         aiEngine = AIEngine(this)
 
+        speechManager = SpeechManager(
+            context = this,
+            onStateChanged = { state ->
+
+                runOnUiThread {
+
+                    dashboard.setAIState(state)
+                }
+            }
+        )
+
         voiceManager = VoiceManager(
             context = this,
 
@@ -72,16 +85,13 @@ class MainActivity : Activity() {
 
                             runOnUiThread {
 
-                                dashboard.setAIState(
-                                    AIState.SPEAKING
+                                speechManager.speak(
+                                    response
                                 )
-
-                                // پاسخ AI در مرحله بعد
-                                // به صدای فارسی تبدیل می‌شود.
                             }
                         },
 
-                        onError = { error ->
+                        onError = {
 
                             runOnUiThread {
 
@@ -116,6 +126,7 @@ class MainActivity : Activity() {
             } else {
 
                 pendingVoiceStart = true
+
                 requestMicrophonePermission()
             }
         }
@@ -144,11 +155,6 @@ class MainActivity : Activity() {
                 )
             }
         }
-    }
-
-    private fun updateAIState(state: AIState) {
-
-        dashboard.setAIState(state)
     }
 
     override fun onRequestPermissionsResult(
@@ -183,6 +189,10 @@ class MainActivity : Activity() {
 
         if (::voiceManager.isInitialized) {
             voiceManager.destroy()
+        }
+
+        if (::speechManager.isInitialized) {
+            speechManager.destroy()
         }
 
         if (::displayBootManager.isInitialized) {
