@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
+import peugeot.platform.android.dashboard.DashboardView
+import peugeot.platform.android.vehicle.VehicleData
 
 class MainActivity : Activity() {
 
@@ -25,15 +27,19 @@ class MainActivity : Activity() {
             View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
             View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
 
-        setContentView(R.layout.activity_main)
+        val dashboard = DashboardView(this)
+
+        dashboard.setVehicleData(
+            VehicleData.demo()
+        )
+
+        setContentView(dashboard)
 
         displayBootManager = DisplayBootManager()
         displayBootManager.onWindowReady()
     }
 
-
     override fun onDestroy() {
-
         if (::displayBootManager.isInitialized) {
             displayBootManager.destroy()
         }
