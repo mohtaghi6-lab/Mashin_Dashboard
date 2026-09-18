@@ -17,6 +17,7 @@ import peugeot.platform.android.ui.CarPageView
 import peugeot.platform.android.ui.MainMenuController
 import peugeot.platform.android.ui.MainMenuPage
 import peugeot.platform.android.ui.MainMenuView
+import peugeot.platform.android.ui.MusicPageView
 import peugeot.platform.android.vehicle.VehicleData
 import peugeot.platform.android.vehicle.VehicleDataController
 
@@ -34,6 +35,8 @@ class MainActivity : Activity() {
 
     private lateinit var carPageView: CarPageView
 
+    private lateinit var musicPageView: MusicPageView
+
     private lateinit var mainMenuView: MainMenuView
 
     private lateinit var mainMenuController: MainMenuController
@@ -45,14 +48,12 @@ class MainActivity : Activity() {
     private var pendingVoiceStart = false
 
     companion object {
-
         private const val AUDIO_PERMISSION_REQUEST = 1001
     }
 
     override fun onCreate(
         savedInstanceState: Bundle?
     ) {
-
         super.onCreate(savedInstanceState)
 
         /*
@@ -80,7 +81,7 @@ class MainActivity : Activity() {
         root = FrameLayout(this)
 
         /*
-         * Dashboard
+         * HOME / Dashboard
          */
 
         dashboard =
@@ -99,7 +100,7 @@ class MainActivity : Activity() {
         )
 
         /*
-         * Car Page
+         * CAR
          */
 
         carPageView =
@@ -114,6 +115,24 @@ class MainActivity : Activity() {
 
         root.addView(
             carPageView,
+            FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+            )
+        )
+
+        /*
+         * MUSIC
+         */
+
+        musicPageView =
+            MusicPageView(this)
+
+        musicPageView.visibility =
+            View.GONE
+
+        root.addView(
+            musicPageView,
             FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT
@@ -136,7 +155,7 @@ class MainActivity : Activity() {
         )
 
         /*
-         * Show root
+         * Show UI
          */
 
         setContentView(root)
@@ -185,7 +204,7 @@ class MainActivity : Activity() {
             }
 
         /*
-         * Menu Click
+         * Main Menu Click
          */
 
         mainMenuView.onPageSelected = { page ->
@@ -306,94 +325,96 @@ class MainActivity : Activity() {
     }
 
     /*
-     * Page Navigation
+     * PAGE NAVIGATION
      */
 
     private fun showPage(
         page: MainMenuPage
     ) {
 
-        when (page) {
+        /*
+         * Hide everything first
+         */
 
-            MainMenuPage.HOME -> {
+        dashboard.visibility =
+            View.GONE
 
-                dashboard.visibility =
-                    View.VISIBLE
+        carPageView.visibility =
+            View.GONE
 
-                carPageView.visibility =
-                    View.GONE
+        musicPageView.visibility =
+            View.GONE
 
-                mainMenuView.visibility =
-                    View.VISIBLE
-            }
+        /*
+         * HOME
+         */
 
-            MainMenuPage.CAR -> {
+        if (
+            page ==
+            MainMenuPage.HOME
+        ) {
 
-                dashboard.visibility =
-                    View.GONE
+            dashboard.visibility =
+                View.VISIBLE
 
-                carPageView.visibility =
-                    View.VISIBLE
+            mainMenuView.visibility =
+                View.VISIBLE
 
-                mainMenuView.visibility =
-                    View.GONE
-            }
+            mainMenuView.setPage(
+                MainMenuPage.HOME
+            )
 
-            /*
-             * فعلاً این صفحات
-             * در مرحله بعد ساخته می‌شوند.
-             *
-             * تا آن زمان HOME نمایش داده می‌شود.
-             */
-
-            MainMenuPage.MUSIC -> {
-
-                dashboard.visibility =
-                    View.VISIBLE
-
-                carPageView.visibility =
-                    View.GONE
-
-                mainMenuView.visibility =
-                    View.VISIBLE
-            }
-
-            MainMenuPage.NAVIGATION -> {
-
-                dashboard.visibility =
-                    View.VISIBLE
-
-                carPageView.visibility =
-                    View.GONE
-
-                mainMenuView.visibility =
-                    View.VISIBLE
-            }
-
-            MainMenuPage.CALL -> {
-
-                dashboard.visibility =
-                    View.VISIBLE
-
-                carPageView.visibility =
-                    View.GONE
-
-                mainMenuView.visibility =
-                    View.VISIBLE
-            }
-
-            MainMenuPage.SCAN -> {
-
-                dashboard.visibility =
-                    View.VISIBLE
-
-                carPageView.visibility =
-                    View.GONE
-
-                mainMenuView.visibility =
-                    View.VISIBLE
-            }
+            return
         }
+
+        /*
+         * CAR
+         */
+
+        if (
+            page ==
+            MainMenuPage.CAR
+        ) {
+
+            carPageView.visibility =
+                View.VISIBLE
+
+            mainMenuView.visibility =
+                View.GONE
+
+            return
+        }
+
+        /*
+         * MUSIC
+         */
+
+        if (
+            page ==
+            MainMenuPage.MUSIC
+        ) {
+
+            musicPageView.visibility =
+                View.VISIBLE
+
+            mainMenuView.visibility =
+                View.GONE
+
+            return
+        }
+
+        /*
+         * Other pages
+         *
+         * هنوز ساخته نشده‌اند.
+         * فعلاً HOME نمایش داده می‌شود.
+         */
+
+        dashboard.visibility =
+            View.VISIBLE
+
+        mainMenuView.visibility =
+            View.VISIBLE
 
         mainMenuView.setPage(
             page
@@ -401,7 +422,7 @@ class MainActivity : Activity() {
     }
 
     /*
-     * Microphone Permission
+     * MICROPHONE PERMISSION
      */
 
     private fun requestMicrophonePermission() {
@@ -431,7 +452,7 @@ class MainActivity : Activity() {
     }
 
     /*
-     * Permission Result
+     * PERMISSION RESULT
      */
 
     override fun onRequestPermissionsResult(
@@ -476,7 +497,7 @@ class MainActivity : Activity() {
     }
 
     /*
-     * Back Button
+     * BACK BUTTON
      */
 
     override fun onBackPressed() {
@@ -491,11 +512,21 @@ class MainActivity : Activity() {
             return
         }
 
+        if (
+            musicPageView.visibility ==
+            View.VISIBLE
+        ) {
+
+            mainMenuController.home()
+
+            return
+        }
+
         super.onBackPressed()
     }
 
     /*
-     * Destroy
+     * DESTROY
      */
 
     override fun onDestroy() {
