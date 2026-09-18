@@ -2,20 +2,36 @@ package peugeot.platform.android.core
 
 object AppManager {
 
-    private val apps = linkedSetOf<String>()
+    private val activeApps =
+        mutableSetOf<String>()
 
-    fun initialize() {
+    fun registerApp(
+        appId: String
+    ) {
+        if (appId.isBlank()) {
+            return
+        }
 
-        if (apps.isNotEmpty()) return
-
-        apps += "AI Assistant"
-        apps += "Dashboard"
-        apps += "Bluetooth"
-        apps += "Navigation"
-        apps += "Vehicle"
+        activeApps.add(appId)
     }
 
-    fun getApps(): List<String> {
-        return apps.toList()
+    fun unregisterApp(
+        appId: String
+    ) {
+        activeApps.remove(appId)
+    }
+
+    fun isRegistered(
+        appId: String
+    ): Boolean {
+        return activeApps.contains(appId)
+    }
+
+    fun getActiveApps(): List<String> {
+        return activeApps.toList()
+    }
+
+    fun clear() {
+        activeApps.clear()
     }
 }
