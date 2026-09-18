@@ -7,11 +7,15 @@ import android.os.Bundle
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
+import android.widget.FrameLayout
 import peugeot.platform.android.ai.AIEngine
 import peugeot.platform.android.ai.AIState
 import peugeot.platform.android.ai.SpeechManager
 import peugeot.platform.android.ai.VoiceManager
 import peugeot.platform.android.dashboard.DashboardView
+import peugeot.platform.android.ui.MainMenuController
+import peugeot.platform.android.ui.MainMenuPage
+import peugeot.platform.android.ui.MainMenuView
 import peugeot.platform.android.vehicle.VehicleData
 import peugeot.platform.android.vehicle.VehicleDataController
 
@@ -21,7 +25,10 @@ class MainActivity : Activity() {
     private lateinit var voiceManager: VoiceManager
     private lateinit var aiEngine: AIEngine
     private lateinit var speechManager: SpeechManager
+
     private lateinit var dashboard: DashboardView
+    private lateinit var mainMenuView: MainMenuView
+    private lateinit var mainMenuController: MainMenuController
     private lateinit var vehicleDataController: VehicleDataController
 
     private var pendingVoiceStart = false
@@ -30,10 +37,14 @@ class MainActivity : Activity() {
         private const val AUDIO_PERMISSION_REQUEST = 1001
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(
+        savedInstanceState: Bundle?
+    ) {
         super.onCreate(savedInstanceState)
 
-        requestWindowFeature(Window.FEATURE_NO_TITLE)
+        requestWindowFeature(
+            Window.FEATURE_NO_TITLE
+        )
 
         window.setFlags(
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -45,18 +56,54 @@ class MainActivity : Activity() {
             View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
             View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
 
+        /*
+         * Root container
+         */
+        val root = FrameLayout(this)
+
+        /*
+         * Dashboard
+         */
         dashboard = DashboardView(this)
 
-        setContentView(dashboard)
+        dashboard.setVehicleData(
+            VehicleData.demo()
+        )
 
-        displayBootManager = DisplayBootManager()
+        root.addView(
+            dashboard,
+            FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+            )
+        )
+
+        /*
+         * Main Menu
+         */
+        mainMenuView =
+            MainMenuView(this)
+
+        root.addView(
+            mainMenuView,
+            FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+            )
+        )
+
+        setContentView(root)
+
+        /*
+         * Display
+         */
+        displayBootManager =
+            DisplayBootManager()
+
         displayBootManager.onWindowReady()
 
         /*
          * Vehicle Data
-         *
-         * فعلاً Demo Mode فعال است.
-         * بعداً CAN واقعی این مسیر را تغذیه می‌کند.
          */
         vehicleDataController =
             VehicleDataController { data ->
@@ -72,66 +119,123 @@ class MainActivity : Activity() {
         vehicleDataController.useDemoMode()
 
         /*
-         * AI
+         * Menu Controller
          */
-        aiEngine = AIEngine(this)
-
-        speechManager = SpeechManager(
-            context = this,
-            onStateChanged = { state ->
+        mainMenuController =
+            MainMenuController { page ->
 
                 runOnUiThread {
 
-                    dashboard.setAIState(state)
-                }
-            }
-        )
-
-        voiceManager = VoiceManager(
-            context = this,
-
-            onResult = { text ->
-
-                runOnUiThread {
-
-                    dashboard.setAIState(
-                        AIState.THINKING
-                    )
-
-                    aiEngine.process(
-                        text = text,
-
-                        onResponse = { response ->
-
-                            runOnUiThread {
-
-                                speechManager.speak(
-                                    response
-                                )
-                            }
-                        },
-
-                        onError = {
-
-                            runOnUiThread {
-
-                                dashboard.setAIState(
-                                    AIState.ERROR
-                                )
-                            }
-                        }
+                    mainMenuView.setPage(
+                        page
                     )
                 }
-            },
+            }
 
-            onStateChanged = { state ->
+        mainMenuView.onPageSelected = { page ->
 
-                runOnUiThread {
+            when (page) {
 
-                    dashboard.setAIState(state)
+                MainMenuPage.HOME -> {
+                    mainMenuController.home()
+                }
+
+                MainMenuPage.CAR -> {
+                    mainMenuController.car()
+                }
+
+                MainMenuPage.MUSIC -> {
+                    mainMenuController.music()
+                }
+
+                MainMenuPage.NAVIGATION -> {
+                    mainMenuController.navigation()
+                }
+
+                MainMenuPage.CALL -> {
+                    mainMenuController.call()
+                }
+
+                MainMenuPage.SCAN -> {
+                    mainMenuController.scan()
                 }
             }
-        )
+        }
+
+        /*
+         * AI Engine
+         */
+        aiEngine =
+            AIEngine(this)
+
+        /*
+         * Persian Speech
+         */
+        speechManager =
+            SpeechManager(
+                context = this,
+                onStateChanged = { state ->
+
+                    runOnUiThread {
+
+                        dashboard.setAIState(
+                            state
+                        )
+                    }
+                }
+            )
+
+        /*
+         * Voice Manager
+         */
+        voiceManager =
+            VoiceManager(
+                context = this,
+
+                onResult = { text ->
+
+                    runOnUiThread {
+
+                        dashboard.setAIState(
+                            AIState.THINKING
+                        )
+
+                        aiEngine.process(
+                            text = text,
+
+                            onResponse = { response ->
+
+                                runOnUiThread {
+
+                                    speechManager.speak(
+                                        response
+                                    )
+                                }
+                            },
+
+                            onError = {
+
+                                runOnUiThread {
+
+                                    dashboard.setAIState(
+                                        AIState.ERROR
+                                    )
+                                }
+                            }
+                        )
+                    }
+                },
+
+                onStateChanged = { state ->
+
+                    runOnUiThread {
+
+                        dashboard.setAIState(
+                            state
+                        )
+                    }
+                }
+            )
 
         /*
          * AI Orb
@@ -141,7 +245,8 @@ class MainActivity : Activity() {
             if (
                 checkSelfPermission(
                     Manifest.permission.RECORD_AUDIO
-                ) == PackageManager.PERMISSION_GRANTED
+                ) ==
+                PackageManager.PERMISSION_GRANTED
             ) {
 
                 voiceManager.startListening()
@@ -167,7 +272,8 @@ class MainActivity : Activity() {
             if (
                 checkSelfPermission(
                     Manifest.permission.RECORD_AUDIO
-                ) != PackageManager.PERMISSION_GRANTED
+                ) !=
+                PackageManager.PERMISSION_GRANTED
             ) {
 
                 requestPermissions(
@@ -193,7 +299,8 @@ class MainActivity : Activity() {
         )
 
         if (
-            requestCode == AUDIO_PERMISSION_REQUEST &&
+            requestCode ==
+            AUDIO_PERMISSION_REQUEST &&
             grantResults.isNotEmpty() &&
             grantResults[0] ==
             PackageManager.PERMISSION_GRANTED
