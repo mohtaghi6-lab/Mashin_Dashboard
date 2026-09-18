@@ -46,7 +46,26 @@ class MainActivity : Activity() {
         )
 
         setContentView(dashboard)
+        
+dashboard.setOnTouchListener { _, event ->
 
+    if (event.action == android.view.MotionEvent.ACTION_UP) {
+
+        if (
+            checkSelfPermission(
+                Manifest.permission.RECORD_AUDIO
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            voiceManager.startListening()
+        } else {
+            requestMicrophonePermission()
+        }
+
+        true
+    } else {
+        true
+    }
+}
         displayBootManager = DisplayBootManager()
         displayBootManager.onWindowReady()
 
