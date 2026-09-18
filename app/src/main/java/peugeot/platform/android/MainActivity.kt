@@ -13,6 +13,7 @@ import peugeot.platform.android.ai.SpeechManager
 import peugeot.platform.android.ai.VoiceManager
 import peugeot.platform.android.dashboard.DashboardView
 import peugeot.platform.android.vehicle.VehicleData
+import peugeot.platform.android.vehicle.VehicleDataController
 
 class MainActivity : Activity() {
 
@@ -21,6 +22,7 @@ class MainActivity : Activity() {
     private lateinit var aiEngine: AIEngine
     private lateinit var speechManager: SpeechManager
     private lateinit var dashboard: DashboardView
+    private lateinit var vehicleDataController: VehicleDataController
 
     private var pendingVoiceStart = false
 
@@ -45,15 +47,33 @@ class MainActivity : Activity() {
 
         dashboard = DashboardView(this)
 
-        dashboard.setVehicleData(
-            VehicleData.demo()
-        )
-
         setContentView(dashboard)
 
         displayBootManager = DisplayBootManager()
         displayBootManager.onWindowReady()
 
+        /*
+         * Vehicle Data
+         *
+         * فعلاً Demo Mode فعال است.
+         * بعداً CAN واقعی این مسیر را تغذیه می‌کند.
+         */
+        vehicleDataController =
+            VehicleDataController { data ->
+
+                runOnUiThread {
+
+                    dashboard.setVehicleData(
+                        data
+                    )
+                }
+            }
+
+        vehicleDataController.useDemoMode()
+
+        /*
+         * AI
+         */
         aiEngine = AIEngine(this)
 
         speechManager = SpeechManager(
@@ -113,6 +133,9 @@ class MainActivity : Activity() {
             }
         )
 
+        /*
+         * AI Orb
+         */
         dashboard.onAIOrbClick = {
 
             if (
