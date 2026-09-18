@@ -2,13 +2,13 @@ package peugeot.platform.android
 
 import peugeot.platform.android.core.VehicleKernel
 
-class DisplayBootManager {
+object DisplayBootManager {
 
-    fun onWindowReady() {
+    fun boot() {
         VehicleKernel.boot()
     }
 
-    fun destroy() {
-        VehicleKernel.shutdown()
+    fun isSystemReady(): Boolean {
+        return VehicleKernel.isReady()
     }
 }
