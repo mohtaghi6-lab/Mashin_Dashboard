@@ -1,4 +1,4 @@
-```kotlin
+
 package peugeot.platform.android
 
 import android.Manifest
@@ -54,7 +54,6 @@ class MainActivity : Activity() {
         private const val AUDIO_PERMISSION_REQUEST = 1001
     }
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -70,16 +69,10 @@ class MainActivity : Activity() {
             View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
             View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
 
-
-        // =========================
-        // ROOT
-        // =========================
-
         root = FrameLayout(this)
 
-
         // =========================
-        // DASHBOARD / HOME
+        // HOME / DASHBOARD
         // =========================
 
         dashboard = DashboardView(this)
@@ -95,7 +88,6 @@ class MainActivity : Activity() {
                 FrameLayout.LayoutParams.MATCH_PARENT
             )
         )
-
 
         // =========================
         // CAR PAGE
@@ -117,7 +109,6 @@ class MainActivity : Activity() {
             )
         )
 
-
         // =========================
         // MUSIC PAGE
         // =========================
@@ -133,7 +124,6 @@ class MainActivity : Activity() {
                 FrameLayout.LayoutParams.MATCH_PARENT
             )
         )
-
 
         // =========================
         // NAVIGATION PAGE
@@ -151,7 +141,6 @@ class MainActivity : Activity() {
             )
         )
 
-
         // =========================
         // MAIN MENU
         // =========================
@@ -166,18 +155,14 @@ class MainActivity : Activity() {
             )
         )
 
-
         setContentView(root)
-
 
         // =========================
         // DISPLAY BOOT
         // =========================
 
         displayBootManager = DisplayBootManager()
-
         displayBootManager.onWindowReady()
-
 
         // =========================
         // VEHICLE DATA
@@ -195,7 +180,6 @@ class MainActivity : Activity() {
 
         vehicleDataController.useDemoMode()
 
-
         // =========================
         // MAIN MENU CONTROLLER
         // =========================
@@ -208,12 +192,10 @@ class MainActivity : Activity() {
             }
         }
 
-
         mainMenuView.onPageSelected = { page ->
 
             mainMenuController.open(page)
         }
-
 
         // =========================
         // AI ENGINE
@@ -221,14 +203,12 @@ class MainActivity : Activity() {
 
         aiEngine = AIEngine(this)
 
-
         // =========================
         // SPEECH MANAGER
         // =========================
 
         speechManager = SpeechManager(
             context = this,
-
             onStateChanged = { state ->
 
                 runOnUiThread {
@@ -237,7 +217,6 @@ class MainActivity : Activity() {
                 }
             }
         )
-
 
         // =========================
         // VOICE MANAGER
@@ -254,7 +233,6 @@ class MainActivity : Activity() {
                     dashboard.setAIState(
                         AIState.THINKING
                     )
-
 
                     aiEngine.process(
 
@@ -292,7 +270,6 @@ class MainActivity : Activity() {
             }
         )
 
-
         // =========================
         // AI ORB
         // =========================
@@ -316,7 +293,6 @@ class MainActivity : Activity() {
             }
         }
 
-
         // =========================
         // MICROPHONE
         // =========================
@@ -324,23 +300,16 @@ class MainActivity : Activity() {
         requestMicrophonePermission()
     }
 
-
     // =========================================================
     // PAGE NAVIGATION
     // =========================================================
 
     private fun showPage(page: MainMenuPage) {
 
-        // Hide everything first
-
         dashboard.visibility = View.GONE
-
         carPageView.visibility = View.GONE
-
         musicPageView.visibility = View.GONE
-
         navigationPageView.visibility = View.GONE
-
 
         // =========================
         // HOME
@@ -359,7 +328,6 @@ class MainActivity : Activity() {
             return
         }
 
-
         // =========================
         // CAR
         // =========================
@@ -373,7 +341,6 @@ class MainActivity : Activity() {
             return
         }
 
-
         // =========================
         // MUSIC
         // =========================
@@ -386,7 +353,6 @@ class MainActivity : Activity() {
 
             return
         }
-
 
         // =========================
         // NAVIGATION
@@ -403,7 +369,6 @@ class MainActivity : Activity() {
             return
         }
 
-
         // =========================
         // OTHER PAGES
         // =========================
@@ -414,7 +379,6 @@ class MainActivity : Activity() {
 
         mainMenuView.setPage(page)
     }
-
 
     // =========================================================
     // MICROPHONE PERMISSION
@@ -435,30 +399,23 @@ class MainActivity : Activity() {
             ) {
 
                 requestPermissions(
-
                     arrayOf(
                         Manifest.permission.RECORD_AUDIO
                     ),
-
                     AUDIO_PERMISSION_REQUEST
                 )
             }
         }
     }
 
-
     // =========================================================
     // PERMISSION RESULT
     // =========================================================
 
     override fun onRequestPermissionsResult(
-
         requestCode: Int,
-
         permissions: Array<out String>,
-
         grantResults: IntArray
-
     ) {
 
         super.onRequestPermissionsResult(
@@ -467,13 +424,10 @@ class MainActivity : Activity() {
             grantResults
         )
 
-
         if (
             requestCode ==
             AUDIO_PERMISSION_REQUEST &&
-
             grantResults.isNotEmpty() &&
-
             grantResults[0] ==
             PackageManager.PERMISSION_GRANTED
         ) {
@@ -486,7 +440,6 @@ class MainActivity : Activity() {
             }
         }
     }
-
 
     // =========================================================
     // BACK BUTTON
@@ -504,7 +457,6 @@ class MainActivity : Activity() {
             return
         }
 
-
         if (
             musicPageView.visibility ==
             View.VISIBLE
@@ -514,7 +466,6 @@ class MainActivity : Activity() {
 
             return
         }
-
 
         if (
             navigationPageView.visibility ==
@@ -526,10 +477,8 @@ class MainActivity : Activity() {
             return
         }
 
-
         super.onBackPressed()
     }
-
 
     // =========================================================
     // DESTROY
@@ -544,7 +493,6 @@ class MainActivity : Activity() {
             voiceManager.destroy()
         }
 
-
         if (
             ::speechManager.isInitialized
         ) {
@@ -552,14 +500,12 @@ class MainActivity : Activity() {
             speechManager.destroy()
         }
 
-
         if (
             ::displayBootManager.isInitialized
         ) {
 
             displayBootManager.destroy()
         }
-
 
         super.onDestroy()
     }
