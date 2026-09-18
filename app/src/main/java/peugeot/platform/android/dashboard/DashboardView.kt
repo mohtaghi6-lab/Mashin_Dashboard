@@ -11,6 +11,11 @@ import java.util.Locale
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
+import peugeot.platform.android.ai.AIState
+import peugeot.platform.android.ai.VoiceManager
 
 class DashboardView(context: Context) : View(context) {
 
