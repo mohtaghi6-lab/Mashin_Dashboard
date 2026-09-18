@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.*
 import android.view.MotionEvent
 import android.view.View
+import peugeot.platform.android.ai.AIState
 import peugeot.platform.android.vehicle.VehicleData
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -15,10 +16,15 @@ import kotlin.math.sin
 class DashboardView(context: Context) : View(context) {
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+
     private var data = VehicleData.demo()
 
     private var pulse = 0f
     private var selectedCard = -1
+
+    private var aiState = AIState.IDLE
+
+    var onAIOrbClick: (() -> Unit)? = null
 
     private val blue = Color.rgb(70, 190, 255)
     private val lightBlue = Color.rgb(130, 220, 255)
@@ -32,6 +38,11 @@ class DashboardView(context: Context) : View(context) {
 
     fun setVehicleData(value: VehicleData) {
         data = value
+        invalidate()
+    }
+
+    fun setAIState(value: AIState) {
+        aiState = value
         invalidate()
     }
 
@@ -67,12 +78,17 @@ class DashboardView(context: Context) : View(context) {
             "x1000 RPM"
         )
 
-        drawCenterAI(canvas, w * 0.5f, gaugeY)
+        drawCenterAI(
+            canvas,
+            w * 0.5f,
+            gaugeY
+        )
 
         drawQuickCards(canvas, w, h)
         drawBottomBar(canvas, w, h)
 
         pulse += 0.035f
+
         if (pulse > Math.PI * 2) {
             pulse = 0f
         }
@@ -88,6 +104,7 @@ class DashboardView(context: Context) : View(context) {
         canvas.drawColor(dark)
 
         val glow = Paint(Paint.ANTI_ALIAS_FLAG)
+
         glow.shader = RadialGradient(
             w * 0.5f,
             h * 0.48f,
@@ -97,11 +114,21 @@ class DashboardView(context: Context) : View(context) {
                 Color.rgb(4, 15, 25),
                 dark
             ),
-            floatArrayOf(0f, 0.48f, 1f),
+            floatArrayOf(
+                0f,
+                0.48f,
+                1f
+            ),
             Shader.TileMode.CLAMP
         )
 
-        canvas.drawRect(0f, 0f, w, h, glow)
+        canvas.drawRect(
+            0f,
+            0f,
+            w,
+            h,
+            glow
+        )
 
         paint.style = Paint.Style.STROKE
         paint.strokeWidth = 1f
@@ -189,7 +216,10 @@ class DashboardView(context: Context) : View(context) {
                 Color.rgb(150, 165, 175)
 
         canvas.drawText(
-            if (data.canConnected) "● CAN ONLINE" else "● DEMO MODE",
+            if (data.canConnected)
+                "● CAN ONLINE"
+            else
+                "● DEMO MODE",
             w - 38f,
             48f,
             paint
@@ -208,7 +238,6 @@ class DashboardView(context: Context) : View(context) {
         paint.style = Paint.Style.STROKE
         paint.strokeCap = Paint.Cap.ROUND
 
-        // Outer ring
         paint.strokeWidth = radius * 0.035f
         paint.color = Color.rgb(20, 42, 57)
 
@@ -223,7 +252,6 @@ class DashboardView(context: Context) : View(context) {
             paint
         )
 
-        // Active arc
         paint.color = blue
 
         canvas.drawArc(
@@ -232,12 +260,13 @@ class DashboardView(context: Context) : View(context) {
             cx + radius,
             cy + radius,
             135f,
-            270f * (value.coerceIn(0f, max) / max),
+            270f * (
+                value.coerceIn(0f, max) / max
+            ),
             false,
             paint
         )
 
-        // Inner ring
         paint.strokeWidth = 1.5f
         paint.color = Color.rgb(30, 60, 78)
 
@@ -248,7 +277,6 @@ class DashboardView(context: Context) : View(context) {
             paint
         )
 
-        // Tick marks
         for (i in 0..24) {
 
             val angle = Math.toRadians(
@@ -256,6 +284,7 @@ class DashboardView(context: Context) : View(context) {
             )
 
             val outer = radius * 0.93f
+
             val inner =
                 if (i % 3 == 0)
                     radius * 0.84f
@@ -283,11 +312,12 @@ class DashboardView(context: Context) : View(context) {
             )
         }
 
-        // Needle
         val needleAngle = Math.toRadians(
             135.0 +
                 270.0 *
-                (value.coerceIn(0f, max) / max)
+                (
+                    value.coerceIn(0f, max) / max
+                )
         )
 
         paint.strokeWidth = 3.5f
@@ -296,12 +326,13 @@ class DashboardView(context: Context) : View(context) {
         canvas.drawLine(
             cx,
             cy,
-            cx + cos(needleAngle).toFloat() * radius * 0.70f,
-            cy + sin(needleAngle).toFloat() * radius * 0.70f,
+            cx + cos(needleAngle).toFloat() *
+                radius * 0.70f,
+            cy + sin(needleAngle).toFloat() *
+                radius * 0.70f,
             paint
         )
 
-        // Center hub
         paint.style = Paint.Style.FILL
         paint.color = blue
 
@@ -312,7 +343,6 @@ class DashboardView(context: Context) : View(context) {
             paint
         )
 
-        // Number
         paint.textAlign = Paint.Align.CENTER
         paint.typeface = Typeface.DEFAULT_BOLD
         paint.color = Color.WHITE
@@ -322,13 +352,16 @@ class DashboardView(context: Context) : View(context) {
             if (max > 10)
                 value.toInt().toString()
             else
-                String.format(Locale.US, "%.1f", value),
+                String.format(
+                    Locale.US,
+                    "%.1f",
+                    value
+                ),
             cx,
             cy + radius * 0.10f,
             paint
         )
 
-        // Unit
         paint.textSize = radius * 0.075f
         paint.color = lightBlue
 
@@ -346,16 +379,38 @@ class DashboardView(context: Context) : View(context) {
         cy: Float
     ) {
         val wave =
-            ((sin(pulse.toDouble()) + 1.0) / 2.0).toFloat()
+            (
+                (sin(pulse.toDouble()) + 1.0) / 2.0
+            ).toFloat()
 
-        // Outer glow
+        val orbColor = when (aiState) {
+
+            AIState.IDLE ->
+                blue
+
+            AIState.LISTENING ->
+                Color.rgb(70, 220, 255)
+
+            AIState.THINKING ->
+                Color.rgb(100, 170, 255)
+
+            AIState.SPEAKING ->
+                Color.rgb(80, 220, 190)
+
+            AIState.ERROR ->
+                Color.rgb(230, 80, 80)
+        }
+
         paint.style = Paint.Style.STROKE
-        paint.strokeWidth = 2f + wave * 2f
+
+        paint.strokeWidth =
+            2f + wave * 2f
+
         paint.color = Color.argb(
             (80 + wave * 100).toInt(),
-            70,
-            190,
-            255
+            Color.red(orbColor),
+            Color.green(orbColor),
+            Color.blue(orbColor)
         )
 
         canvas.drawCircle(
@@ -365,9 +420,8 @@ class DashboardView(context: Context) : View(context) {
             paint
         )
 
-        // Main ring
         paint.strokeWidth = 4f
-        paint.color = blue
+        paint.color = orbColor
 
         canvas.drawCircle(
             cx,
@@ -376,7 +430,6 @@ class DashboardView(context: Context) : View(context) {
             paint
         )
 
-        // Inner disc
         paint.style = Paint.Style.FILL
 
         val shader = RadialGradient(
@@ -415,11 +468,29 @@ class DashboardView(context: Context) : View(context) {
             paint
         )
 
+        val statusText = when (aiState) {
+
+            AIState.IDLE ->
+                "آماده‌ام"
+
+            AIState.LISTENING ->
+                "گوش می‌کنم"
+
+            AIState.THINKING ->
+                "در حال پردازش"
+
+            AIState.SPEAKING ->
+                "در حال پاسخ"
+
+            AIState.ERROR ->
+                "خطا"
+        }
+
         paint.textSize = 11f
         paint.color = lightBlue
 
         canvas.drawText(
-            "آماده‌ام",
+            statusText,
             cx,
             cy + 27f,
             paint
@@ -459,6 +530,7 @@ class DashboardView(context: Context) : View(context) {
 
         val gap = 14f
         val totalWidth = w - 70f
+
         val cardWidth =
             (totalWidth - gap * 4f) / 5f
 
@@ -578,15 +650,34 @@ class DashboardView(context: Context) : View(context) {
         )
     }
 
-    override fun onTouchEvent(event: MotionEvent): Boolean {
+    override fun onTouchEvent(
+        event: MotionEvent
+    ): Boolean {
 
         if (event.action == MotionEvent.ACTION_UP) {
 
             val w = width.toFloat()
             val h = height.toFloat()
 
+            // AI Orb touch area
+            val aiX = w * 0.5f
+            val aiY = h * 0.48f
+
+            val dx = event.x - aiX
+            val dy = event.y - aiY
+
+            if (
+                dx * dx + dy * dy <=
+                85f * 85f
+            ) {
+                onAIOrbClick?.invoke()
+                return true
+            }
+
+            // Quick cards
             val gap = 14f
             val totalWidth = w - 70f
+
             val cardWidth =
                 (totalWidth - gap * 4f) / 5f
 
