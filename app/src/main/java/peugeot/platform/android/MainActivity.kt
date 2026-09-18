@@ -1,3 +1,4 @@
+```kotlin
 package peugeot.platform.android
 
 import android.Manifest
@@ -8,37 +9,39 @@ import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.widget.FrameLayout
+
 import peugeot.platform.android.ai.AIEngine
 import peugeot.platform.android.ai.AIState
 import peugeot.platform.android.ai.SpeechManager
 import peugeot.platform.android.ai.VoiceManager
+
 import peugeot.platform.android.dashboard.DashboardView
+
 import peugeot.platform.android.ui.CarPageView
 import peugeot.platform.android.ui.MainMenuController
 import peugeot.platform.android.ui.MainMenuPage
 import peugeot.platform.android.ui.MainMenuView
 import peugeot.platform.android.ui.MusicPageView
+import peugeot.platform.android.ui.NavigationPageView
+
 import peugeot.platform.android.vehicle.VehicleData
 import peugeot.platform.android.vehicle.VehicleDataController
+
 
 class MainActivity : Activity() {
 
     private lateinit var displayBootManager: DisplayBootManager
 
     private lateinit var voiceManager: VoiceManager
-
     private lateinit var aiEngine: AIEngine
-
     private lateinit var speechManager: SpeechManager
 
     private lateinit var dashboard: DashboardView
-
     private lateinit var carPageView: CarPageView
-
     private lateinit var musicPageView: MusicPageView
+    private lateinit var navigationPageView: NavigationPageView
 
     private lateinit var mainMenuView: MainMenuView
-
     private lateinit var mainMenuController: MainMenuController
 
     private lateinit var vehicleDataController: VehicleDataController
@@ -51,18 +54,11 @@ class MainActivity : Activity() {
         private const val AUDIO_PERMISSION_REQUEST = 1001
     }
 
-    override fun onCreate(
-        savedInstanceState: Bundle?
-    ) {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        /*
-         * Fullscreen
-         */
-
-        requestWindowFeature(
-            Window.FEATURE_NO_TITLE
-        )
+        requestWindowFeature(Window.FEATURE_NO_TITLE)
 
         window.setFlags(
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -74,18 +70,19 @@ class MainActivity : Activity() {
             View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
             View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
 
-        /*
-         * Root
-         */
+
+        // =========================
+        // ROOT
+        // =========================
 
         root = FrameLayout(this)
 
-        /*
-         * HOME / Dashboard
-         */
 
-        dashboard =
-            DashboardView(this)
+        // =========================
+        // DASHBOARD / HOME
+        // =========================
+
+        dashboard = DashboardView(this)
 
         dashboard.setVehicleData(
             VehicleData.demo()
@@ -99,19 +96,18 @@ class MainActivity : Activity() {
             )
         )
 
-        /*
-         * CAR
-         */
 
-        carPageView =
-            CarPageView(this)
+        // =========================
+        // CAR PAGE
+        // =========================
+
+        carPageView = CarPageView(this)
 
         carPageView.setVehicleData(
             VehicleData.demo()
         )
 
-        carPageView.visibility =
-            View.GONE
+        carPageView.visibility = View.GONE
 
         root.addView(
             carPageView,
@@ -121,15 +117,14 @@ class MainActivity : Activity() {
             )
         )
 
-        /*
-         * MUSIC
-         */
 
-        musicPageView =
-            MusicPageView(this)
+        // =========================
+        // MUSIC PAGE
+        // =========================
 
-        musicPageView.visibility =
-            View.GONE
+        musicPageView = MusicPageView(this)
+
+        musicPageView.visibility = View.GONE
 
         root.addView(
             musicPageView,
@@ -139,12 +134,29 @@ class MainActivity : Activity() {
             )
         )
 
-        /*
-         * Main Menu
-         */
 
-        mainMenuView =
-            MainMenuView(this)
+        // =========================
+        // NAVIGATION PAGE
+        // =========================
+
+        navigationPageView = NavigationPageView(this)
+
+        navigationPageView.visibility = View.GONE
+
+        root.addView(
+            navigationPageView,
+            FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+            )
+        )
+
+
+        // =========================
+        // MAIN MENU
+        // =========================
+
+        mainMenuView = MainMenuView(this)
 
         root.addView(
             mainMenuView,
@@ -154,149 +166,136 @@ class MainActivity : Activity() {
             )
         )
 
-        /*
-         * Show UI
-         */
 
         setContentView(root)
 
-        /*
-         * Display
-         */
 
-        displayBootManager =
-            DisplayBootManager()
+        // =========================
+        // DISPLAY BOOT
+        // =========================
+
+        displayBootManager = DisplayBootManager()
 
         displayBootManager.onWindowReady()
 
-        /*
-         * Vehicle Data
-         */
 
-        vehicleDataController =
-            VehicleDataController { data ->
+        // =========================
+        // VEHICLE DATA
+        // =========================
 
-                runOnUiThread {
+        vehicleDataController = VehicleDataController { data ->
 
-                    dashboard.setVehicleData(
-                        data
-                    )
+            runOnUiThread {
 
-                    carPageView.setVehicleData(
-                        data
-                    )
-                }
+                dashboard.setVehicleData(data)
+
+                carPageView.setVehicleData(data)
             }
+        }
 
         vehicleDataController.useDemoMode()
 
-        /*
-         * Main Menu Controller
-         */
 
-        mainMenuController =
-            MainMenuController { page ->
+        // =========================
+        // MAIN MENU CONTROLLER
+        // =========================
 
-                runOnUiThread {
+        mainMenuController = MainMenuController { page ->
 
-                    showPage(page)
-                }
+            runOnUiThread {
+
+                showPage(page)
             }
+        }
 
-        /*
-         * Main Menu Click
-         */
 
         mainMenuView.onPageSelected = { page ->
 
-            mainMenuController.open(
-                page
-            )
+            mainMenuController.open(page)
         }
 
-        /*
-         * AI Engine
-         */
 
-        aiEngine =
-            AIEngine(this)
+        // =========================
+        // AI ENGINE
+        // =========================
 
-        /*
-         * Persian Speech
-         */
+        aiEngine = AIEngine(this)
 
-        speechManager =
-            SpeechManager(
-                context = this,
 
-                onStateChanged = { state ->
+        // =========================
+        // SPEECH MANAGER
+        // =========================
 
-                    runOnUiThread {
+        speechManager = SpeechManager(
+            context = this,
 
-                        dashboard.setAIState(
-                            state
-                        )
-                    }
+            onStateChanged = { state ->
+
+                runOnUiThread {
+
+                    dashboard.setAIState(state)
                 }
-            )
+            }
+        )
 
-        /*
-         * Voice Manager
-         */
 
-        voiceManager =
-            VoiceManager(
-                context = this,
+        // =========================
+        // VOICE MANAGER
+        // =========================
 
-                onResult = { text ->
+        voiceManager = VoiceManager(
 
-                    runOnUiThread {
+            context = this,
 
-                        dashboard.setAIState(
-                            AIState.THINKING
-                        )
+            onResult = { text ->
 
-                        aiEngine.process(
+                runOnUiThread {
 
-                            text = text,
+                    dashboard.setAIState(
+                        AIState.THINKING
+                    )
 
-                            onResponse = { response ->
 
-                                runOnUiThread {
+                    aiEngine.process(
 
-                                    speechManager.speak(
-                                        response
-                                    )
-                                }
-                            },
+                        text = text,
 
-                            onError = {
+                        onResponse = { response ->
 
-                                runOnUiThread {
+                            runOnUiThread {
 
-                                    dashboard.setAIState(
-                                        AIState.ERROR
-                                    )
-                                }
+                                speechManager.speak(
+                                    response
+                                )
                             }
-                        )
-                    }
-                },
+                        },
 
-                onStateChanged = { state ->
+                        onError = {
 
-                    runOnUiThread {
+                            runOnUiThread {
 
-                        dashboard.setAIState(
-                            state
-                        )
-                    }
+                                dashboard.setAIState(
+                                    AIState.ERROR
+                                )
+                            }
+                        }
+                    )
                 }
-            )
+            },
 
-        /*
-         * AI Orb
-         */
+            onStateChanged = { state ->
+
+                runOnUiThread {
+
+                    dashboard.setAIState(state)
+                }
+            }
+        )
+
+
+        // =========================
+        // AI ORB
+        // =========================
 
         dashboard.onAIOrbClick = {
 
@@ -317,48 +316,41 @@ class MainActivity : Activity() {
             }
         }
 
-        /*
-         * Microphone Permission
-         */
+
+        // =========================
+        // MICROPHONE
+        // =========================
 
         requestMicrophonePermission()
     }
 
-    /*
-     * PAGE NAVIGATION
-     */
 
-    private fun showPage(
-        page: MainMenuPage
-    ) {
+    // =========================================================
+    // PAGE NAVIGATION
+    // =========================================================
 
-        /*
-         * Hide everything first
-         */
+    private fun showPage(page: MainMenuPage) {
 
-        dashboard.visibility =
-            View.GONE
+        // Hide everything first
 
-        carPageView.visibility =
-            View.GONE
+        dashboard.visibility = View.GONE
 
-        musicPageView.visibility =
-            View.GONE
+        carPageView.visibility = View.GONE
 
-        /*
-         * HOME
-         */
+        musicPageView.visibility = View.GONE
 
-        if (
-            page ==
-            MainMenuPage.HOME
-        ) {
+        navigationPageView.visibility = View.GONE
 
-            dashboard.visibility =
-                View.VISIBLE
 
-            mainMenuView.visibility =
-                View.VISIBLE
+        // =========================
+        // HOME
+        // =========================
+
+        if (page == MainMenuPage.HOME) {
+
+            dashboard.visibility = View.VISIBLE
+
+            mainMenuView.visibility = View.VISIBLE
 
             mainMenuView.setPage(
                 MainMenuPage.HOME
@@ -367,63 +359,66 @@ class MainActivity : Activity() {
             return
         }
 
-        /*
-         * CAR
-         */
 
-        if (
-            page ==
-            MainMenuPage.CAR
-        ) {
+        // =========================
+        // CAR
+        // =========================
 
-            carPageView.visibility =
-                View.VISIBLE
+        if (page == MainMenuPage.CAR) {
 
-            mainMenuView.visibility =
-                View.GONE
+            carPageView.visibility = View.VISIBLE
+
+            mainMenuView.visibility = View.GONE
 
             return
         }
 
-        /*
-         * MUSIC
-         */
 
-        if (
-            page ==
-            MainMenuPage.MUSIC
-        ) {
+        // =========================
+        // MUSIC
+        // =========================
 
-            musicPageView.visibility =
-                View.VISIBLE
+        if (page == MainMenuPage.MUSIC) {
 
-            mainMenuView.visibility =
-                View.GONE
+            musicPageView.visibility = View.VISIBLE
+
+            mainMenuView.visibility = View.GONE
 
             return
         }
 
-        /*
-         * Other pages
-         *
-         * هنوز ساخته نشده‌اند.
-         * فعلاً HOME نمایش داده می‌شود.
-         */
 
-        dashboard.visibility =
-            View.VISIBLE
+        // =========================
+        // NAVIGATION
+        // =========================
 
-        mainMenuView.visibility =
-            View.VISIBLE
+        if (page == MainMenuPage.NAVIGATION) {
 
-        mainMenuView.setPage(
-            page
-        )
+            navigationPageView.visibility = View.VISIBLE
+
+            navigationPageView.refresh()
+
+            mainMenuView.visibility = View.GONE
+
+            return
+        }
+
+
+        // =========================
+        // OTHER PAGES
+        // =========================
+
+        dashboard.visibility = View.VISIBLE
+
+        mainMenuView.visibility = View.VISIBLE
+
+        mainMenuView.setPage(page)
     }
 
-    /*
-     * MICROPHONE PERMISSION
-     */
+
+    // =========================================================
+    // MICROPHONE PERMISSION
+    // =========================================================
 
     private fun requestMicrophonePermission() {
 
@@ -451,9 +446,10 @@ class MainActivity : Activity() {
         }
     }
 
-    /*
-     * PERMISSION RESULT
-     */
+
+    // =========================================================
+    // PERMISSION RESULT
+    // =========================================================
 
     override fun onRequestPermissionsResult(
 
@@ -466,16 +462,13 @@ class MainActivity : Activity() {
     ) {
 
         super.onRequestPermissionsResult(
-
             requestCode,
-
             permissions,
-
             grantResults
         )
 
-        if (
 
+        if (
             requestCode ==
             AUDIO_PERMISSION_REQUEST &&
 
@@ -483,22 +476,21 @@ class MainActivity : Activity() {
 
             grantResults[0] ==
             PackageManager.PERMISSION_GRANTED
-
         ) {
 
             if (pendingVoiceStart) {
 
-                pendingVoiceStart =
-                    false
+                pendingVoiceStart = false
 
                 voiceManager.startListening()
             }
         }
     }
 
-    /*
-     * BACK BUTTON
-     */
+
+    // =========================================================
+    // BACK BUTTON
+    // =========================================================
 
     override fun onBackPressed() {
 
@@ -512,6 +504,7 @@ class MainActivity : Activity() {
             return
         }
 
+
         if (
             musicPageView.visibility ==
             View.VISIBLE
@@ -522,12 +515,25 @@ class MainActivity : Activity() {
             return
         }
 
+
+        if (
+            navigationPageView.visibility ==
+            View.VISIBLE
+        ) {
+
+            mainMenuController.home()
+
+            return
+        }
+
+
         super.onBackPressed()
     }
 
-    /*
-     * DESTROY
-     */
+
+    // =========================================================
+    // DESTROY
+    // =========================================================
 
     override fun onDestroy() {
 
@@ -538,12 +544,14 @@ class MainActivity : Activity() {
             voiceManager.destroy()
         }
 
+
         if (
             ::speechManager.isInitialized
         ) {
 
             speechManager.destroy()
         }
+
 
         if (
             ::displayBootManager.isInitialized
@@ -552,6 +560,8 @@ class MainActivity : Activity() {
             displayBootManager.destroy()
         }
 
+
         super.onDestroy()
     }
 }
+```
