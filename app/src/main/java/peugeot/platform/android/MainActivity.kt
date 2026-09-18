@@ -20,6 +20,8 @@ class MainActivity : Activity() {
 
     private lateinit var dashboard: DashboardView
 
+    private var pendingVoiceStart = false
+
     companion object {
         private const val AUDIO_PERMISSION_REQUEST = 1001
     }
@@ -46,26 +48,7 @@ class MainActivity : Activity() {
         )
 
         setContentView(dashboard)
-        
-dashboard.setOnTouchListener { _, event ->
 
-    if (event.action == android.view.MotionEvent.ACTION_UP) {
-
-        if (
-            checkSelfPermission(
-                Manifest.permission.RECORD_AUDIO
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            voiceManager.startListening()
-        } else {
-            requestMicrophonePermission()
-        }
-
-        true
-    } else {
-        true
-    }
-}
         displayBootManager = DisplayBootManager()
         displayBootManager.onWindowReady()
 
@@ -74,8 +57,10 @@ dashboard.setOnTouchListener { _, event ->
 
             onResult = { text ->
                 runOnUiThread {
-                    // متن تشخیص داده‌شده فارسی
+
+                    // متن فارسی تشخیص داده‌شده
                     // در مرحله بعد به موتور AI ارسال می‌شود.
+
                 }
             },
 
@@ -85,6 +70,23 @@ dashboard.setOnTouchListener { _, event ->
                 }
             }
         )
+
+        dashboard.onAIOrbClick = {
+
+            if (
+                checkSelfPermission(
+                    Manifest.permission.RECORD_AUDIO
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+
+                voiceManager.startListening()
+
+            } else {
+
+                pendingVoiceStart = true
+                requestMicrophonePermission()
+            }
+        }
 
         requestMicrophonePermission()
     }
@@ -113,29 +115,8 @@ dashboard.setOnTouchListener { _, event ->
     }
 
     private fun updateAIState(state: AIState) {
-        // اتصال AI Orb در مرحله بعد
-        when (state) {
 
-            AIState.IDLE -> {
-                // آماده
-            }
-
-            AIState.LISTENING -> {
-                // در حال گوش دادن
-            }
-
-            AIState.THINKING -> {
-                // پردازش
-            }
-
-            AIState.SPEAKING -> {
-                // پاسخ صوتی
-            }
-
-            AIState.ERROR -> {
-                // خطای صوتی
-            }
-        }
+        dashboard.setAIState(state)
     }
 
     override fun onRequestPermissionsResult(
@@ -154,7 +135,13 @@ dashboard.setOnTouchListener { _, event ->
             grantResults.isNotEmpty() &&
             grantResults[0] == PackageManager.PERMISSION_GRANTED
         ) {
-            // میکروفون آماده است.
+
+            if (pendingVoiceStart) {
+
+                pendingVoiceStart = false
+
+                voiceManager.startListening()
+            }
         }
     }
 
