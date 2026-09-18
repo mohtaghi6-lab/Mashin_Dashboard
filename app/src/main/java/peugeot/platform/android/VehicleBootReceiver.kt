@@ -1,24 +1,29 @@
-package peugeot.platform.android.vehicle
+package peugeot.platform.android
 
-data class VehicleData(
-    val speedKmh: Int = 0,
-    val rpm: Int = 0,
-    val engineTempC: Int = 90,
-    val batteryVoltage: Float = 12.6f,
-    val fuelPercent: Int = 72,
-    val odometerKm: Int = 128540,
-    val canConnected: Boolean = false,
-    val obdConnected: Boolean = false,
-    val ecuErrorCount: Int = 0
-) {
-    companion object {
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
 
-        fun demo() = VehicleData(
-            speedKmh = 86,
-            rpm = 2350,
-            engineTempC = 91,
-            batteryVoltage = 13.9f,
-            fuelPercent = 68
+class VehicleBootReceiver : BroadcastReceiver() {
+
+    override fun onReceive(
+        context: Context,
+        intent: Intent
+    ) {
+        if (intent.action != Intent.ACTION_BOOT_COMPLETED) {
+            return
+        }
+
+        val launchIntent =
+            context.packageManager
+                .getLaunchIntentForPackage(context.packageName)
+                ?: return
+
+        launchIntent.addFlags(
+            Intent.FLAG_ACTIVITY_NEW_TASK or
+            Intent.FLAG_ACTIVITY_CLEAR_TOP
         )
+
+        context.startActivity(launchIntent)
     }
 }
