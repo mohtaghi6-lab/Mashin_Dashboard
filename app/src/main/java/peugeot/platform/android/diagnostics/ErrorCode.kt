@@ -5,7 +5,7 @@ data class ErrorCode(
 
     val code: String,
 
-    val title: String,
+    val title: String = code,
 
     val description: String,
 
