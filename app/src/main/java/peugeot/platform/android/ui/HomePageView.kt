@@ -87,7 +87,11 @@ class HomePageView(
             width / 2f,
             height / 2f - 80f
         )
-
+drawSpeedGauge(
+    canvas,
+    width / 2f,
+    height / 2f + 20f
+)
 
         drawVehicleInfo(
             canvas,
@@ -528,5 +532,146 @@ class HomePageView(
         return true
 
     }
+private fun drawSpeedGauge(
+    canvas: Canvas,
+    x: Float,
+    y: Float
+) {
 
+
+    val speed =
+        vehicleData.speedKmh.coerceIn(0, 260)
+
+
+    val angle =
+        -220f + (speed / 260f) * 260f
+
+
+
+    // Outer BMW ring
+
+    paint.style =
+        Paint.Style.STROKE
+
+
+    paint.strokeWidth =
+        8f
+
+
+    paint.color =
+        Color.argb(
+            160,
+            0,
+            170,
+            255
+        )
+
+
+    canvas.drawCircle(
+        x,
+        y,
+        130f,
+        paint
+    )
+
+
+
+    // Inner ring
+
+    paint.strokeWidth =
+        3f
+
+
+    paint.color =
+        Color.WHITE
+
+
+    canvas.drawCircle(
+        x,
+        y,
+        110f,
+        paint
+    )
+
+
+
+    // Needle
+
+    val rad =
+        Math.toRadians(angle.toDouble())
+
+
+    val needleX =
+        x + kotlin.math.cos(rad).toFloat() * 95f
+
+
+    val needleY =
+        y + kotlin.math.sin(rad).toFloat() * 95f
+
+
+
+    paint.strokeWidth =
+        5f
+
+
+    paint.color =
+        Color.RED
+
+
+
+    canvas.drawLine(
+        x,
+        y,
+        needleX,
+        needleY,
+        paint
+    )
+
+
+
+    // Speed text
+
+    paint.style =
+        Paint.Style.FILL
+
+
+    paint.textAlign =
+        Paint.Align.CENTER
+
+
+    paint.color =
+        Color.WHITE
+
+
+    paint.textSize =
+        45f
+
+
+
+    canvas.drawText(
+        "$speed",
+        x,
+        y + 15f,
+        paint
+    )
+
+
+
+    paint.textSize =
+        16f
+
+
+    paint.color =
+        blue
+
+
+
+    canvas.drawText(
+        "km/h",
+        x,
+        y + 45f,
+        paint
+    )
+
+}
 }
