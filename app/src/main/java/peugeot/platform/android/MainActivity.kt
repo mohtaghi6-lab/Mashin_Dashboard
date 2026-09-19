@@ -1,5 +1,5 @@
 package peugeot.platform.android
-
+import peugeot.platform.android.ui.VehicleSettingsPageView
 import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
@@ -47,7 +47,7 @@ class MainActivity : Activity() {
     private lateinit var navigationPageView: NavigationPageView
     private lateinit var callPageView: CallPageView
     private lateinit var errorScannerPageView: ErrorScannerPageView
-
+private lateinit var vehicleSettingsPageView: VehicleSettingsPageView
 
     private lateinit var mainMenuView: MainMenuView
     private lateinit var mainMenuController: MainMenuController
@@ -315,7 +315,11 @@ class MainActivity : Activity() {
             }
 
 
-
+errorScannerPageView.visibility =
+    View.GONE
+        vehicleSettingsPageView.visibility =
+    View.GONE
+        
         mainMenuView.onPageSelected =
             { page ->
 
@@ -583,16 +587,12 @@ class MainActivity : Activity() {
 
             MainMenuPage.SETTINGS -> {
 
-                dashboard.visibility =
-                    View.VISIBLE
+    vehicleSettingsPageView.visibility =
+        View.VISIBLE
 
-                mainMenuView.visibility =
-                    View.VISIBLE
-
-                mainMenuView.setPage(
-                    MainMenuPage.SETTINGS
-                )
-            }
+    mainMenuView.visibility =
+        View.GONE
+}
 
         }
 
