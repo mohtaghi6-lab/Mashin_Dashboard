@@ -8,7 +8,7 @@ import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.widget.FrameLayout
-
+import peugeot.platform.android.ui.HomePageView
 import peugeot.platform.android.ai.AIEngine
 import peugeot.platform.android.ai.AIState
 import peugeot.platform.android.ai.SpeechManager
@@ -34,7 +34,7 @@ class MainActivity : Activity() {
 
     private lateinit var displayBootManager: DisplayBootManager
 
-
+private lateinit var homePageView: HomePageView
     private lateinit var voiceManager: VoiceManager
     private lateinit var aiEngine: AIEngine
     private lateinit var speechManager: SpeechManager
