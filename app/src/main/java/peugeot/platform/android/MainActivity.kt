@@ -1,4 +1,3 @@
-
 package peugeot.platform.android
 
 import android.Manifest
@@ -17,6 +16,7 @@ import peugeot.platform.android.ai.VoiceManager
 
 import peugeot.platform.android.dashboard.DashboardView
 
+import peugeot.platform.android.ui.CallPageView
 import peugeot.platform.android.ui.CarPageView
 import peugeot.platform.android.ui.MainMenuController
 import peugeot.platform.android.ui.MainMenuPage
@@ -27,148 +27,179 @@ import peugeot.platform.android.ui.NavigationPageView
 import peugeot.platform.android.vehicle.VehicleData
 import peugeot.platform.android.vehicle.VehicleDataController
 
-
 class MainActivity : Activity() {
 
-    private lateinit var displayBootManager: DisplayBootManager
+```
+private lateinit var displayBootManager: DisplayBootManager
 
-    private lateinit var voiceManager: VoiceManager
-    private lateinit var aiEngine: AIEngine
-    private lateinit var speechManager: SpeechManager
+private lateinit var voiceManager: VoiceManager
+private lateinit var aiEngine: AIEngine
+private lateinit var speechManager: SpeechManager
 
-    private lateinit var dashboard: DashboardView
-    private lateinit var carPageView: CarPageView
-    private lateinit var musicPageView: MusicPageView
-    private lateinit var navigationPageView: NavigationPageView
+private lateinit var dashboard: DashboardView
+private lateinit var carPageView: CarPageView
+private lateinit var musicPageView: MusicPageView
+private lateinit var navigationPageView: NavigationPageView
+private lateinit var callPageView: CallPageView
 
-    private lateinit var mainMenuView: MainMenuView
-    private lateinit var mainMenuController: MainMenuController
+private lateinit var mainMenuView: MainMenuView
+private lateinit var mainMenuController: MainMenuController
 
-    private lateinit var vehicleDataController: VehicleDataController
+private lateinit var vehicleDataController: VehicleDataController
 
-    private lateinit var root: FrameLayout
+private lateinit var root: FrameLayout
 
-    private var pendingVoiceStart = false
+private var pendingVoiceStart = false
 
-    companion object {
-        private const val AUDIO_PERMISSION_REQUEST = 1001
-    }
+companion object {
+    private const val AUDIO_PERMISSION_REQUEST = 1001
+}
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
 
-        requestWindowFeature(Window.FEATURE_NO_TITLE)
+override fun onCreate(savedInstanceState: Bundle?) {
 
-        window.setFlags(
-            WindowManager.LayoutParams.FLAG_FULLSCREEN,
-            WindowManager.LayoutParams.FLAG_FULLSCREEN
+    super.onCreate(savedInstanceState)
+
+    requestWindowFeature(Window.FEATURE_NO_TITLE)
+
+    window.setFlags(
+        WindowManager.LayoutParams.FLAG_FULLSCREEN,
+        WindowManager.LayoutParams.FLAG_FULLSCREEN
+    )
+
+    window.decorView.systemUiVisibility =
+        View.SYSTEM_UI_FLAG_FULLSCREEN or
+        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+        View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+
+
+    root = FrameLayout(this)
+
+
+    // =========================
+    // DASHBOARD
+    // =========================
+
+    dashboard = DashboardView(this)
+
+    dashboard.setVehicleData(
+        VehicleData.demo()
+    )
+
+    root.addView(
+        dashboard,
+        FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.MATCH_PARENT
         )
+    )
 
-        window.decorView.systemUiVisibility =
-            View.SYSTEM_UI_FLAG_FULLSCREEN or
-            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
 
-        root = FrameLayout(this)
+    // =========================
+    // CAR PAGE
+    // =========================
 
-        // =========================
-        // HOME / DASHBOARD
-        // =========================
+    carPageView = CarPageView(this)
 
-        dashboard = DashboardView(this)
+    carPageView.setVehicleData(
+        VehicleData.demo()
+    )
 
-        dashboard.setVehicleData(
-            VehicleData.demo()
+    carPageView.visibility = View.GONE
+
+    root.addView(
+        carPageView,
+        FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.MATCH_PARENT
         )
+    )
 
-        root.addView(
-            dashboard,
-            FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-            )
+
+    // =========================
+    // MUSIC PAGE
+    // =========================
+
+    musicPageView = MusicPageView(this)
+
+    musicPageView.visibility = View.GONE
+
+    root.addView(
+        musicPageView,
+        FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.MATCH_PARENT
         )
+    )
 
-        // =========================
-        // CAR PAGE
-        // =========================
 
-        carPageView = CarPageView(this)
+    // =========================
+    // NAVIGATION PAGE
+    // =========================
 
-        carPageView.setVehicleData(
-            VehicleData.demo()
+    navigationPageView = NavigationPageView(this)
+
+    navigationPageView.visibility = View.GONE
+
+    root.addView(
+        navigationPageView,
+        FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.MATCH_PARENT
         )
+    )
 
-        carPageView.visibility = View.GONE
 
-        root.addView(
-            carPageView,
-            FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-            )
+    // =========================
+    // CALL PAGE
+    // =========================
+
+    callPageView = CallPageView(this)
+
+    callPageView.visibility = View.GONE
+
+    root.addView(
+        callPageView,
+        FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.MATCH_PARENT
         )
+    )
 
-        // =========================
-        // MUSIC PAGE
-        // =========================
 
-        musicPageView = MusicPageView(this)
+    // =========================
+    // MAIN MENU
+    // =========================
 
-        musicPageView.visibility = View.GONE
+    mainMenuView = MainMenuView(this)
 
-        root.addView(
-            musicPageView,
-            FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-            )
+    root.addView(
+        mainMenuView,
+        FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.MATCH_PARENT
         )
+    )
 
-        // =========================
-        // NAVIGATION PAGE
-        // =========================
 
-        navigationPageView = NavigationPageView(this)
+    setContentView(root)
 
-        navigationPageView.visibility = View.GONE
 
-        root.addView(
-            navigationPageView,
-            FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-            )
-        )
+    // =========================
+    // BOOT
+    // =========================
 
-        // =========================
-        // MAIN MENU
-        // =========================
+    displayBootManager = DisplayBootManager()
 
-        mainMenuView = MainMenuView(this)
+    displayBootManager.onWindowReady()
 
-        root.addView(
-            mainMenuView,
-            FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-            )
-        )
 
-        setContentView(root)
+    // =========================
+    // VEHICLE DATA
+    // =========================
 
-        // =========================
-        // DISPLAY BOOT
-        // =========================
-
-        displayBootManager = DisplayBootManager()
-        displayBootManager.onWindowReady()
-
-        // =========================
-        // VEHICLE DATA
-        // =========================
-
-        vehicleDataController = VehicleDataController { data ->
+    vehicleDataController =
+        VehicleDataController { data ->
 
             runOnUiThread {
 
@@ -178,13 +209,15 @@ class MainActivity : Activity() {
             }
         }
 
-        vehicleDataController.useDemoMode()
+    vehicleDataController.useDemoMode()
 
-        // =========================
-        // MAIN MENU CONTROLLER
-        // =========================
 
-        mainMenuController = MainMenuController { page ->
+    // =========================
+    // MAIN MENU
+    // =========================
+
+    mainMenuController =
+        MainMenuController { page ->
 
             runOnUiThread {
 
@@ -192,322 +225,377 @@ class MainActivity : Activity() {
             }
         }
 
-        mainMenuView.onPageSelected = { page ->
 
-            mainMenuController.open(page)
-        }
+    mainMenuView.onPageSelected = { page ->
 
-        // =========================
-        // AI ENGINE
-        // =========================
-
-        aiEngine = AIEngine(this)
-
-        // =========================
-        // SPEECH MANAGER
-        // =========================
-
-        speechManager = SpeechManager(
-            context = this,
-            onStateChanged = { state ->
-
-                runOnUiThread {
-
-                    dashboard.setAIState(state)
-                }
-            }
-        )
-
-        // =========================
-        // VOICE MANAGER
-        // =========================
-
-        voiceManager = VoiceManager(
-
-            context = this,
-
-            onResult = { text ->
-
-                runOnUiThread {
-
-                    dashboard.setAIState(
-                        AIState.THINKING
-                    )
-
-                    aiEngine.process(
-
-                        text = text,
-
-                        onResponse = { response ->
-
-                            runOnUiThread {
-
-                                speechManager.speak(
-                                    response
-                                )
-                            }
-                        },
-
-                        onError = {
-
-                            runOnUiThread {
-
-                                dashboard.setAIState(
-                                    AIState.ERROR
-                                )
-                            }
-                        }
-                    )
-                }
-            },
-
-            onStateChanged = { state ->
-
-                runOnUiThread {
-
-                    dashboard.setAIState(state)
-                }
-            }
-        )
-
-        // =========================
-        // AI ORB
-        // =========================
-
-        dashboard.onAIOrbClick = {
-
-            if (
-                checkSelfPermission(
-                    Manifest.permission.RECORD_AUDIO
-                ) ==
-                PackageManager.PERMISSION_GRANTED
-            ) {
-
-                voiceManager.startListening()
-
-            } else {
-
-                pendingVoiceStart = true
-
-                requestMicrophonePermission()
-            }
-        }
-
-        // =========================
-        // MICROPHONE
-        // =========================
-
-        requestMicrophonePermission()
+        mainMenuController.open(page)
     }
 
-    // =========================================================
-    // PAGE NAVIGATION
-    // =========================================================
 
-    private fun showPage(page: MainMenuPage) {
+    // =========================
+    // AI ENGINE
+    // =========================
 
-        dashboard.visibility = View.GONE
-        carPageView.visibility = View.GONE
-        musicPageView.visibility = View.GONE
-        navigationPageView.visibility = View.GONE
+    aiEngine = AIEngine(this)
 
-        // =========================
-        // HOME
-        // =========================
 
-        if (page == MainMenuPage.HOME) {
+    // =========================
+    // SPEECH
+    // =========================
 
-            dashboard.visibility = View.VISIBLE
+    speechManager = SpeechManager(
+        context = this,
 
-            mainMenuView.visibility = View.VISIBLE
+        onStateChanged = { state ->
 
-            mainMenuView.setPage(
-                MainMenuPage.HOME
-            )
+            runOnUiThread {
 
-            return
+                dashboard.setAIState(state)
+            }
         }
+    )
 
-        // =========================
-        // CAR
-        // =========================
 
-        if (page == MainMenuPage.CAR) {
+    // =========================
+    // VOICE MANAGER
+    // =========================
 
-            carPageView.visibility = View.VISIBLE
+    voiceManager = VoiceManager(
+        context = this,
 
-            mainMenuView.visibility = View.GONE
+        onResult = { text ->
 
-            return
+            runOnUiThread {
+
+                dashboard.setAIState(
+                    AIState.THINKING
+                )
+
+                aiEngine.process(
+                    text = text,
+
+                    onResponse = { response ->
+
+                        runOnUiThread {
+
+                            speechManager.speak(
+                                response
+                            )
+                        }
+                    },
+
+                    onError = {
+
+                        runOnUiThread {
+
+                            dashboard.setAIState(
+                                AIState.ERROR
+                            )
+                        }
+                    }
+                )
+            }
+        },
+
+        onStateChanged = { state ->
+
+            runOnUiThread {
+
+                dashboard.setAIState(state)
+            }
         }
+    )
 
-        // =========================
-        // MUSIC
-        // =========================
 
-        if (page == MainMenuPage.MUSIC) {
+    // =========================
+    // AI ORB
+    // =========================
 
-            musicPageView.visibility = View.VISIBLE
+    dashboard.onAIOrbClick = {
 
-            mainMenuView.visibility = View.GONE
+        if (
+            checkSelfPermission(
+                Manifest.permission.RECORD_AUDIO
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
 
-            return
+            voiceManager.startListening()
+
+        } else {
+
+            pendingVoiceStart = true
+
+            requestMicrophonePermission()
         }
+    }
 
-        // =========================
-        // NAVIGATION
-        // =========================
 
-        if (page == MainMenuPage.NAVIGATION) {
+    requestMicrophonePermission()
+}
 
-            navigationPageView.visibility = View.VISIBLE
 
-            navigationPageView.refresh()
+// =========================================================
+// PAGE CONTROLLER
+// =========================================================
 
-            mainMenuView.visibility = View.GONE
+private fun showPage(
+    page: MainMenuPage
+) {
 
-            return
-        }
+    dashboard.visibility = View.GONE
 
-        // =========================
-        // OTHER PAGES
-        // =========================
+    carPageView.visibility = View.GONE
+
+    musicPageView.visibility = View.GONE
+
+    navigationPageView.visibility = View.GONE
+
+    callPageView.visibility = View.GONE
+
+
+    // =========================
+    // HOME
+    // =========================
+
+    if (page == MainMenuPage.HOME) {
 
         dashboard.visibility = View.VISIBLE
 
         mainMenuView.visibility = View.VISIBLE
 
-        mainMenuView.setPage(page)
-    }
-
-    // =========================================================
-    // MICROPHONE PERMISSION
-    // =========================================================
-
-    private fun requestMicrophonePermission() {
-
-        if (
-            android.os.Build.VERSION.SDK_INT >=
-            android.os.Build.VERSION_CODES.M
-        ) {
-
-            if (
-                checkSelfPermission(
-                    Manifest.permission.RECORD_AUDIO
-                ) !=
-                PackageManager.PERMISSION_GRANTED
-            ) {
-
-                requestPermissions(
-                    arrayOf(
-                        Manifest.permission.RECORD_AUDIO
-                    ),
-                    AUDIO_PERMISSION_REQUEST
-                )
-            }
-        }
-    }
-
-    // =========================================================
-    // PERMISSION RESULT
-    // =========================================================
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-
-        super.onRequestPermissionsResult(
-            requestCode,
-            permissions,
-            grantResults
+        mainMenuView.setPage(
+            MainMenuPage.HOME
         )
 
-        if (
-            requestCode ==
-            AUDIO_PERMISSION_REQUEST &&
-            grantResults.isNotEmpty() &&
-            grantResults[0] ==
-            PackageManager.PERMISSION_GRANTED
-        ) {
-
-            if (pendingVoiceStart) {
-
-                pendingVoiceStart = false
-
-                voiceManager.startListening()
-            }
-        }
+        return
     }
 
-    // =========================================================
-    // BACK BUTTON
-    // =========================================================
 
-    override fun onBackPressed() {
+    // =========================
+    // CAR
+    // =========================
 
-        if (
-            carPageView.visibility ==
-            View.VISIBLE
-        ) {
+    if (page == MainMenuPage.CAR) {
 
-            mainMenuController.home()
+        carPageView.visibility = View.VISIBLE
 
-            return
-        }
+        mainMenuView.visibility = View.GONE
 
-        if (
-            musicPageView.visibility ==
-            View.VISIBLE
-        ) {
-
-            mainMenuController.home()
-
-            return
-        }
-
-        if (
-            navigationPageView.visibility ==
-            View.VISIBLE
-        ) {
-
-            mainMenuController.home()
-
-            return
-        }
-
-        super.onBackPressed()
+        return
     }
 
-    // =========================================================
-    // DESTROY
-    // =========================================================
 
-    override fun onDestroy() {
+    // =========================
+    // MUSIC
+    // =========================
+
+    if (page == MainMenuPage.MUSIC) {
+
+        musicPageView.visibility = View.VISIBLE
+
+        mainMenuView.visibility = View.GONE
+
+        return
+    }
+
+
+    // =========================
+    // NAVIGATION
+    // =========================
+
+    if (page == MainMenuPage.NAVIGATION) {
+
+        navigationPageView.visibility =
+            View.VISIBLE
+
+        navigationPageView.refresh()
+
+        mainMenuView.visibility =
+            View.GONE
+
+        return
+    }
+
+
+    // =========================
+    // CALL
+    // =========================
+
+    if (page == MainMenuPage.CALL) {
+
+        callPageView.visibility =
+            View.VISIBLE
+
+        mainMenuView.visibility =
+            View.GONE
+
+        return
+    }
+
+
+    // =========================
+    // OTHER MENU PAGES
+    // =========================
+
+    dashboard.visibility =
+        View.VISIBLE
+
+    mainMenuView.visibility =
+        View.VISIBLE
+
+    mainMenuView.setPage(page)
+}
+
+
+// =========================================================
+// MICROPHONE PERMISSION
+// =========================================================
+
+private fun requestMicrophonePermission() {
+
+    if (
+        android.os.Build.VERSION.SDK_INT >=
+        android.os.Build.VERSION_CODES.M
+    ) {
 
         if (
-            ::voiceManager.isInitialized
+            checkSelfPermission(
+                Manifest.permission.RECORD_AUDIO
+            ) != PackageManager.PERMISSION_GRANTED
         ) {
 
-            voiceManager.destroy()
+            requestPermissions(
+                arrayOf(
+                    Manifest.permission.RECORD_AUDIO
+                ),
+                AUDIO_PERMISSION_REQUEST
+            )
         }
-
-        if (
-            ::speechManager.isInitialized
-        ) {
-
-            speechManager.destroy()
-        }
-
-        if (
-            ::displayBootManager.isInitialized
-        ) {
-
-            displayBootManager.destroy()
-        }
-
-        super.onDestroy()
     }
 }
 
+
+// =========================================================
+// PERMISSION RESULT
+// =========================================================
+
+override fun onRequestPermissionsResult(
+    requestCode: Int,
+    permissions: Array<out String>,
+    grantResults: IntArray
+) {
+
+    super.onRequestPermissionsResult(
+        requestCode,
+        permissions,
+        grantResults
+    )
+
+
+    if (
+        requestCode ==
+        AUDIO_PERMISSION_REQUEST &&
+        grantResults.isNotEmpty() &&
+        grantResults[0] ==
+        PackageManager.PERMISSION_GRANTED
+    ) {
+
+        if (pendingVoiceStart) {
+
+            pendingVoiceStart = false
+
+            voiceManager.startListening()
+        }
+    }
+}
+
+
+// =========================================================
+// BACK BUTTON
+// =========================================================
+
+override fun onBackPressed() {
+
+    if (
+        carPageView.visibility ==
+        View.VISIBLE
+    ) {
+
+        mainMenuController.home()
+
+        return
+    }
+
+
+    if (
+        musicPageView.visibility ==
+        View.VISIBLE
+    ) {
+
+        mainMenuController.home()
+
+        return
+    }
+
+
+    if (
+        navigationPageView.visibility ==
+        View.VISIBLE
+    ) {
+
+        mainMenuController.home()
+
+        return
+    }
+
+
+    if (
+        callPageView.visibility ==
+        View.VISIBLE
+    ) {
+
+        mainMenuController.home()
+
+        return
+    }
+
+
+    super.onBackPressed()
+}
+
+
+// =========================================================
+// DESTROY
+// =========================================================
+
+override fun onDestroy() {
+
+    if (
+        ::voiceManager.isInitialized
+    ) {
+
+        voiceManager.destroy()
+    }
+
+
+    if (
+        ::speechManager.isInitialized
+    ) {
+
+        speechManager.destroy()
+    }
+
+
+    if (
+        ::displayBootManager.isInitialized
+    ) {
+
+        displayBootManager.destroy()
+    }
+
+
+    super.onDestroy()
+}
+
+
+}
