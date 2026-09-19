@@ -118,3 +118,129 @@ class DashboardView(context: Context) : View(context) {
         postInvalidateOnAnimation()
 
     }
+    private fun drawAIOrb(
+        canvas: Canvas,
+        cx: Float,
+        cy: Float
+    ) {
+
+        val wave =
+            ((sin(pulse.toDouble()) + 1) / 2).toFloat()
+
+
+        paint.style = Paint.Style.STROKE
+
+        paint.strokeWidth =
+            3f + wave * 3f
+
+
+        paint.color = Color.argb(
+            100,
+            70,
+            190,
+            255
+        )
+
+
+        canvas.drawCircle(
+            cx,
+            cy,
+            70f + wave * 10f,
+            paint
+        )
+
+
+        paint.strokeWidth = 4f
+        paint.color = blue
+
+
+        canvas.drawCircle(
+            cx,
+            cy,
+            50f,
+            paint
+        )
+
+
+        paint.style = Paint.Style.FILL
+
+
+        paint.color =
+            when(aiState){
+
+                AIState.LISTENING ->
+                    Color.rgb(0,220,255)
+
+                AIState.THINKING ->
+                    Color.rgb(255,180,50)
+
+                AIState.SPEAKING ->
+                    Color.rgb(80,255,150)
+
+                AIState.ERROR ->
+                    Color.RED
+
+                else ->
+                    blue
+            }
+
+
+        canvas.drawCircle(
+            cx,
+            cy,
+            42f,
+            paint
+        )
+
+
+        paint.color = Color.WHITE
+        paint.textSize = 24f
+        paint.textAlign = Paint.Align.CENTER
+
+
+        canvas.drawText(
+            "AI",
+            cx,
+            cy + 8f,
+            paint
+        )
+    }
+
+
+
+    override fun onTouchEvent(
+        event: MotionEvent
+    ): Boolean {
+
+
+        if(
+            event.action ==
+            MotionEvent.ACTION_UP
+        ){
+
+            val dx =
+                event.x - width/2f
+
+            val dy =
+                event.y - height/2f
+
+
+            val distance =
+                kotlin.math.sqrt(
+                    dx*dx + dy*dy
+                )
+
+
+            if(distance < 100f){
+
+                onAIOrbClick?.invoke()
+
+                return true
+            }
+        }
+
+
+        return true
+    }
+
+}
