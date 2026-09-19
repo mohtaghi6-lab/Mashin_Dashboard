@@ -289,9 +289,47 @@ class HomePageView(
 
 
     private fun drawVehicleInfo(
-        canvas: Canvas,
-        width: Float
-    ) {
+    canvas: Canvas,
+    width: Float
+) {
+
+
+    paint.textAlign =
+        Paint.Align.CENTER
+
+
+    paint.color =
+        Color.WHITE
+
+
+    paint.textSize =
+        42f
+
+
+    canvas.drawText(
+        "$speed",
+        width / 2,
+        height.toFloat() / 2f + 70f,
+        paint
+    )
+
+
+    paint.color =
+        blue
+
+
+    paint.textSize =
+        18f
+
+
+    canvas.drawText(
+        "km/h",
+        width / 2,
+        height.toFloat() / 2f + 100f,
+        paint
+    )
+
+}
 
 
         paint.textAlign =
