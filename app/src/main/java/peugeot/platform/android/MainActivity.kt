@@ -233,7 +233,19 @@ root.addView(
 
         errorScannerPageView =
             ErrorScannerPageView(this)
+vehicleSettingsPageView =
+    VehicleSettingsPageView(this)
 
+vehicleSettingsPageView.visibility =
+    View.GONE
+
+root.addView(
+    vehicleSettingsPageView,
+    FrameLayout.LayoutParams(
+        FrameLayout.LayoutParams.MATCH_PARENT,
+        FrameLayout.LayoutParams.MATCH_PARENT
+    )
+)
 
         errorScannerPageView.visibility =
             View.GONE
@@ -293,7 +305,9 @@ root.addView(
                     dashboard.setVehicleData(
                         data
                     )
-
+homePageView.setVehicleData(
+    data
+)
 
                     carPageView.setVehicleData(
                         data
