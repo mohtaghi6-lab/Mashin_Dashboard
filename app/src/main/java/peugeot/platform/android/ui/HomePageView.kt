@@ -306,28 +306,23 @@ class HomePageView(
             42f
 
 
-        canvas.drawText(
-            "$speed",
-            width / 2,
-            height / 2 + 70,
-            paint
-        )
+       canvas.drawText(
+    "$speed",
+    width / 2,
+    height.toFloat() / 2f + 70f,
+    paint
+)
 
 
-        paint.color =
-            blue
+...
 
 
-        paint.textSize =
-            18f
-
-
-        canvas.drawText(
-            "km/h",
-            width / 2,
-            height / 2 + 100,
-            paint
-        )
+canvas.drawText(
+    "km/h",
+    width / 2,
+    height.toFloat() / 2f + 100f,
+    paint
+)
 
     }
 
