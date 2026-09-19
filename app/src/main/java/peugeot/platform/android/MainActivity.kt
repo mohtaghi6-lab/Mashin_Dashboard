@@ -77,7 +77,6 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
 
 
-
         requestWindowFeature(
             Window.FEATURE_NO_TITLE
         )
@@ -105,7 +104,6 @@ class MainActivity : Activity() {
         // DASHBOARD
         // =========================
 
-
         dashboard =
             DashboardView(this)
 
@@ -129,7 +127,6 @@ class MainActivity : Activity() {
         // CAR
         // =========================
 
-
         carPageView =
             CarPageView(this)
 
@@ -151,7 +148,6 @@ class MainActivity : Activity() {
         // =========================
         // MUSIC
         // =========================
-
 
         musicPageView =
             MusicPageView(this)
@@ -175,7 +171,6 @@ class MainActivity : Activity() {
         // NAVIGATION
         // =========================
 
-
         navigationPageView =
             NavigationPageView(this)
 
@@ -193,11 +188,9 @@ class MainActivity : Activity() {
         )
 
 
-
         // =========================
         // CALL
         // =========================
-
 
         callPageView =
             CallPageView(this)
@@ -216,11 +209,9 @@ class MainActivity : Activity() {
         )
 
 
-
         // =========================
         // ERROR SCANNER
         // =========================
-
 
         errorScannerPageView =
             ErrorScannerPageView(this)
@@ -237,13 +228,9 @@ class MainActivity : Activity() {
                 FrameLayout.LayoutParams.MATCH_PARENT
             )
         )
-
-
-
-        // =========================
+                // =========================
         // MENU
         // =========================
-
 
         mainMenuView =
             MainMenuView(this)
@@ -259,12 +246,16 @@ class MainActivity : Activity() {
 
 
         setContentView(root)
-                // =========================
+
+
+
+        // =========================
         // BOOT MANAGER
         // =========================
 
         displayBootManager =
             DisplayBootManager()
+
 
         displayBootManager.onWindowReady()
 
@@ -277,14 +268,26 @@ class MainActivity : Activity() {
         vehicleDataController =
             VehicleDataController { data ->
 
+
                 runOnUiThread {
 
-                    dashboard.setVehicleData(data)
 
-                    carPageView.setVehicleData(data)
+                    dashboard.setVehicleData(
+                        data
+                    )
 
-                    errorScannerPageView.setVehicleData(data)
+
+                    carPageView.setVehicleData(
+                        data
+                    )
+
+
+                    errorScannerPageView.setVehicleData(
+                        data
+                    )
+
                 }
+
             }
 
 
@@ -299,17 +302,29 @@ class MainActivity : Activity() {
         mainMenuController =
             MainMenuController { page ->
 
+
                 runOnUiThread {
 
-                    showPage(page)
+
+                    showPage(
+                        page
+                    )
+
                 }
+
             }
 
 
-        mainMenuView.onPageSelected = { page ->
 
-            mainMenuController.open(page)
-        }
+        mainMenuView.onPageSelected =
+            { page ->
+
+
+                mainMenuController.open(
+                    page
+                )
+
+            }
 
 
 
@@ -322,29 +337,48 @@ class MainActivity : Activity() {
 
 
 
+        // =========================
+        // SPEECH MANAGER
+        // =========================
+
         speechManager =
             SpeechManager(
+
                 context = this,
 
                 onStateChanged = { state ->
 
+
                     runOnUiThread {
 
-                        dashboard.setAIState(state)
+
+                        dashboard.setAIState(
+                            state
+                        )
+
                     }
+
                 }
+
             )
 
 
+
+        // =========================
+        // VOICE MANAGER
+        // =========================
 
         voiceManager =
             VoiceManager(
 
                 context = this,
 
+
                 onResult = { text ->
 
+
                     runOnUiThread {
+
 
                         dashboard.setAIState(
                             AIState.THINKING
@@ -355,60 +389,91 @@ class MainActivity : Activity() {
 
                             text = text,
 
+
                             onResponse = { response ->
 
+
                                 runOnUiThread {
+
 
                                     speechManager.speak(
                                         response
                                     )
+
                                 }
+
                             },
 
 
                             onError = {
 
+
                                 runOnUiThread {
+
 
                                     dashboard.setAIState(
                                         AIState.ERROR
                                     )
+
                                 }
+
                             }
+
                         )
+
                     }
+
                 },
+
 
 
                 onStateChanged = { state ->
 
+
                     runOnUiThread {
 
-                        dashboard.setAIState(state)
+
+                        dashboard.setAIState(
+                            state
+                        )
+
                     }
+
                 }
+
             )
 
 
 
+        // =========================
+        // AI ORB CLICK
+        // =========================
+
         dashboard.onAIOrbClick = {
 
-            if (
+
+            if(
 
                 checkSelfPermission(
                     Manifest.permission.RECORD_AUDIO
                 ) == PackageManager.PERMISSION_GRANTED
 
-            ) {
+            ){
+
 
                 voiceManager.startListening()
 
+
             } else {
+
 
                 pendingVoiceStart = true
 
+
                 requestMicrophonePermission()
+
             }
+
         }
 
 
@@ -416,126 +481,14 @@ class MainActivity : Activity() {
         requestMicrophonePermission()
 
     }
-
-
-
-    // =========================
+        // =========================
     // PAGE CONTROL
     // =========================
 
-
     private fun showPage(
-    page: MainMenuPage
-) {
+        page: MainMenuPage
+    ) {
 
-
-    dashboard.visibility =
-        View.GONE
-
-    carPageView.visibility =
-        View.GONE
-
-    musicPageView.visibility =
-        View.GONE
-
-    navigationPageView.visibility =
-        View.GONE
-
-    callPageView.visibility =
-        View.GONE
-
-    errorScannerPageView.visibility =
-        View.GONE
-
-
-
-    when(page) {
-
-
-        MainMenuPage.HOME -> {
-
-            dashboard.visibility =
-                View.VISIBLE
-
-            mainMenuView.visibility =
-                View.VISIBLE
-        }
-
-
-
-        MainMenuPage.CAR -> {
-
-            carPageView.visibility =
-                View.VISIBLE
-
-            mainMenuView.visibility =
-                View.GONE
-        }
-
-
-
-        MainMenuPage.MUSIC -> {
-
-            musicPageView.visibility =
-                View.VISIBLE
-
-            mainMenuView.visibility =
-                View.GONE
-        }
-
-
-
-        MainMenuPage.NAVIGATION -> {
-
-            navigationPageView.visibility =
-                View.VISIBLE
-
-            navigationPageView.refresh()
-
-            mainMenuView.visibility =
-                View.GONE
-        }
-
-
-
-        MainMenuPage.CALL -> {
-
-            callPageView.visibility =
-                View.VISIBLE
-
-            mainMenuView.visibility =
-                View.GONE
-        }
-
-
-
-        MainMenuPage.SCAN -> {
-
-            errorScannerPageView.visibility =
-                View.VISIBLE
-
-            mainMenuView.visibility =
-                View.GONE
-        }
-
-
-
-        MainMenuPage.SETTINGS -> {
-
-            dashboard.visibility =
-                View.VISIBLE
-
-            mainMenuView.visibility =
-                View.VISIBLE
-
-            mainMenuView.setPage(
-                MainMenuPage.SETTINGS
-            )
-        }
-
-    }
-
-}
 
         dashboard.visibility =
             View.GONE
@@ -626,11 +579,30 @@ class MainActivity : Activity() {
                     View.GONE
             }
 
+
+
+            MainMenuPage.SETTINGS -> {
+
+                dashboard.visibility =
+                    View.VISIBLE
+
+                mainMenuView.visibility =
+                    View.VISIBLE
+
+                mainMenuView.setPage(
+                    MainMenuPage.SETTINGS
+                )
+            }
+
         }
 
     }
 
 
+
+    // =========================
+    // MICROPHONE PERMISSION
+    // =========================
 
     private fun requestMicrophonePermission() {
 
@@ -660,8 +632,11 @@ class MainActivity : Activity() {
 
                     AUDIO_PERMISSION_REQUEST
                 )
+
             }
+
         }
+
     }
 
 
@@ -700,11 +675,16 @@ class MainActivity : Activity() {
 
             if(pendingVoiceStart) {
 
+
                 pendingVoiceStart = false
 
+
                 voiceManager.startListening()
+
             }
+
         }
+
     }
 
 
@@ -715,22 +695,29 @@ class MainActivity : Activity() {
         if(::voiceManager.isInitialized) {
 
             voiceManager.destroy()
+
         }
+
 
 
         if(::speechManager.isInitialized) {
 
             speechManager.destroy()
+
         }
+
 
 
         if(::displayBootManager.isInitialized) {
 
             displayBootManager.destroy()
+
         }
 
 
+
         super.onDestroy()
+
     }
 
 }
