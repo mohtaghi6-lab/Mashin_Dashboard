@@ -753,16 +753,14 @@ private fun drawRpmGauge(
         )
 
 
-    val needleX =
-        x +
-        kotlin.math.cos(rad).toFloat()
-        * 65f
+   val needleX =
+    x +
+    kotlin.math.cos(rad).toFloat() * 65f
 
 
-    val needleY =
-        y +
-        kotlin.math.sin(rad).toFloat()
-        * 65f
+val needleY =
+    y +
+    kotlin.math.sin(rad).toFloat() * 65f
 
 
 
