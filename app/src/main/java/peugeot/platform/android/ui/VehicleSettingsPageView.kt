@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.*
 import android.view.MotionEvent
 import android.view.View
+import kotlin.math.sin
 
 
 class VehicleSettingsPageView(
@@ -15,24 +16,20 @@ class VehicleSettingsPageView(
         Paint(Paint.ANTI_ALIAS_FLAG)
 
 
-    private var canMode =
-        "DEMO MODE"
+    private var animation =
+        0f
+
+
+    private var canStatus =
+        "CAN : DEMO MODE"
 
 
     private var steeringStatus =
-        "NOT CONFIGURED"
+        "STEERING : READY"
 
 
-
-    private val buttons =
-        arrayOf(
-            "VOL +",
-            "VOL -",
-            "NEXT",
-            "PREV",
-            "VOICE",
-            "CALL"
-        )
+    private var driveMode =
+        "COMFORT"
 
 
 
@@ -46,16 +43,83 @@ class VehicleSettingsPageView(
         val w =
             width.toFloat()
 
+
         val h =
             height.toFloat()
 
 
 
         canvas.drawColor(
-            Color.rgb(3,7,13)
+            Color.rgb(
+                3,
+                8,
+                15
+            )
         )
 
 
+
+        animation += 0.05f
+
+
+
+        drawTitle(
+            canvas,
+            w
+        )
+
+
+        drawGlassCard(
+            canvas,
+            40f,
+            130f,
+            w-40f,
+            230f,
+            "VEHICLE CONNECTION",
+            canStatus
+        )
+
+
+        drawGlassCard(
+            canvas,
+            40f,
+            260f,
+            w-40f,
+            360f,
+            "STEERING WHEEL",
+            steeringStatus
+        )
+
+
+        drawGlassCard(
+            canvas,
+            40f,
+            390f,
+            w-40f,
+            490f,
+            "DRIVING MODE",
+            driveMode
+        )
+
+
+        drawBottomHint(
+            canvas,
+            w,
+            h
+        )
+
+
+        postInvalidateOnAnimation()
+
+    }
+
+
+
+
+    private fun drawTitle(
+        canvas: Canvas,
+        width: Float
+    ){
 
         paint.textAlign =
             Paint.Align.CENTER
@@ -70,86 +134,43 @@ class VehicleSettingsPageView(
 
 
         paint.textSize =
-            30f
+            32f
 
 
 
         canvas.drawText(
             "VEHICLE SETTINGS",
-            w/2,
+            width/2,
             70f,
             paint
         )
 
 
-
-        drawCard(
-            canvas,
-            40f,
-            120f,
-            w-40f,
-            210f,
-            "CAN STATUS",
-            canMode
-        )
-
-
-
-        drawCard(
-            canvas,
-            40f,
-            240f,
-            w-40f,
-            330f,
-            "STEERING WHEEL",
-            steeringStatus
-        )
-
-
-
         paint.color =
-            Color.rgb(70,190,255)
-
-
-        paint.textSize =
-            20f
-
-
-        canvas.drawText(
-            "Button Mapping",
-            w/2,
-            390f,
-            paint
-        )
-
-
-
-        var y =
-            430f
-
-
-
-        for(button in buttons){
-
-
-            drawButton(
-                canvas,
-                button,
-                w/2,
-                y
+            Color.rgb(
+                70,
+                190,
+                255
             )
 
 
-            y += 55f
+        paint.textSize =
+            16f
 
-        }
+
+        canvas.drawText(
+            "PEUGEOT VEHICLE OS",
+            width/2,
+            100f,
+            paint
+        )
 
     }
 
 
 
 
-    private fun drawCard(
+    private fun drawGlassCard(
         canvas: Canvas,
         left: Float,
         top: Float,
@@ -160,13 +181,23 @@ class VehicleSettingsPageView(
     ){
 
 
+        val glow =
+            ((sin(animation.toDouble())+1)/2)
+                .toFloat()
+
+
+
         paint.style =
             Paint.Style.FILL
 
 
         paint.color =
-            Color.rgb(10,20,32)
-
+            Color.argb(
+                120,
+                20,
+                35,
+                55
+            )
 
 
         canvas.drawRoundRect(
@@ -174,10 +205,47 @@ class VehicleSettingsPageView(
             top,
             right,
             bottom,
-            20f,
-            20f,
+            30f,
+            30f,
             paint
         )
+
+
+        paint.style =
+            Paint.Style.STROKE
+
+
+        paint.strokeWidth =
+            2f + glow
+
+
+        paint.color =
+            Color.argb(
+                180,
+                70,
+                190,
+                255
+            )
+
+
+        canvas.drawRoundRect(
+            left,
+            top,
+            right,
+            bottom,
+            30f,
+            30f,
+            paint
+        )
+
+
+
+        paint.style =
+            Paint.Style.FILL
+
+
+        paint.textAlign =
+            Paint.Align.CENTER
 
 
 
@@ -186,32 +254,34 @@ class VehicleSettingsPageView(
 
 
         paint.textSize =
-            16f
-
+            18f
 
 
         canvas.drawText(
             title,
             (left+right)/2,
-            top+30,
+            top+35,
             paint
         )
 
 
 
         paint.color =
-            Color.rgb(80,255,150)
+            Color.rgb(
+                80,
+                255,
+                150
+            )
 
 
         paint.textSize =
-            18f
-
+            22f
 
 
         canvas.drawText(
             value,
             (left+right)/2,
-            top+65,
+            top+75,
             paint
         )
 
@@ -220,40 +290,28 @@ class VehicleSettingsPageView(
 
 
 
-    private fun drawButton(
+    private fun drawBottomHint(
         canvas: Canvas,
-        text: String,
-        x: Float,
-        y: Float
+        width: Float,
+        height: Float
     ){
 
-        paint.color =
-            Color.rgb(20,120,220)
-
-
-        canvas.drawRoundRect(
-            x-120,
-            y-22,
-            x+120,
-            y+22,
-            20f,
-            20f,
-            paint
-        )
+        paint.textAlign =
+            Paint.Align.CENTER
 
 
         paint.color =
-            Color.WHITE
+            Color.GRAY
 
 
         paint.textSize =
-            17f
+            15f
 
 
         canvas.drawText(
-            text,
-            x,
-            y+6,
+            "Tap to configure",
+            width/2,
+            height-40,
             paint
         )
 
@@ -272,17 +330,35 @@ class VehicleSettingsPageView(
             MotionEvent.ACTION_UP
         ){
 
-            if(
-                event.y > 400
+            if(event.y > 250 &&
+                event.y < 380
             ){
 
                 steeringStatus =
-                    "CONFIGURED"
+                    "STEERING : CONFIGURED"
 
 
                 invalidate()
 
-                return true
+            }
+
+
+            if(event.y > 390 &&
+                event.y < 500
+            ){
+
+                driveMode =
+                    if(
+                        driveMode ==
+                        "COMFORT"
+                    )
+                        "SPORT"
+                    else
+                        "COMFORT"
+
+
+                invalidate()
+
             }
 
         }
