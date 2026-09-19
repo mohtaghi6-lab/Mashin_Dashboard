@@ -1,4 +1,4 @@
-```kotlin
+
 package peugeot.platform.android.ui
 
 import android.content.Context
@@ -208,4 +208,4 @@ class CallPageView(context: Context) : View(context) {
         invalidate()
     }
 }
-```
+
