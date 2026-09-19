@@ -1,7 +1,10 @@
 package peugeot.platform.android.ui
 
 import android.content.Context
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Typeface
 import android.view.MotionEvent
 import android.view.View
 import java.text.SimpleDateFormat
@@ -39,6 +42,7 @@ class HomePageView(
         "Bluetooth"
 
 
+
     private val blue =
         Color.rgb(
             70,
@@ -55,12 +59,12 @@ class HomePageView(
         super.onDraw(canvas)
 
 
-        val w =
-            width.toFloat()
+        val width =
+            this.width.toFloat()
 
 
-        val h =
-            height.toFloat()
+        val height =
+            this.height.toFloat()
 
 
 
@@ -73,33 +77,34 @@ class HomePageView(
         )
 
 
+
         pulse += 0.04f
 
 
 
         drawTopBar(
             canvas,
-            w
+            width
         )
 
 
         drawAIOrb(
             canvas,
-            w / 2,
-            h / 2 - 70
+            width / 2f,
+            height / 2f - 70f
         )
 
 
         drawVehicleInfo(
             canvas,
-            w
+            width
         )
 
 
         drawCards(
             canvas,
-            w,
-            h
+            width,
+            height
         )
 
 
@@ -109,10 +114,12 @@ class HomePageView(
 
 
 
+
     private fun drawTopBar(
         canvas: Canvas,
         width: Float
     ) {
+
 
         val time =
             SimpleDateFormat(
@@ -146,12 +153,12 @@ class HomePageView(
 
 
         paint.textSize =
-            34f
+            32f
 
 
         canvas.drawText(
             "PEUGEOT VEHICLE OS",
-            width / 2,
+            width / 2f,
             60f,
             paint
         )
@@ -167,8 +174,8 @@ class HomePageView(
 
         canvas.drawText(
             time,
-            width / 2,
-            105f,
+            width / 2f,
+            100f,
             paint
         )
 
@@ -183,8 +190,8 @@ class HomePageView(
 
         canvas.drawText(
             date,
-            width / 2,
-            130f,
+            width / 2f,
+            125f,
             paint
         )
 
@@ -234,7 +241,7 @@ class HomePageView(
 
         paint.color =
             Color.argb(
-                80,
+                90,
                 70,
                 190,
                 255
@@ -275,13 +282,13 @@ class HomePageView(
             28f
 
 
-
         canvas.drawText(
             "AI",
             x,
-            y + 10,
+            y + 10f,
             paint
         )
+
 
     }
 
@@ -289,47 +296,9 @@ class HomePageView(
 
 
     private fun drawVehicleInfo(
-    canvas: Canvas,
-    width: Float
-) {
-
-
-    paint.textAlign =
-        Paint.Align.CENTER
-
-
-    paint.color =
-        Color.WHITE
-
-
-    paint.textSize =
-        42f
-
-
-    canvas.drawText(
-        "$speed",
-        width / 2,
-        height.toFloat() / 2f + 70f,
-        paint
-    )
-
-
-    paint.color =
-        blue
-
-
-    paint.textSize =
-        18f
-
-
-    canvas.drawText(
-        "km/h",
-        width / 2,
-        height.toFloat() / 2f + 100f,
-        paint
-    )
-
-}
+        canvas: Canvas,
+        width: Float
+    ) {
 
 
         paint.textAlign =
@@ -344,23 +313,29 @@ class HomePageView(
             42f
 
 
-       canvas.drawText(
-    "$speed",
-    width / 2,
-    height.toFloat() / 2f + 70f,
-    paint
-)
+        canvas.drawText(
+            "$speed",
+            width / 2f,
+            height.toFloat() / 2f + 70f,
+            paint
+        )
 
 
-...
+
+        paint.color =
+            blue
 
 
-canvas.drawText(
-    "km/h",
-    width / 2,
-    height.toFloat() / 2f + 100f,
-    paint
-)
+        paint.textSize =
+            18f
+
+
+        canvas.drawText(
+            "km/h",
+            width / 2f,
+            height.toFloat() / 2f + 100f,
+            paint
+        )
 
     }
 
@@ -378,41 +353,38 @@ canvas.drawText(
             canvas,
             40f,
             height - 220f,
-            width / 2 - 20f,
+            width / 2f - 20f,
             height - 80f,
             "BATTERY",
             battery
         )
 
 
-
         drawGlassCard(
             canvas,
-            width / 2 + 20f,
+            width / 2f + 20f,
             height - 220f,
             width - 40f,
             height - 80f,
-            "CAN STATUS",
+            "CAN",
             canStatus
         )
-
 
 
         drawGlassCard(
             canvas,
             40f,
             height - 70f,
-            width / 2 - 20f,
+            width / 2f - 20f,
             height - 20f,
             "MUSIC",
             musicStatus
         )
 
 
-
         drawGlassCard(
             canvas,
-            width / 2 + 20f,
+            width / 2f + 20f,
             height - 70f,
             width - 40f,
             height - 20f,
@@ -510,8 +482,8 @@ canvas.drawText(
 
         canvas.drawText(
             title,
-            (left + right) / 2,
-            top + 28,
+            (left + right) / 2f,
+            top + 30f,
             paint
         )
 
@@ -527,8 +499,8 @@ canvas.drawText(
 
         canvas.drawText(
             value,
-            (left + right) / 2,
-            top + 58,
+            (left + right) / 2f,
+            top + 65f,
             paint
         )
 
@@ -545,7 +517,8 @@ canvas.drawText(
         if(
             event.action ==
             MotionEvent.ACTION_UP
-        ){
+        ) {
+
 
             val x =
                 event.x
@@ -557,14 +530,14 @@ canvas.drawText(
 
 
             if(
-                x > width / 2 &&
-                y > height - 220
-            ){
+                x > width / 2f &&
+                y > height - 220f
+            ) {
+
 
                 canStatus =
                     if(
-                        canStatus ==
-                        "CONNECTED"
+                        canStatus == "CONNECTED"
                     )
                         "WAITING"
                     else
@@ -578,14 +551,14 @@ canvas.drawText(
 
 
             if(
-                x < width / 2 &&
-                y > height - 220
-            ){
+                x < width / 2f &&
+                y > height - 220f
+            ) {
+
 
                 musicStatus =
                     if(
-                        musicStatus ==
-                        "Bluetooth"
+                        musicStatus == "Bluetooth"
                     )
                         "PLAYING"
                     else
