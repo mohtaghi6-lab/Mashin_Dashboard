@@ -7,9 +7,7 @@ import android.graphics.Paint
 import android.graphics.Typeface
 import android.view.MotionEvent
 import android.view.View
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import peugeot.platform.android.vehicle.VehicleData
 import kotlin.math.sin
 
 
@@ -18,64 +16,16 @@ class HomePageView(
 ) : View(context) {
 
 
-    private val paint = Paint(...)
-
-    private var speed = 0
-    private var rpm = 0
-    private var temperature = 0
-    private var voltage = "12.6 V"
-
-
-    // اینجا اضافه کن
-    fun setVehicleData(
-        data: peugeot.platform.android.vehicle.VehicleData
-    ) {
-
-        speed = data.speedKmh
-        rpm = data.rpm
-        temperature = data.engineTempC
-        voltage = "${data.batteryVoltage} V"
-
-        invalidate()
-    }
-
-
-    override fun onDraw(
-        canvas: Canvas
-    ) {
-        ...
-    }
-
-
     private val paint =
         Paint(Paint.ANTI_ALIAS_FLAG)
 
 
+    private var vehicleData =
+        VehicleData.demo()
+
+
     private var pulse =
         0f
-
-
-    private var rpm =
-    0
-
-private var temperature =
-    0
-
-private var voltage =
-    "12.6 V"
-
-
-    private var battery =
-        "12.6 V"
-
-
-    private var canStatus =
-        "CONNECTED"
-
-
-    private var musicStatus =
-        "Bluetooth"
-
 
 
     private val blue =
@@ -84,6 +34,19 @@ private var voltage =
             190,
             255
         )
+
+
+
+    fun setVehicleData(
+        data: VehicleData
+    ) {
+
+        vehicleData =
+            data
+
+        invalidate()
+
+    }
 
 
 
@@ -105,19 +68,15 @@ private var voltage =
 
         canvas.drawColor(
             Color.rgb(
-                2,
+                3,
                 7,
-                14
+                13
             )
         )
 
 
 
-        pulse += 0.04f
-
-
-
-        drawTopBar(
+        drawHeader(
             canvas,
             width
         )
@@ -126,13 +85,14 @@ private var voltage =
         drawAIOrb(
             canvas,
             width / 2f,
-            height / 2f - 70f
+            height / 2f - 80f
         )
 
 
         drawVehicleInfo(
             canvas,
-            width
+            width,
+            height
         )
 
 
@@ -143,36 +103,16 @@ private var voltage =
         )
 
 
+        pulse += 0.04f
+
+
         postInvalidateOnAnimation()
 
     }
-
-
-
-
-    private fun drawTopBar(
+        private fun drawHeader(
         canvas: Canvas,
         width: Float
     ) {
-
-
-        val time =
-            SimpleDateFormat(
-                "HH:mm",
-                Locale.getDefault()
-            ).format(
-                Date()
-            )
-
-
-        val date =
-            SimpleDateFormat(
-                "yyyy/MM/dd",
-                Locale.getDefault()
-            ).format(
-                Date()
-            )
-
 
 
         paint.textAlign =
@@ -188,7 +128,8 @@ private var voltage =
 
 
         paint.textSize =
-            32f
+            30f
+
 
 
         canvas.drawText(
@@ -198,47 +139,19 @@ private var voltage =
             paint
         )
 
-
-        paint.color =
-            blue
-
-
-        paint.textSize =
-            22f
-
-
-        canvas.drawText(
-            time,
-            width / 2f,
-            100f,
-            paint
-        )
-
-
-        paint.color =
-            Color.LTGRAY
-
-
-        paint.textSize =
-            14f
-
-
-        canvas.drawText(
-            date,
-            width / 2f,
-            125f,
-            paint
-        )
-
     }
-        private fun drawAIOrb(
+
+
+
+
+    private fun drawAIOrb(
         canvas: Canvas,
         x: Float,
         y: Float
     ) {
 
 
-        val glow =
+        val wave =
             ((sin(pulse.toDouble()) + 1) / 2)
                 .toFloat()
 
@@ -249,22 +162,23 @@ private var voltage =
 
 
         paint.strokeWidth =
-            4f + glow * 5f
+            3f + wave * 4f
 
 
         paint.color =
             Color.argb(
-                160,
+                150,
                 70,
                 190,
                 255
             )
 
 
+
         canvas.drawCircle(
             x,
             y,
-            95f + glow * 15f,
+            80f + wave * 12f,
             paint
         )
 
@@ -275,25 +189,8 @@ private var voltage =
 
 
         paint.color =
-            Color.argb(
-                90,
-                70,
-                190,
-                255
-            )
-
-
-        canvas.drawCircle(
-            x,
-            y,
-            70f,
-            paint
-        )
-
-
-
-        paint.color =
             blue
+
 
 
         canvas.drawCircle(
@@ -314,16 +211,16 @@ private var voltage =
 
 
         paint.textSize =
-            28f
+            26f
+
 
 
         canvas.drawText(
             "AI",
             x,
-            y + 10f,
+            y + 9f,
             paint
         )
-
 
     }
 
@@ -332,7 +229,8 @@ private var voltage =
 
     private fun drawVehicleInfo(
         canvas: Canvas,
-        width: Float
+        width: Float,
+        height: Float
     ) {
 
 
@@ -345,13 +243,14 @@ private var voltage =
 
 
         paint.textSize =
-            42f
+            55f
+
 
 
         canvas.drawText(
-            "$speed",
+            "${vehicleData.speedKmh}",
             width / 2f,
-            height.toFloat() / 2f + 70f,
+            height / 2f + 80f,
             paint
         )
 
@@ -365,19 +264,43 @@ private var voltage =
             18f
 
 
+
         canvas.drawText(
             "km/h",
             width / 2f,
-            height.toFloat() / 2f + 100f,
+            height / 2f + 115f,
+            paint
+        )
+
+
+
+        paint.color =
+            Color.LTGRAY
+
+
+        paint.textSize =
+            16f
+
+
+
+        canvas.drawText(
+            "RPM : ${vehicleData.rpm}",
+            width / 2f,
+            height / 2f + 150f,
+            paint
+        )
+
+
+
+        canvas.drawText(
+            "TEMP : ${vehicleData.engineTempC} °C",
+            width / 2f,
+            height / 2f + 180f,
             paint
         )
 
     }
-
-
-
-
-    private fun drawCards(
+        private fun drawCards(
         canvas: Canvas,
         width: Float,
         height: Float
@@ -387,48 +310,34 @@ private var voltage =
         drawGlassCard(
             canvas,
             40f,
-            height - 220f,
+            height - 180f,
             width / 2f - 20f,
-            height - 80f,
+            height - 60f,
             "BATTERY",
-            battery
+            "${vehicleData.batteryVoltage} V"
         )
+
 
 
         drawGlassCard(
             canvas,
             width / 2f + 20f,
-            height - 220f,
+            height - 180f,
             width - 40f,
-            height - 80f,
+            height - 60f,
             "CAN",
-            canStatus
-        )
-
-
-        drawGlassCard(
-            canvas,
-            40f,
-            height - 70f,
-            width / 2f - 20f,
-            height - 20f,
-            "MUSIC",
-            musicStatus
-        )
-
-
-        drawGlassCard(
-            canvas,
-            width / 2f + 20f,
-            height - 70f,
-            width - 40f,
-            height - 20f,
-            "NAVIGATION",
-            "READY"
+            if(vehicleData.canConnected)
+                "CONNECTED"
+            else
+                "WAITING"
         )
 
     }
-        private fun drawGlassCard(
+
+
+
+
+    private fun drawGlassCard(
         canvas: Canvas,
         left: Float,
         top: Float,
@@ -439,20 +348,14 @@ private var voltage =
     ) {
 
 
-        val glow =
-            ((sin(pulse.toDouble()) + 1) / 2)
-                .toFloat()
-
-
-
         paint.style =
             Paint.Style.FILL
 
 
         paint.color =
             Color.argb(
-                130,
-                20,
+                120,
+                25,
                 35,
                 55
             )
@@ -475,16 +378,12 @@ private var voltage =
 
 
         paint.strokeWidth =
-            2f + glow
+            2f
 
 
         paint.color =
-            Color.argb(
-                180,
-                70,
-                190,
-                255
-            )
+            blue
+
 
 
         canvas.drawRoundRect(
@@ -515,10 +414,11 @@ private var voltage =
             16f
 
 
+
         canvas.drawText(
             title,
             (left + right) / 2f,
-            top + 30f,
+            top + 35f,
             paint
         )
 
@@ -532,10 +432,11 @@ private var voltage =
             18f
 
 
+
         canvas.drawText(
             value,
             (left + right) / 2f,
-            top + 65f,
+            top + 75f,
             paint
         )
 
@@ -554,55 +455,7 @@ private var voltage =
             MotionEvent.ACTION_UP
         ) {
 
-
-            val x =
-                event.x
-
-
-            val y =
-                event.y
-
-
-
-            if(
-                x > width / 2f &&
-                y > height - 220f
-            ) {
-
-
-                canStatus =
-                    if(
-                        canStatus == "CONNECTED"
-                    )
-                        "WAITING"
-                    else
-                        "CONNECTED"
-
-
-                invalidate()
-
-            }
-
-
-
-            if(
-                x < width / 2f &&
-                y > height - 220f
-            ) {
-
-
-                musicStatus =
-                    if(
-                        musicStatus == "Bluetooth"
-                    )
-                        "PLAYING"
-                    else
-                        "Bluetooth"
-
-
-                invalidate()
-
-            }
+            return true
 
         }
 
