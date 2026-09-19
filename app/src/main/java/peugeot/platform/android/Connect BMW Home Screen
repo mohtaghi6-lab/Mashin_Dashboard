@@ -121,7 +121,25 @@ private lateinit var vehicleSettingsPageView: VehicleSettingsPageView
             )
         )
 
+// =========================
+// HOME BMW UI
+// =========================
 
+homePageView =
+    HomePageView(this)
+
+
+homePageView.visibility =
+    View.GONE
+
+
+root.addView(
+    homePageView,
+    FrameLayout.LayoutParams(
+        FrameLayout.LayoutParams.MATCH_PARENT,
+        FrameLayout.LayoutParams.MATCH_PARENT
+    )
+)
 
         // =========================
         // CAR
@@ -493,7 +511,8 @@ errorScannerPageView.visibility =
         page: MainMenuPage
     ) {
 
-
+homePageView.visibility =
+    View.GONE
         dashboard.visibility =
             View.GONE
 
@@ -519,12 +538,12 @@ errorScannerPageView.visibility =
 
             MainMenuPage.HOME -> {
 
-                dashboard.visibility =
-                    View.VISIBLE
+    homePageView.visibility =
+        View.VISIBLE
 
-                mainMenuView.visibility =
-                    View.VISIBLE
-            }
+    mainMenuView.visibility =
+        View.GONE
+}
 
 
 
