@@ -18,6 +18,35 @@ class HomePageView(
 ) : View(context) {
 
 
+    private val paint = Paint(...)
+
+    private var speed = 0
+    private var rpm = 0
+    private var temperature = 0
+    private var voltage = "12.6 V"
+
+
+    // اینجا اضافه کن
+    fun setVehicleData(
+        data: peugeot.platform.android.vehicle.VehicleData
+    ) {
+
+        speed = data.speedKmh
+        rpm = data.rpm
+        temperature = data.engineTempC
+        voltage = "${data.batteryVoltage} V"
+
+        invalidate()
+    }
+
+
+    override fun onDraw(
+        canvas: Canvas
+    ) {
+        ...
+    }
+
+
     private val paint =
         Paint(Paint.ANTI_ALIAS_FLAG)
 
@@ -26,8 +55,14 @@ class HomePageView(
         0f
 
 
-    private var speed =
-        0
+    private var rpm =
+    0
+
+private var temperature =
+    0
+
+private var voltage =
+    "12.6 V"
 
 
     private var battery =
