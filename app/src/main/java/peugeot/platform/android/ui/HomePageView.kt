@@ -114,22 +114,17 @@ class HomePageView(
         width: Float
     ) {
 
-
         paint.textAlign =
             Paint.Align.CENTER
-
 
         paint.typeface =
             Typeface.DEFAULT_BOLD
 
-
         paint.color =
             Color.WHITE
 
-
         paint.textSize =
             30f
-
 
 
         canvas.drawText(
@@ -138,7 +133,6 @@ class HomePageView(
             60f,
             paint
         )
-
     }
 
 
@@ -157,46 +151,117 @@ class HomePageView(
 
 
 
+        // BMW outer glow
+
         paint.style =
             Paint.Style.STROKE
 
 
         paint.strokeWidth =
-            3f + wave * 4f
+            4f + wave * 6f
 
 
         paint.color =
             Color.argb(
-                150,
-                70,
-                190,
+                120,
+                0,
+                170,
                 255
             )
-
 
 
         canvas.drawCircle(
             x,
             y,
-            80f + wave * 12f,
+            95f + wave * 18f,
             paint
         )
 
 
+
+        // Glass ring
+
+        paint.strokeWidth =
+            2f
+
+
+        paint.color =
+            Color.argb(
+                180,
+                70,
+                220,
+                255
+            )
+
+
+        canvas.drawCircle(
+            x,
+            y,
+            75f,
+            paint
+        )
+
+
+
+        // Orb body
 
         paint.style =
             Paint.Style.FILL
 
 
         paint.color =
-            blue
+            Color.argb(
+                130,
+                0,
+                120,
+                220
+            )
+
+
+        canvas.drawCircle(
+            x,
+            y,
+            60f,
+            paint
+        )
+
+
+
+        // Inner animated light
+
+        paint.color =
+            when {
+
+                pulse % 6 < 2 ->
+                    Color.rgb(
+                        0,
+                        220,
+                        255
+                    )
+
+
+                pulse % 6 < 4 ->
+                    Color.rgb(
+                        80,
+                        180,
+                        255
+                    )
+
+
+                else ->
+                    Color.rgb(
+                        0,
+                        150,
+                        255
+                    )
+            }
 
 
 
         canvas.drawCircle(
             x,
             y,
-            50f,
+            45f,
             paint
         )
 
@@ -212,6 +277,10 @@ class HomePageView(
 
         paint.textSize =
             26f
+
+
+        paint.typeface =
+            Typeface.DEFAULT_BOLD
 
 
 
@@ -289,7 +358,6 @@ class HomePageView(
             height / 2f + 150f,
             paint
         )
-
 
 
         canvas.drawText(
@@ -385,7 +453,6 @@ class HomePageView(
             blue
 
 
-
         canvas.drawRoundRect(
             left,
             top,
@@ -414,7 +481,6 @@ class HomePageView(
             16f
 
 
-
         canvas.drawText(
             title,
             (left + right) / 2f,
@@ -430,7 +496,6 @@ class HomePageView(
 
         paint.textSize =
             18f
-
 
 
         canvas.drawText(
