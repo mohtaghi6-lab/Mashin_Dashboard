@@ -73,6 +73,18 @@ class SpeechManager(
 
 
                 ready = true
+                android.os.Handler(
+    android.os.Looper.getMainLooper()
+).postDelayed({
+
+    textToSpeech?.speak(
+        "سلام MRT",
+        TextToSpeech.QUEUE_FLUSH,
+        null,
+        "mrt_startup"
+    )
+
+}, 1500)
 textToSpeech?.speak(
     "سلام MRT",
     TextToSpeech.QUEUE_FLUSH,
