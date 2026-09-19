@@ -92,6 +92,11 @@ drawSpeedGauge(
     width / 2f,
     height / 2f + 20f
 )
+drawRpmGauge(
+    canvas,
+    width / 2f,
+    height / 2f + 260f
+)
 
         drawVehicleInfo(
             canvas,
@@ -670,6 +675,157 @@ private fun drawSpeedGauge(
         "km/h",
         x,
         y + 45f,
+        paint
+    )
+
+}
+private fun drawRpmGauge(
+    canvas: Canvas,
+    x: Float,
+    y: Float
+) {
+
+
+    val rpm =
+        vehicleData.rpm.coerceIn(
+            0,
+            8000
+        )
+
+
+    val angle =
+        -220f + (rpm / 8000f) * 260f
+
+
+
+    // Outer ring
+
+    paint.style =
+        Paint.Style.STROKE
+
+
+    paint.strokeWidth =
+        7f
+
+
+    paint.color =
+        Color.argb(
+            160,
+            70,
+            190,
+            255
+        )
+
+
+    canvas.drawCircle(
+        x,
+        y,
+        90f,
+        paint
+    )
+
+
+
+    // Inner ring
+
+    paint.strokeWidth =
+        3f
+
+
+    paint.color =
+        Color.WHITE
+
+
+    canvas.drawCircle(
+        x,
+        y,
+        75f,
+        paint
+    )
+
+
+
+    // Needle
+
+    val rad =
+        Math.toRadians(
+            angle.toDouble()
+        )
+
+
+    val needleX =
+        x +
+        kotlin.math.cos(rad).toFloat()
+        * 65f
+
+
+    val needleY =
+        y +
+        kotlin.math.sin(rad).toFloat()
+        * 65f
+
+
+
+    paint.strokeWidth =
+        4f
+
+
+    paint.color =
+        Color.RED
+
+
+
+    canvas.drawLine(
+        x,
+        y,
+        needleX,
+        needleY,
+        paint
+    )
+
+
+
+    // RPM text
+
+    paint.style =
+        Paint.Style.FILL
+
+
+    paint.textAlign =
+        Paint.Align.CENTER
+
+
+    paint.color =
+        Color.WHITE
+
+
+    paint.textSize =
+        28f
+
+
+
+    canvas.drawText(
+        "${rpm}",
+        x,
+        y + 10f,
+        paint
+    )
+
+
+
+    paint.textSize =
+        13f
+
+
+    paint.color =
+        blue
+
+
+
+    canvas.drawText(
+        "RPM",
+        x,
+        y + 35f,
         paint
     )
 
