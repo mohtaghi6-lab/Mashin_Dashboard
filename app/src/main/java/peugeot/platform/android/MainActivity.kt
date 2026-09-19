@@ -425,9 +425,117 @@ class MainActivity : Activity() {
 
 
     private fun showPage(
-        page: MainMenuPage
-    ) {
+    page: MainMenuPage
+) {
 
+
+    dashboard.visibility =
+        View.GONE
+
+    carPageView.visibility =
+        View.GONE
+
+    musicPageView.visibility =
+        View.GONE
+
+    navigationPageView.visibility =
+        View.GONE
+
+    callPageView.visibility =
+        View.GONE
+
+    errorScannerPageView.visibility =
+        View.GONE
+
+
+
+    when(page) {
+
+
+        MainMenuPage.HOME -> {
+
+            dashboard.visibility =
+                View.VISIBLE
+
+            mainMenuView.visibility =
+                View.VISIBLE
+        }
+
+
+
+        MainMenuPage.CAR -> {
+
+            carPageView.visibility =
+                View.VISIBLE
+
+            mainMenuView.visibility =
+                View.GONE
+        }
+
+
+
+        MainMenuPage.MUSIC -> {
+
+            musicPageView.visibility =
+                View.VISIBLE
+
+            mainMenuView.visibility =
+                View.GONE
+        }
+
+
+
+        MainMenuPage.NAVIGATION -> {
+
+            navigationPageView.visibility =
+                View.VISIBLE
+
+            navigationPageView.refresh()
+
+            mainMenuView.visibility =
+                View.GONE
+        }
+
+
+
+        MainMenuPage.CALL -> {
+
+            callPageView.visibility =
+                View.VISIBLE
+
+            mainMenuView.visibility =
+                View.GONE
+        }
+
+
+
+        MainMenuPage.SCAN -> {
+
+            errorScannerPageView.visibility =
+                View.VISIBLE
+
+            mainMenuView.visibility =
+                View.GONE
+        }
+
+
+
+        MainMenuPage.SETTINGS -> {
+
+            dashboard.visibility =
+                View.VISIBLE
+
+            mainMenuView.visibility =
+                View.VISIBLE
+
+            mainMenuView.setPage(
+                MainMenuPage.SETTINGS
+            )
+        }
+
+    }
+
+}
 
         dashboard.visibility =
             View.GONE
