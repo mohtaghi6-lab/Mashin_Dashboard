@@ -26,7 +26,9 @@ jobs:
           gradle-version: '8.9'
 
       - name: Build Debug APK
-        run: gradle assembleDebug
+  env:
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  run: gradle assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
