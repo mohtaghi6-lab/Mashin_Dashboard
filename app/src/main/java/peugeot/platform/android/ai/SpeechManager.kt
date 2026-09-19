@@ -73,7 +73,16 @@ class SpeechManager(
 
 
                 ready = true
+textToSpeech?.speak(
+    "سلام MRT",
+    TextToSpeech.QUEUE_FLUSH,
+    null,
+    "mrt_greeting"
+)
 
+onStateChanged(
+    AIState.SPEAKING
+)
 
             } else {
 
