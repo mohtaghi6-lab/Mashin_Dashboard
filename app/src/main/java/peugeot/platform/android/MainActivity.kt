@@ -1,5 +1,5 @@
 package peugeot.platform.android
-import peugeot.platform.android.ui.VehicleSettingsPageView
+
 import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
@@ -8,749 +8,367 @@ import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.widget.FrameLayout
-import peugeot.platform.android.ui.HomePageView
 import peugeot.platform.android.ai.AIEngine
 import peugeot.platform.android.ai.AIState
 import peugeot.platform.android.ai.SpeechManager
 import peugeot.platform.android.ai.VoiceManager
-
 import peugeot.platform.android.dashboard.DashboardView
-
 import peugeot.platform.android.ui.CallPageView
 import peugeot.platform.android.ui.CarPageView
 import peugeot.platform.android.ui.ErrorScannerPageView
+import peugeot.platform.android.ui.HomePageView
 import peugeot.platform.android.ui.MainMenuController
 import peugeot.platform.android.ui.MainMenuPage
 import peugeot.platform.android.ui.MainMenuView
 import peugeot.platform.android.ui.MusicPageView
 import peugeot.platform.android.ui.NavigationPageView
-
+import peugeot.platform.android.ui.VehicleSettingsPageView
 import peugeot.platform.android.vehicle.VehicleData
 import peugeot.platform.android.vehicle.VehicleDataController
 
-
 class MainActivity : Activity() {
 
-
     private lateinit var displayBootManager: DisplayBootManager
-
-private lateinit var homePageView: HomePageView
+    private lateinit var homePageView: HomePageView
     private lateinit var voiceManager: VoiceManager
     private lateinit var aiEngine: AIEngine
     private lateinit var speechManager: SpeechManager
 
-
     private lateinit var dashboard: DashboardView
-
     private lateinit var carPageView: CarPageView
     private lateinit var musicPageView: MusicPageView
     private lateinit var navigationPageView: NavigationPageView
     private lateinit var callPageView: CallPageView
     private lateinit var errorScannerPageView: ErrorScannerPageView
-private lateinit var vehicleSettingsPageView: VehicleSettingsPageView
+    private lateinit var vehicleSettingsPageView: VehicleSettingsPageView
 
     private lateinit var mainMenuView: MainMenuView
     private lateinit var mainMenuController: MainMenuController
-
-
     private lateinit var vehicleDataController: VehicleDataController
-
-
     private lateinit var root: FrameLayout
-
 
     private var pendingVoiceStart = false
 
-
     companion object {
-
         private const val AUDIO_PERMISSION_REQUEST = 1001
-
     }
 
-
-
-    override fun onCreate(
-        savedInstanceState: Bundle?
-    ) {
-
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-
-        requestWindowFeature(
-            Window.FEATURE_NO_TITLE
-        )
-
+        requestWindowFeature(Window.FEATURE_NO_TITLE)
 
         window.setFlags(
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
 
-
         window.decorView.systemUiVisibility =
             View.SYSTEM_UI_FLAG_FULLSCREEN or
             View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
             View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
 
+        root = FrameLayout(this)
 
-
-        root =
-            FrameLayout(this)
-
-
-
-        // =========================
-        // DASHBOARD
-        // =========================
-
-        dashboard =
-            DashboardView(this)
-
-
-        dashboard.setVehicleData(
-            VehicleData.demo()
-        )
-
+        dashboard = DashboardView(this).apply {
+            setVehicleData(VehicleData.demo())
+            visibility = View.GONE
+        }
 
         root.addView(
             dashboard,
-            FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-            )
+            fullScreenParams()
         )
 
-// =========================
-// HOME BMW UI
-// =========================
+        homePageView = HomePageView(this).apply {
+            setVehicleData(VehicleData.demo())
+            visibility = View.VISIBLE
+        }
 
-homePageView =
-    HomePageView(this)
+        root.addView(
+            homePageView,
+            fullScreenParams()
+        )
 
-
-homePageView.visibility =
-    View.GONE
-
-
-root.addView(
-    homePageView,
-    FrameLayout.LayoutParams(
-        FrameLayout.LayoutParams.MATCH_PARENT,
-        FrameLayout.LayoutParams.MATCH_PARENT
-    )
-)
-
-        // =========================
-        // CAR
-        // =========================
-
-        carPageView =
-            CarPageView(this)
-
-
-        carPageView.visibility =
-            View.GONE
-
+        carPageView = CarPageView(this).apply {
+            visibility = View.GONE
+        }
 
         root.addView(
             carPageView,
-            FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-            )
+            fullScreenParams()
         )
 
-
-
-        // =========================
-        // MUSIC
-        // =========================
-
-        musicPageView =
-            MusicPageView(this)
-
-
-        musicPageView.visibility =
-            View.GONE
-
+        musicPageView = MusicPageView(this).apply {
+            visibility = View.GONE
+        }
 
         root.addView(
             musicPageView,
-            FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-            )
+            fullScreenParams()
         )
 
-
-
-        // =========================
-        // NAVIGATION
-        // =========================
-
-        navigationPageView =
-            NavigationPageView(this)
-
-
-        navigationPageView.visibility =
-            View.GONE
-
+        navigationPageView = NavigationPageView(this).apply {
+            visibility = View.GONE
+        }
 
         root.addView(
             navigationPageView,
-            FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-            )
+            fullScreenParams()
         )
 
-
-        // =========================
-        // CALL
-        // =========================
-
-        callPageView =
-            CallPageView(this)
-
-
-        callPageView.visibility =
-            View.GONE
-
+        callPageView = CallPageView(this).apply {
+            visibility = View.GONE
+        }
 
         root.addView(
             callPageView,
-            FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-            )
+            fullScreenParams()
         )
 
-
-        // =========================
-        // ERROR SCANNER
-        // =========================
-
-        errorScannerPageView =
-            ErrorScannerPageView(this)
-vehicleSettingsPageView =
-    VehicleSettingsPageView(this)
-
-vehicleSettingsPageView.visibility =
-    View.GONE
-
-root.addView(
-    vehicleSettingsPageView,
-    FrameLayout.LayoutParams(
-        FrameLayout.LayoutParams.MATCH_PARENT,
-        FrameLayout.LayoutParams.MATCH_PARENT
-    )
-)
-
-        errorScannerPageView.visibility =
-            View.GONE
-
+        errorScannerPageView = ErrorScannerPageView(this).apply {
+            visibility = View.GONE
+        }
 
         root.addView(
             errorScannerPageView,
-            FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-            )
+            fullScreenParams()
         )
-                // =========================
-        // MENU
-        // =========================
 
-        mainMenuView =
-            MainMenuView(this)
+        vehicleSettingsPageView = VehicleSettingsPageView(this).apply {
+            visibility = View.GONE
+        }
 
+        root.addView(
+            vehicleSettingsPageView,
+            fullScreenParams()
+        )
+
+        mainMenuView = MainMenuView(this).apply {
+            setPage(MainMenuPage.HOME)
+            visibility = View.VISIBLE
+        }
 
         root.addView(
             mainMenuView,
-            FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-            )
+            fullScreenParams()
         )
-
 
         setContentView(root)
 
-
-
-        // =========================
-        // BOOT MANAGER
-        // =========================
-
-        displayBootManager =
-            DisplayBootManager()
-
-
+        displayBootManager = DisplayBootManager()
         displayBootManager.onWindowReady()
 
-
-
-        // =========================
-        // VEHICLE DATA
-        // =========================
-
-        vehicleDataController =
-            VehicleDataController { data ->
-
-
-                runOnUiThread {
-
-
-                    dashboard.setVehicleData(
-                        data
-                    )
-homePageView.setVehicleData(
-    data
-)
-
-                    carPageView.setVehicleData(
-                        data
-                    )
-
-
-                    errorScannerPageView.setVehicleData(
-                        data
-                    )
-
-                }
-
+        vehicleDataController = VehicleDataController { data ->
+            runOnUiThread {
+                dashboard.setVehicleData(data)
+                homePageView.setVehicleData(data)
+                carPageView.setVehicleData(data)
+                errorScannerPageView.setVehicleData(data)
             }
-
+        }
 
         vehicleDataController.useDemoMode()
 
+        mainMenuController = MainMenuController { page ->
+            runOnUiThread {
+                showPage(page)
+            }
+        }
 
+        mainMenuView.onPageSelected = { page ->
+            mainMenuController.open(page)
+        }
 
-        // =========================
-        // MENU CONTROLLER
-        // =========================
+        aiEngine = AIEngine(this)
 
-        mainMenuController =
-            MainMenuController { page ->
-
-
+        speechManager = SpeechManager(
+            context = this,
+            onStateChanged = { state ->
                 runOnUiThread {
-
-
-                    showPage(
-                        page
-                    )
-
+                    dashboard.setAIState(state)
+                    homePageView.setAIState(state)
                 }
-
             }
+        )
 
+        voiceManager = VoiceManager(
+            context = this,
+            onResult = { text ->
+                runOnUiThread {
+                    dashboard.setAIState(AIState.THINKING)
+                    homePageView.setAIState(AIState.THINKING)
 
-errorScannerPageView.visibility =
-    View.GONE
-        vehicleSettingsPageView.visibility =
-    View.GONE
-        
-        mainMenuView.onPageSelected =
-            { page ->
-
-
-                mainMenuController.open(
-                    page
-                )
-
-            }
-
-
-
-        // =========================
-        // AI ENGINE
-        // =========================
-
-        aiEngine =
-            AIEngine(this)
-
-
-
-        // =========================
-        // SPEECH MANAGER
-        // =========================
-
-        speechManager =
-            SpeechManager(
-
-                context = this,
-
-                onStateChanged = { state ->
-
-
-                    runOnUiThread {
-
-
-                        dashboard.setAIState(
-                            state
-                        )
-
-                    }
-
-                }
-
-            )
-
-
-
-        // =========================
-        // VOICE MANAGER
-        // =========================
-
-        voiceManager =
-            VoiceManager(
-
-                context = this,
-
-
-                onResult = { text ->
-
-
-                    runOnUiThread {
-
-
-                        dashboard.setAIState(
-                            AIState.THINKING
-                        )
-
-
-                        aiEngine.process(
-
-                            text = text,
-
-
-                            onResponse = { response ->
-
-
-                                runOnUiThread {
-
-
-                                    speechManager.speak(
-                                        response
-                                    )
-
-                                }
-
-                            },
-
-
-                            onError = {
-
-
-                                runOnUiThread {
-
-
-                                    dashboard.setAIState(
-                                        AIState.ERROR
-                                    )
-
-                                }
-
+                    aiEngine.process(
+                        text = text,
+                        onResponse = { response ->
+                            runOnUiThread {
+                                speechManager.speak(response)
                             }
-
-                        )
-
-                    }
-
-                },
-
-
-
-                onStateChanged = { state ->
-
-
-                    runOnUiThread {
-
-
-                        dashboard.setAIState(
-                            state
-                        )
-
-                    }
-
+                        },
+                        onError = {
+                            runOnUiThread {
+                                dashboard.setAIState(AIState.ERROR)
+                                homePageView.setAIState(AIState.ERROR)
+                            }
+                        }
+                    )
                 }
+            },
+            onStateChanged = { state ->
+                runOnUiThread {
+                    dashboard.setAIState(state)
+                    homePageView.setAIState(state)
+                }
+            }
+        )
 
-            )
-
-
-
-        // =========================
-        // AI ORB CLICK
-        // =========================
-
-        dashboard.onAIOrbClick = {
-
-
-            if(
-
+        val startVoice = {
+            if (
                 checkSelfPermission(
                     Manifest.permission.RECORD_AUDIO
                 ) == PackageManager.PERMISSION_GRANTED
-
-            ){
-
-
+            ) {
                 voiceManager.startListening()
-
-
             } else {
-
-
                 pendingVoiceStart = true
-
-
                 requestMicrophonePermission()
-
             }
-
         }
 
-
+        dashboard.onAIOrbClick = startVoice
+        homePageView.onAIOrbClick = startVoice
 
         requestMicrophonePermission()
-
     }
-        // =========================
-    // PAGE CONTROL
-    // =========================
 
-    private fun showPage(
-        page: MainMenuPage
-    ) {
+    private fun fullScreenParams(): FrameLayout.LayoutParams {
+        return FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.MATCH_PARENT
+        )
+    }
 
-homePageView.visibility =
-    View.GONE
-        dashboard.visibility =
-            View.GONE
+    private fun showPage(page: MainMenuPage) {
+        dashboard.visibility = View.GONE
+        homePageView.visibility = View.GONE
+        carPageView.visibility = View.GONE
+        musicPageView.visibility = View.GONE
+        navigationPageView.visibility = View.GONE
+        callPageView.visibility = View.GONE
+        errorScannerPageView.visibility = View.GONE
+        vehicleSettingsPageView.visibility = View.GONE
 
-        carPageView.visibility =
-            View.GONE
-
-        musicPageView.visibility =
-            View.GONE
-
-        navigationPageView.visibility =
-            View.GONE
-
-        callPageView.visibility =
-            View.GONE
-
-        errorScannerPageView.visibility =
-            View.GONE
-
-
-
-        when(page) {
-
-
+        when (page) {
             MainMenuPage.HOME -> {
-
-    homePageView.visibility =
-        View.VISIBLE
-
-    mainMenuView.visibility =
-        View.GONE
-}
-
-
+                homePageView.visibility = View.VISIBLE
+                mainMenuView.visibility = View.VISIBLE
+                mainMenuView.setPage(MainMenuPage.HOME)
+            }
 
             MainMenuPage.CAR -> {
-
-                carPageView.visibility =
-                    View.VISIBLE
-
-                mainMenuView.visibility =
-                    View.GONE
+                carPageView.visibility = View.VISIBLE
+                mainMenuView.visibility = View.GONE
             }
-
-
 
             MainMenuPage.MUSIC -> {
-
-                musicPageView.visibility =
-                    View.VISIBLE
-
-                mainMenuView.visibility =
-                    View.GONE
+                musicPageView.visibility = View.VISIBLE
+                mainMenuView.visibility = View.GONE
             }
-
-
 
             MainMenuPage.NAVIGATION -> {
-
-                navigationPageView.visibility =
-                    View.VISIBLE
-
+                navigationPageView.visibility = View.VISIBLE
                 navigationPageView.refresh()
-
-                mainMenuView.visibility =
-                    View.GONE
+                mainMenuView.visibility = View.GONE
             }
-
-
 
             MainMenuPage.CALL -> {
-
-                callPageView.visibility =
-                    View.VISIBLE
-
-                mainMenuView.visibility =
-                    View.GONE
+                callPageView.visibility = View.VISIBLE
+                mainMenuView.visibility = View.GONE
             }
-
-
 
             MainMenuPage.SCAN -> {
-
-                errorScannerPageView.visibility =
-                    View.VISIBLE
-
-                mainMenuView.visibility =
-                    View.GONE
+                errorScannerPageView.visibility = View.VISIBLE
+                mainMenuView.visibility = View.GONE
             }
 
-
-
             MainMenuPage.SETTINGS -> {
-
-    vehicleSettingsPageView.visibility =
-        View.VISIBLE
-
-    mainMenuView.visibility =
-        View.GONE
-}
-
+                vehicleSettingsPageView.visibility = View.VISIBLE
+                mainMenuView.visibility = View.GONE
+            }
         }
-
     }
 
-
-
-    // =========================
-    // MICROPHONE PERMISSION
-    // =========================
-
     private fun requestMicrophonePermission() {
-
-
         if (
-
             android.os.Build.VERSION.SDK_INT >=
             android.os.Build.VERSION_CODES.M
-
         ) {
-
-
             if (
-
                 checkSelfPermission(
                     Manifest.permission.RECORD_AUDIO
                 ) != PackageManager.PERMISSION_GRANTED
-
             ) {
-
-
                 requestPermissions(
-
                     arrayOf(
                         Manifest.permission.RECORD_AUDIO
                     ),
-
                     AUDIO_PERMISSION_REQUEST
                 )
-
             }
-
         }
-
     }
 
-
-
     override fun onRequestPermissionsResult(
-
         requestCode: Int,
-
         permissions: Array<out String>,
-
         grantResults: IntArray
-
     ) {
-
-
         super.onRequestPermissionsResult(
             requestCode,
             permissions,
             grantResults
         )
 
-
-
         if (
-
-            requestCode ==
-            AUDIO_PERMISSION_REQUEST &&
-
+            requestCode == AUDIO_PERMISSION_REQUEST &&
             grantResults.isNotEmpty() &&
-
-            grantResults[0] ==
-            PackageManager.PERMISSION_GRANTED
-
+            grantResults[0] == PackageManager.PERMISSION_GRANTED &&
+            pendingVoiceStart
         ) {
+            pendingVoiceStart = false
+            voiceManager.startListening()
+        }
+    }
 
-
-            if(pendingVoiceStart) {
-
-
-                pendingVoiceStart = false
-
-
-                voiceManager.startListening()
-
+    override fun onBackPressed() {
+        when {
+            carPageView.visibility == View.VISIBLE ||
+            musicPageView.visibility == View.VISIBLE ||
+            navigationPageView.visibility == View.VISIBLE ||
+            callPageView.visibility == View.VISIBLE ||
+            errorScannerPageView.visibility == View.VISIBLE ||
+            vehicleSettingsPageView.visibility == View.VISIBLE -> {
+                showPage(MainMenuPage.HOME)
             }
 
+            else -> super.onBackPressed()
         }
-
     }
-
-
 
     override fun onDestroy() {
-
-
-        if(::voiceManager.isInitialized) {
-
+        if (::voiceManager.isInitialized) {
             voiceManager.destroy()
-
         }
 
-
-
-        if(::speechManager.isInitialized) {
-
+        if (::speechManager.isInitialized) {
             speechManager.destroy()
-
         }
 
-
-
-        if(::displayBootManager.isInitialized) {
-
+        if (::displayBootManager.isInitialized) {
             displayBootManager.destroy()
-
         }
-
-
 
         super.onDestroy()
-
     }
-
 }
