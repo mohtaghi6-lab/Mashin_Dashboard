@@ -339,62 +339,36 @@ class ClockPageView(
 
 
 
-    private fun drawNumbers(
-        canvas: Canvas,
-        cx: Float,
-        cy: Float,
-        radius: Float
-    ) {
+   private fun drawNumbers(
+    canvas: Canvas,
+    cx: Float,
+    cy: Float,
+    radius: Float
+) {
 
+    paint.style = Paint.Style.FILL
+    paint.textAlign = Paint.Align.CENTER
+    paint.textSize = 28f
+    paint.color = Color.WHITE
 
-        paint.style =
-            Paint.Style.FILL
+    for (i in 1..12) {
 
+        val angle = Math.toRadians(
+            (i * 30 - 90).toDouble()
+        )
 
-        paint.textAlign =
-            Paint.Align.CENTER
+        val x = cx + cos(angle).toFloat() * (radius - 55f)
 
+        val y = cy + sin(angle).toFloat() * (radius - 55f) + 10f
 
-        paint.textSize =
-            28f
-
-
-        paint.color =
-            Color.WHITE
-
-
-
-        for (i in 1..12) {
-
-
-            val angle =
-                Math.toRadians(
-                    (i * 30 - 90).toDouble()
-                )
-
-
-            val x =
-                cx + cos(angle).toFloat()
-                    * (radius - 55f)
-
-
-            val y =
-                cy + sin(angle).toFloat()
-                    * (radius - 55f)
-                    + 10f
-
-
-
-            canvas.drawText(
-                i.toString(),
-                x,
-                y,
-                paint
-            )
-
-        }
-
+        canvas.drawText(
+            i.toString(),
+            x,
+            y,
+            paint
+        )
     }
+}
 
 
 
