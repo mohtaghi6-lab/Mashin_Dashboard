@@ -319,7 +319,6 @@ private fun drawHeader(
     paint.color =
         muted
 
-
     canvas.drawText(
         "LUXURY VEHICLE OS",
         35f,
@@ -344,8 +343,7 @@ private fun drawHeader(
         36f
 
 
-    paint.color =
-        white
+ paint.color = muted
 
 
     canvas.drawText(
@@ -784,5 +782,157 @@ private fun drawGauge(
 
         return true
     }
+private fun drawAIOrb(
+    canvas: Canvas,
+    cx: Float,
+    cy: Float,
+    radius: Float
+) {
+    val glow = Paint(Paint.ANTI_ALIAS_FLAG)
 
+    val pulse =
+        ((sin(System.currentTimeMillis() / 300.0) + 1) / 2).toFloat()
+
+    glow.shader = RadialGradient(
+        cx,
+        cy,
+        radius * 1.8f,
+        intArrayOf(
+            Color.rgb(150,240,255),
+            blue,
+            Color.TRANSPARENT
+        ),
+        null,
+        Shader.TileMode.CLAMP
+    )
+
+    canvas.drawCircle(
+        cx,
+        cy,
+        radius * (1.3f + pulse * 0.15f),
+        glow
+    )
+
+
+    paint.style = Paint.Style.FILL
+
+    paint.color = blue
+
+    canvas.drawCircle(
+        cx,
+        cy,
+        radius,
+        paint
+    )
+
+
+    paint.color = Color.WHITE
+
+    paint.textAlign = Paint.Align.CENTER
+
+    paint.textSize = radius * 0.35f
+
+    paint.typeface =
+        Typeface.DEFAULT_BOLD
+
+
+    canvas.drawText(
+        "MRT",
+        cx,
+        cy + 10f,
+        paint
+    )
+    private fun drawCenterInfo(
+    canvas: Canvas,
+    w: Float,
+    h: Float
+) {
+
+    paint.textAlign =
+        Paint.Align.CENTER
+
+    paint.typeface =
+        Typeface.DEFAULT_BOLD
+
+    paint.textSize =
+        14f
+
+    paint.color =
+        Color.WHITE
+
+
+    canvas.drawText(
+        "سلام MRT",
+        w / 2f,
+        h * 0.62f,
+        paint
+    )
+
+
+    paint.textSize =
+        11f
+
+    paint.color =
+        muted
+
+
+    canvas.drawText(
+        "آماده دریافت فرمان صوتی",
+        w / 2f,
+        h * 0.65f,
+        paint
+    )
+}
+}
+private fun drawStatusCards(
+    canvas: Canvas,
+    w: Float,
+    h: Float
+) {
+
+    val top = h * 0.72f
+    val bottom = h * 0.82f
+
+    val margin = 30f
+    val gap = 12f
+
+    val cardW =
+        (w - margin * 2 - gap * 2) / 3f
+
+
+    drawGlassCard(
+        canvas,
+        margin,
+        top,
+        margin + cardW,
+        bottom,
+        "ENGINE",
+        vehicleData.engineTempC.toString() + "°C"
+    )
+
+
+    drawGlassCard(
+        canvas,
+        margin + cardW + gap,
+        top,
+        margin + cardW * 2 + gap,
+        bottom,
+        "FUEL",
+        vehicleData.fuelPercent.toString() + "%"
+    )
+
+
+    drawGlassCard(
+        canvas,
+        margin + cardW * 2 + gap * 2,
+        top,
+        w - margin,
+        bottom,
+        "CAN",
+        if(vehicleData.canConnected)
+            "ONLINE"
+        else
+            "STANDBY"
+    )
+}
 }
