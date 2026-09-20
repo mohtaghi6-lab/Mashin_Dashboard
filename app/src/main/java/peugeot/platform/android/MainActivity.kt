@@ -8,12 +8,12 @@ import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.widget.FrameLayout
-import peugeot.platform.android.ui.SwipeController
+
 import peugeot.platform.android.ai.AIEngine
 import peugeot.platform.android.ai.AIState
 import peugeot.platform.android.ai.SpeechManager
 import peugeot.platform.android.ai.VoiceManager
-import peugeot.platform.android.ui.ClockPageView
+
 import peugeot.platform.android.dashboard.DashboardView
 
 import peugeot.platform.android.ui.CallPageView
@@ -27,6 +27,7 @@ import peugeot.platform.android.ui.MainMenuView
 import peugeot.platform.android.ui.MusicPageView
 import peugeot.platform.android.ui.NavigationPageView
 import peugeot.platform.android.ui.VehicleSettingsPageView
+import peugeot.platform.android.ui.SwipeController
 
 import peugeot.platform.android.vehicle.VehicleData
 import peugeot.platform.android.vehicle.VehicleDataController
@@ -36,31 +37,44 @@ class MainActivity : Activity() {
 
 
     private lateinit var displayBootManager: DisplayBootManager
-private lateinit var swipeController: SwipeController
-    private lateinit var homePageView: HomePageView
+
+    private lateinit var swipeController: SwipeController
+
+    private lateinit var root: FrameLayout
+
+
     private lateinit var dashboard: DashboardView
 
+    private lateinit var homePageView: HomePageView
+
     private lateinit var clockPageView: ClockPageView
-private lateinit var clockPageView: ClockPageView
+
     private lateinit var carPageView: CarPageView
+
     private lateinit var musicPageView: MusicPageView
+
     private lateinit var navigationPageView: NavigationPageView
+
     private lateinit var callPageView: CallPageView
+
     private lateinit var errorScannerPageView: ErrorScannerPageView
+
     private lateinit var vehicleSettingsPageView: VehicleSettingsPageView
 
 
-    private lateinit var voiceManager: VoiceManager
-    private lateinit var speechManager: SpeechManager
-    private lateinit var aiEngine: AIEngine
-
-
     private lateinit var mainMenuView: MainMenuView
+
     private lateinit var mainMenuController: MainMenuController
+
 
     private lateinit var vehicleDataController: VehicleDataController
 
-    private lateinit var root: FrameLayout
+
+    private lateinit var voiceManager: VoiceManager
+
+    private lateinit var speechManager: SpeechManager
+
+    private lateinit var aiEngine: AIEngine
 
 
     private var pendingVoiceStart = false
@@ -106,6 +120,7 @@ private lateinit var clockPageView: ClockPageView
             )
 
             visibility = View.GONE
+
         }
 
 
@@ -123,6 +138,7 @@ private lateinit var clockPageView: ClockPageView
             )
 
             visibility = View.VISIBLE
+
         }
 
 
@@ -133,14 +149,9 @@ private lateinit var clockPageView: ClockPageView
 
 
 
-      clockPageView = ClockPageView(this).apply {
-    visibility = View.GONE
-}
+        clockPageView = ClockPageView(this).apply {
 
-root.addView(
-    clockPageView,
-    fullScreenParams()
-)
+            visibility = View.GONE
 
         }
 
@@ -149,10 +160,7 @@ root.addView(
             clockPageView,
             fullScreenParams()
         )
-
-
-
-        carPageView = CarPageView(this).apply {
+                carPageView = CarPageView(this).apply {
 
             visibility = View.GONE
 
@@ -191,9 +199,15 @@ root.addView(
             navigationPageView,
             fullScreenParams()
         )
-                callPageView = CallPageView(this).apply {
+
+
+
+        callPageView = CallPageView(this).apply {
+
             visibility = View.GONE
+
         }
+
 
         root.addView(
             callPageView,
@@ -201,9 +215,13 @@ root.addView(
         )
 
 
+
         errorScannerPageView = ErrorScannerPageView(this).apply {
+
             visibility = View.GONE
+
         }
+
 
         root.addView(
             errorScannerPageView,
@@ -211,9 +229,13 @@ root.addView(
         )
 
 
+
         vehicleSettingsPageView = VehicleSettingsPageView(this).apply {
+
             visibility = View.GONE
+
         }
+
 
         root.addView(
             vehicleSettingsPageView,
@@ -221,11 +243,15 @@ root.addView(
         )
 
 
+
         mainMenuView = MainMenuView(this).apply {
 
-            setPage(MainMenuPage.HOME)
+            setPage(
+                MainMenuPage.HOME
+            )
 
             visibility = View.VISIBLE
+
         }
 
 
@@ -235,33 +261,10 @@ root.addView(
         )
 
 
+
         setContentView(root)
 
-swipeController = SwipeController(
 
-    root,
-
-    onSwipeRight = {
-
-        showPage(
-            MainMenuPage.CLOCK
-        )
-
-    },
-
-
-    onSwipeLeft = {
-
-        showPage(
-            MainMenuPage.HOME
-        )
-
-    }
-
-)
-
-
-swipeController.attach()
 
         displayBootManager = DisplayBootManager()
 
@@ -285,6 +288,7 @@ swipeController.attach()
                 }
 
             }
+
 
 
         vehicleDataController.useDemoMode()
@@ -342,19 +346,15 @@ swipeController.attach()
 
             onResult = { text ->
 
-
                 runOnUiThread {
-
 
                     dashboard.setAIState(
                         AIState.THINKING
                     )
 
-
                     homePageView.setAIState(
                         AIState.THINKING
                     )
-
 
 
                     aiEngine.process(
@@ -400,14 +400,11 @@ swipeController.attach()
 
             onStateChanged = { state ->
 
-
                 runOnUiThread {
-
 
                     dashboard.setAIState(state)
 
                     homePageView.setAIState(state)
-
 
                 }
 
@@ -419,28 +416,21 @@ swipeController.attach()
 
         val startVoice = {
 
-
             if (
-
                 checkSelfPermission(
                     Manifest.permission.RECORD_AUDIO
                 ) == PackageManager.PERMISSION_GRANTED
-
             ) {
-
 
                 voiceManager.startListening()
 
-
             } else {
-
 
                 pendingVoiceStart = true
 
                 requestMicrophonePermission()
 
             }
-
 
         }
 
@@ -455,294 +445,3 @@ swipeController.attach()
         requestMicrophonePermission()
 
     }
-
-
-
-
-    private fun fullScreenParams(): FrameLayout.LayoutParams {
-
-        return FrameLayout.LayoutParams(
-
-            FrameLayout.LayoutParams.MATCH_PARENT,
-
-            FrameLayout.LayoutParams.MATCH_PARENT
-
-        )
-
-    }
-
-
-
-
-    private fun showPage(
-        page: MainMenuPage
-    ) {
-
-
-        dashboard.visibility = View.GONE
-
-        homePageView.visibility = View.GONE
-
-        clockPageView.visibility = View.GONE
-clockPageView.visibility = View.GONE
-        carPageView.visibility = View.GONE
-
-        musicPageView.visibility = View.GONE
-
-        navigationPageView.visibility = View.GONE
-
-        callPageView.visibility = View.GONE
-
-        errorScannerPageView.visibility = View.GONE
-
-        vehicleSettingsPageView.visibility = View.GONE
-
-
-
-        when(page) {
-
-
-            MainMenuPage.HOME -> {
-
-                homePageView.visibility = View.VISIBLE
-
-                mainMenuView.visibility = View.VISIBLE
-
-            }
-
-
-
-            MainMenuPage.CLOCK -> {
-
-                clockPageView.visibility = View.VISIBLE
-
-                mainMenuView.visibility = View.GONE
-
-            }
-
-
-
-            MainMenuPage.CAR -> {
-
-                carPageView.visibility = View.VISIBLE
-
-                mainMenuView.visibility = View.GONE
-
-            }
-
-
-
-            MainMenuPage.MUSIC -> {
-
-                musicPageView.visibility = View.VISIBLE
-
-                mainMenuView.visibility = View.GONE
-
-            }
-
-
-
-            MainMenuPage.NAVIGATION -> {
-
-                navigationPageView.visibility = View.VISIBLE
-
-                navigationPageView.refresh()
-
-                mainMenuView.visibility = View.GONE
-
-            }
-
-
-
-            MainMenuPage.CALL -> {
-
-                callPageView.visibility = View.VISIBLE
-
-                mainMenuView.visibility = View.GONE
-
-            }
-
-
-
-            MainMenuPage.SCAN -> {
-
-                errorScannerPageView.visibility = View.VISIBLE
-
-                mainMenuView.visibility = View.GONE
-
-            }
-
-
-
-            MainMenuPage.SETTINGS -> {
-
-                vehicleSettingsPageView.visibility = View.VISIBLE
-
-                mainMenuView.visibility = View.GONE
-
-            }
-
-        }
-
-    }
-
-
-
-
-    private fun requestMicrophonePermission() {
-
-
-        if (
-
-            android.os.Build.VERSION.SDK_INT >=
-            android.os.Build.VERSION_CODES.M
-
-        ) {
-
-
-            if (
-
-                checkSelfPermission(
-                    Manifest.permission.RECORD_AUDIO
-                ) != PackageManager.PERMISSION_GRANTED
-
-            ) {
-
-
-                requestPermissions(
-
-                    arrayOf(
-                        Manifest.permission.RECORD_AUDIO
-                    ),
-
-                    AUDIO_PERMISSION_REQUEST
-
-                )
-
-            }
-
-        }
-
-    }
-
-
-
-
-    override fun onRequestPermissionsResult(
-
-        requestCode: Int,
-
-        permissions: Array<out String>,
-
-        grantResults: IntArray
-
-    ) {
-
-
-        super.onRequestPermissionsResult(
-
-            requestCode,
-
-            permissions,
-
-            grantResults
-
-        )
-
-
-
-        if (
-
-            requestCode == AUDIO_PERMISSION_REQUEST &&
-
-            grantResults.isNotEmpty() &&
-
-            grantResults[0] ==
-            PackageManager.PERMISSION_GRANTED &&
-
-            pendingVoiceStart
-
-        ) {
-
-
-            pendingVoiceStart = false
-
-            voiceManager.startListening()
-
-        }
-
-    }
-
-
-
-
-    override fun onBackPressed() {
-
-
-        when {
-
-
-            clockPageView.visibility == View.VISIBLE ||
-
-            carPageView.visibility == View.VISIBLE ||
-
-            musicPageView.visibility == View.VISIBLE ||
-
-            navigationPageView.visibility == View.VISIBLE ||
-
-            callPageView.visibility == View.VISIBLE ||
-
-            errorScannerPageView.visibility == View.VISIBLE ||
-
-            vehicleSettingsPageView.visibility == View.VISIBLE -> {
-
-
-                showPage(
-                    MainMenuPage.HOME
-                )
-
-            }
-
-
-            else -> {
-
-                super.onBackPressed()
-
-            }
-
-        }
-
-    }
-
-
-
-
-    override fun onDestroy() {
-
-
-        if (::voiceManager.isInitialized) {
-
-            voiceManager.destroy()
-
-        }
-
-
-        if (::speechManager.isInitialized) {
-
-            speechManager.destroy()
-
-        }
-
-
-        if (::displayBootManager.isInitialized) {
-
-            displayBootManager.destroy()
-
-        }
-
-
-        super.onDestroy()
-
-    }
-
-}
