@@ -445,3 +445,166 @@ class MainActivity : Activity() {
         requestMicrophonePermission()
 
     }
+    private fun fullScreenParams(): FrameLayout.LayoutParams {
+        return FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.MATCH_PARENT
+        )
+    }
+
+
+    private fun showPage(page: MainMenuPage) {
+
+        dashboard.visibility = View.GONE
+        homePageView.visibility = View.GONE
+        clockPageView.visibility = View.GONE
+        carPageView.visibility = View.GONE
+        musicPageView.visibility = View.GONE
+        navigationPageView.visibility = View.GONE
+        callPageView.visibility = View.GONE
+        errorScannerPageView.visibility = View.GONE
+        vehicleSettingsPageView.visibility = View.GONE
+
+
+        when(page) {
+
+            MainMenuPage.HOME -> {
+
+                homePageView.visibility = View.VISIBLE
+                mainMenuView.visibility = View.VISIBLE
+
+            }
+
+
+            MainMenuPage.CLOCK -> {
+
+                clockPageView.visibility = View.VISIBLE
+                mainMenuView.visibility = View.GONE
+
+            }
+
+
+            MainMenuPage.CAR -> {
+
+                carPageView.visibility = View.VISIBLE
+                mainMenuView.visibility = View.GONE
+
+            }
+
+
+            MainMenuPage.MUSIC -> {
+
+                musicPageView.visibility = View.VISIBLE
+                mainMenuView.visibility = View.GONE
+
+            }
+
+
+            MainMenuPage.NAVIGATION -> {
+
+                navigationPageView.visibility = View.VISIBLE
+                navigationPageView.refresh()
+                mainMenuView.visibility = View.GONE
+
+            }
+
+
+            MainMenuPage.CALL -> {
+
+                callPageView.visibility = View.VISIBLE
+                mainMenuView.visibility = View.GONE
+
+            }
+
+
+            MainMenuPage.SCAN -> {
+
+                errorScannerPageView.visibility = View.VISIBLE
+                mainMenuView.visibility = View.GONE
+
+            }
+
+
+            MainMenuPage.SETTINGS -> {
+
+                vehicleSettingsPageView.visibility = View.VISIBLE
+                mainMenuView.visibility = View.GONE
+
+            }
+
+        }
+
+    }
+
+
+    private fun requestMicrophonePermission() {
+
+        if (
+            android.os.Build.VERSION.SDK_INT >=
+            android.os.Build.VERSION_CODES.M
+        ) {
+
+            if (
+                checkSelfPermission(
+                    Manifest.permission.RECORD_AUDIO
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+
+                requestPermissions(
+                    arrayOf(
+                        Manifest.permission.RECORD_AUDIO
+                    ),
+                    AUDIO_PERMISSION_REQUEST
+                )
+
+            }
+
+        }
+
+    }
+
+
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+
+        super.onRequestPermissionsResult(
+            requestCode,
+            permissions,
+            grantResults
+        )
+
+
+        if (
+            requestCode == AUDIO_PERMISSION_REQUEST &&
+            grantResults.isNotEmpty() &&
+            grantResults[0] ==
+            PackageManager.PERMISSION_GRANTED &&
+            pendingVoiceStart
+        ) {
+
+            pendingVoiceStart = false
+
+            voiceManager.startListening()
+
+        }
+
+    }
+
+
+
+    override fun onBackPressed() {
+
+        when {
+
+            clockPageView.visibility == View.VISIBLE ||
+            carPageView.visibility == View.VISIBLE ||
+            musicPageView.visibility == View.VISIBLE ||
+            navigationPageView.visibility == View.VISIBLE ||
+            callPageView.visibility == View.VISIBLE ||
+            errorScannerPageView.visibility == View.VISIBLE ||
+            vehicle
+             }
