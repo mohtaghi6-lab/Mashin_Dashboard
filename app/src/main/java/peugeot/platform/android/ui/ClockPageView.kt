@@ -19,28 +19,53 @@ class ClockPageView(
 
 
     private val blue =
-        Color.rgb(70,190,255)
+        Color.rgb(70, 190, 255)
 
 
-    private var timer =
+    private val cyan =
+        Color.rgb(130, 235, 255)
+
+
+    private val dark =
+        Color.rgb(2, 6, 12)
+
+
+
+    private var animation =
+        0f
+
+
+
+    private val timer =
         Timer()
+
 
 
     init {
 
         timer.scheduleAtFixedRate(
+
             object : TimerTask() {
 
                 override fun run() {
+
+                    animation += 0.03f
+
                     postInvalidate()
+
                 }
 
             },
+
             0,
-            1000
+
+            30
+
         )
 
     }
+
+
 
 
     override fun onDraw(
@@ -53,37 +78,154 @@ class ClockPageView(
         val w =
             width.toFloat()
 
+
         val h =
             height.toFloat()
+
 
 
         val cx =
             w / 2f
 
+
         val cy =
             h / 2f
 
 
-        canvas.drawColor(
-            Color.rgb(
-                2,
-                6,
-                12
-            )
+
+        drawBackground(
+            canvas,
+            w,
+            h
         )
 
 
-        // Glow اطراف ساعت
+
+        drawLuxuryClock(
+            canvas,
+            cx,
+            cy
+        )
+
+
+
+        drawInformation(
+            canvas,
+            w,
+            h
+        )
+
+    }
+
+
+
+
+
+    private fun drawBackground(
+        canvas: Canvas,
+        w: Float,
+        h: Float
+    ) {
+
+
+        canvas.drawColor(
+            dark
+        )
+
+
+        val glow =
+            Paint(
+                Paint.ANTI_ALIAS_FLAG
+            )
+
+
+        glow.shader =
+            RadialGradient(
+
+                w / 2f,
+
+                h / 2f,
+
+                w * 0.6f,
+
+                intArrayOf(
+
+                    Color.rgb(
+                        10,
+                        50,
+                        80
+                    ),
+
+                    Color.rgb(
+                        3,
+                        15,
+                        25
+                    ),
+
+                    dark
+
+                ),
+
+                null,
+
+                Shader.TileMode.CLAMP
+
+            )
+
+
+        canvas.drawRect(
+
+            0f,
+
+            0f,
+
+            w,
+
+            h,
+
+            glow
+
+        )
+
+    }
+
+
+
+
+
+    private fun drawLuxuryClock(
+
+        canvas: Canvas,
+
+        cx: Float,
+
+        cy: Float
+
+    ) {
+
+
+
+        val radius =
+            width.coerceAtMost(height)
+                .toFloat()
+                *
+                0.28f
+
+
+
+        // نور بیرونی
 
         paint.style =
             Paint.Style.STROKE
 
+
         paint.strokeWidth =
             8f
 
+
         paint.color =
             Color.argb(
-                120,
+                100,
                 70,
                 190,
                 255
@@ -91,168 +233,448 @@ class ClockPageView(
 
 
         canvas.drawCircle(
+
             cx,
+
             cy,
-            220f,
+
+            radius + 35f,
+
             paint
+
         )
 
 
-        // بدنه ساعت
+
+        // قاب اصلی
 
         paint.strokeWidth =
-            4f
+            5f
+
 
         paint.color =
             Color.WHITE
 
 
+
         canvas.drawCircle(
+
             cx,
+
             cy,
-            190f,
+
+            radius,
+
             paint
+
         )
 
 
-        val now =
+
+        // حلقه داخلی
+
+        paint.strokeWidth =
+            2f
+
+
+        paint.color =
+            cyan
+
+
+
+        canvas.drawCircle(
+
+            cx,
+
+            cy,
+
+            radius - 25f,
+
+            paint
+
+        )
+
+
+
+
+        drawNumbers(
+
+            canvas,
+
+            cx,
+
+            cy,
+
+            radius
+
+        )
+
+
+
+
+        val calendar =
             Calendar.getInstance()
 
 
+
         val hour =
-            now.get(
+            calendar.get(
                 Calendar.HOUR
             )
 
+
+
         val minute =
-            now.get(
+            calendar.get(
                 Calendar.MINUTE
             )
 
+
+
         val second =
-            now.get(
+            calendar.get(
                 Calendar.SECOND
             )
 
 
+
+
         drawHand(
+
             canvas,
+
             cx,
+
             cy,
-            110f,
-            (hour + minute / 60f) * 30f,
-            8f
+
+            radius * 0.5f,
+
+            (hour + minute / 60f)
+                    *
+                    30f,
+
+            10f
+
         )
 
 
+
         drawHand(
+
             canvas,
+
             cx,
+
             cy,
-            145f,
+
+            radius * 0.7f,
+
             minute * 6f,
-            5f
+
+            6f
+
         )
+
 
 
         drawHand(
+
             canvas,
+
             cx,
+
             cy,
-            160f,
+
+            radius * 0.82f,
+
             second * 6f,
+
             2f
+
         )
+
 
 
         paint.style =
             Paint.Style.FILL
 
-        paint.textAlign =
-            Paint.Align.CENTER
-
-        paint.textSize =
-            32f
-
-        paint.color =
-            Color.WHITE
-
-
-        canvas.drawText(
-            SimpleDateFormat(
-                "HH:mm",
-                Locale.getDefault()
-            ).format(
-                Date()
-            ),
-            cx,
-            cy + 270f,
-            paint
-        )
-
-
-        paint.textSize =
-            14f
 
         paint.color =
             blue
 
 
-        canvas.drawText(
-            "PEUGEOT VEHICLE OS",
+        canvas.drawCircle(
+
             cx,
-            cy + 300f,
+
+            cy,
+
+            12f,
+
             paint
+
+        )
+
+
+
+        paint.color =
+            Color.WHITE
+
+
+        paint.textAlign =
+            Paint.Align.CENTER
+
+
+        paint.textSize =
+            22f
+
+
+        paint.typeface =
+            Typeface.DEFAULT_BOLD
+
+
+
+        canvas.drawText(
+
+            "MRT",
+
+            cx,
+
+            cy + 90f,
+
+            paint
+
         )
 
     }
 
 
 
-    private fun drawHand(
+
+
+    private fun drawNumbers(
+
         canvas: Canvas,
+
         cx: Float,
+
         cy: Float,
-        length: Float,
-        angle: Float,
-        width: Float
+
+        radius: Float
+
     ) {
 
 
-        val rad =
-            Math.toRadians(
-                angle.toDouble() - 90
-            )
-
-
         paint.style =
-            Paint.Style.STROKE
+            Paint.Style.FILL
 
-        paint.strokeWidth =
-            width
 
-        paint.strokeCap =
-            Paint.Cap.ROUND
+        paint.textAlign =
+            Paint.Align.CENTER
+
+
+        paint.textSize =
+            28f
+
 
         paint.color =
             Color.WHITE
 
 
+
+        for(i in 1..12){
+
+
+            val angle =
+                Math.toRadians(
+                    (i * 30 - 90)
+                        .toDouble()
+                )
+
+
+
+            canvas.drawText(
+
+                i.toString(),
+
+                cx +
+                    cos(angle).toFloat()
+                    *
+                    (radius - 55f),
+
+
+                cy +
+                    sin(angle).toFloat()
+                    *
+                    (radius - 55f)
+                    +
+                    10f,
+
+
+                paint
+
+            )
+
+        }
+
+    }
+
+
+
+
+
+    private fun drawHand(
+
+        canvas: Canvas,
+
+        cx: Float,
+
+        cy: Float,
+
+        length: Float,
+
+        angle: Float,
+
+        width: Float
+
+    ){
+
+
+        val rad =
+            Math.toRadians(
+                angle.toDouble()
+                    -
+                    90
+            )
+
+
+
+        paint.style =
+            Paint.Style.STROKE
+
+
+        paint.strokeWidth =
+            width
+
+
+        paint.strokeCap =
+            Paint.Cap.ROUND
+
+
+        paint.color =
+            Color.WHITE
+
+
+
         canvas.drawLine(
+
             cx,
+
             cy,
+
             cx +
                     cos(rad).toFloat()
                     *
                     length,
+
 
             cy +
                     sin(rad).toFloat()
                     *
                     length,
 
+
             paint
+
         )
+
+    }
+
+
+
+
+
+    private fun drawInformation(
+
+        canvas: Canvas,
+
+        w: Float,
+
+        h: Float
+
+    ){
+
+
+        paint.style =
+            Paint.Style.FILL
+
+
+        paint.textAlign =
+            Paint.Align.CENTER
+
+
+
+        paint.color =
+            blue
+
+
+        paint.textSize =
+            16f
+
+
+
+        canvas.drawText(
+
+            "PEUGEOT VEHICLE OS",
+
+            w / 2f,
+
+            h - 90f,
+
+            paint
+
+        )
+
+
+
+        paint.color =
+            Color.LTGRAY
+
+
+        paint.textSize =
+            13f
+
+
+
+        canvas.drawText(
+
+            SimpleDateFormat(
+
+                "EEEE  dd MMMM",
+
+                Locale.ENGLISH
+
+            ).format(Date()),
+
+
+            w / 2f,
+
+            h - 65f,
+
+            paint
+
+        )
+
+    }
+
+
+
+
+    override fun onDetachedFromWindow() {
+
+        timer.cancel()
+
+        super.onDetachedFromWindow()
 
     }
 
