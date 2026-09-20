@@ -1,13 +1,12 @@
 package peugeot.platform.android.ui
 
-
 enum class MainMenuPage {
 
     HOME,
 
-    CLOCK,
-
     CAR,
+
+    CLOCK,
 
     MUSIC,
 
