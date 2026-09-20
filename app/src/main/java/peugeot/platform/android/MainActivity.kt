@@ -13,7 +13,7 @@ import peugeot.platform.android.ai.AIEngine
 import peugeot.platform.android.ai.AIState
 import peugeot.platform.android.ai.SpeechManager
 import peugeot.platform.android.ai.VoiceManager
-
+import peugeot.platform.android.ui.ClockPageView
 import peugeot.platform.android.dashboard.DashboardView
 
 import peugeot.platform.android.ui.CallPageView
@@ -41,7 +41,7 @@ private lateinit var swipeController: SwipeController
     private lateinit var dashboard: DashboardView
 
     private lateinit var clockPageView: ClockPageView
-
+private lateinit var clockPageView: ClockPageView
     private lateinit var carPageView: CarPageView
     private lateinit var musicPageView: MusicPageView
     private lateinit var navigationPageView: NavigationPageView
@@ -133,9 +133,14 @@ private lateinit var swipeController: SwipeController
 
 
 
-        clockPageView = ClockPageView(this).apply {
+      clockPageView = ClockPageView(this).apply {
+    visibility = View.GONE
+}
 
-            visibility = View.GONE
+root.addView(
+    clockPageView,
+    fullScreenParams()
+)
 
         }
 
@@ -479,7 +484,7 @@ swipeController.attach()
         homePageView.visibility = View.GONE
 
         clockPageView.visibility = View.GONE
-
+clockPageView.visibility = View.GONE
         carPageView.visibility = View.GONE
 
         musicPageView.visibility = View.GONE
