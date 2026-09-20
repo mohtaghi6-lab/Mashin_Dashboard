@@ -23,7 +23,7 @@ class ClockPageView(
 
 
     private val cyan =
-        Color.rgb(130, 235, 255)
+        Color.rgb(120, 230, 255)
 
 
     private val dark =
@@ -36,21 +36,34 @@ class ClockPageView(
 
 
     init {
-        animateClock()
+        startAnimation()
     }
 
 
 
-    private fun animateClock() {
+    private fun startAnimation() {
 
-        if (!running) return
+        postDelayed(
+            object : Runnable {
 
-        postInvalidateDelayed(1000)
+                override fun run() {
 
-        post {
-            animateClock()
-        }
+                    invalidate()
+
+                    if (running) {
+                        postDelayed(
+                            this,
+                            1000
+                        )
+                    }
+                }
+
+            },
+            1000
+        )
+
     }
+
 
 
 
@@ -62,14 +75,19 @@ class ClockPageView(
         super.onDraw(canvas)
 
 
-        val w = width.toFloat()
+        val w =
+            width.toFloat()
 
-        val h = height.toFloat()
+        val h =
+            height.toFloat()
 
 
-        val cx = w / 2f
+        val cx =
+            w / 2f
 
-        val cy = h / 2f
+
+        val cy =
+            h / 2f
 
 
 
@@ -105,27 +123,30 @@ class ClockPageView(
         h: Float
     ) {
 
-
-        canvas.drawColor(dark)
-
-
-        val glow = Paint(
-            Paint.ANTI_ALIAS_FLAG
+        canvas.drawColor(
+            dark
         )
 
 
-        glow.shader = RadialGradient(
-            w / 2f,
-            h / 2f,
-            w * 0.55f,
-            intArrayOf(
-                Color.rgb(10,60,90),
-                Color.rgb(4,18,30),
-                dark
-            ),
-            null,
-            Shader.TileMode.CLAMP
-        )
+        val glow =
+            Paint(
+                Paint.ANTI_ALIAS_FLAG
+            )
+
+
+        glow.shader =
+            RadialGradient(
+                w / 2f,
+                h / 2f,
+                w * 0.55f,
+                Color.rgb(
+                    10,
+                    55,
+                    85
+                ),
+                dark,
+                Shader.TileMode.CLAMP
+            )
 
 
         canvas.drawRect(
@@ -251,7 +272,6 @@ class ClockPageView(
         )
 
 
-
         drawHand(
             canvas,
             cx,
@@ -260,7 +280,6 @@ class ClockPageView(
             minute * 6f,
             6f
         )
-
 
 
         drawHand(
@@ -307,7 +326,6 @@ class ClockPageView(
             Typeface.DEFAULT_BOLD
 
 
-
         canvas.drawText(
             "MRT",
             cx,
@@ -321,27 +339,13 @@ class ClockPageView(
 
 
 
-   for (i in 1..12) {
+    private fun drawNumbers(
+        canvas: Canvas,
+        cx: Float,
+        cy: Float,
+        radius: Float
+    ) {
 
-    val angle =
-        Math.toRadians(
-            (i * 30 - 90).toDouble()
-        )
-
-    val x =
-        cx + cos(angle).toFloat() * (radius - 55f)
-
-    val y =
-        cy + sin(angle).toFloat() * (radius - 55f) + 10f
-
-
-    canvas.drawText(
-        i.toString(),
-        x,
-        y,
-        paint
-    )
-}
 
         paint.style =
             Paint.Style.FILL
@@ -365,8 +369,7 @@ class ClockPageView(
 
             val angle =
                 Math.toRadians(
-                    (i * 30 - 90)
-                        .toDouble()
+                    (i * 30 - 90).toDouble()
                 )
 
 
@@ -411,7 +414,6 @@ class ClockPageView(
             Math.toRadians(
                 angle.toDouble() - 90
             )
-
 
 
         paint.style =
