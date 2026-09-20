@@ -206,10 +206,7 @@ class ClockPageView(
 
 
         val radius =
-            width.coerceAtMost(height)
-                .toFloat()
-                *
-                0.28f
+    width.coerceAtMost(height).toFloat() * 0.28f
 
 
 
@@ -348,10 +345,7 @@ class ClockPageView(
             cy,
 
             radius * 0.5f,
-
-            (hour + minute / 60f)
-                    *
-                    30f,
+(hour + minute / 60f) * 30f
 
             10f
 
@@ -497,18 +491,10 @@ class ClockPageView(
 
                 i.toString(),
 
-                cx +
-                    cos(angle).toFloat()
-                    *
-                    (radius - 55f),
+                cx + cos(angle).toFloat() * (radius - 55f)
 
 
-                cy +
-                    sin(angle).toFloat()
-                    *
-                    (radius - 55f)
-                    +
-                    10f,
+                cy + sin(angle).toFloat() * (radius - 55f) + 10f
 
 
                 paint
@@ -540,12 +526,8 @@ class ClockPageView(
     ){
 
 
-        val rad =
-            Math.toRadians(
-                angle.toDouble()
-                    -
-                    90
-            )
+      val rad =
+    Math.toRadians(angle.toDouble() - 90)
 
 
 
@@ -572,16 +554,10 @@ class ClockPageView(
 
             cy,
 
-            cx +
-                    cos(rad).toFloat()
-                    *
-                    length,
+           cx + cos(rad).toFloat() * length
 
 
-            cy +
-                    sin(rad).toFloat()
-                    *
-                    length,
+         cy + sin(rad).toFloat() * length
 
 
             paint
