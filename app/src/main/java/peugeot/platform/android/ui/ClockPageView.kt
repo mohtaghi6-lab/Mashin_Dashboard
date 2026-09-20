@@ -31,38 +31,25 @@ class ClockPageView(
 
 
 
-    private var animation =
-        0f
-
-
-
-    private val timer =
-        Timer()
+    private var running = true
 
 
 
     init {
+        animateClock()
+    }
 
-        timer.scheduleAtFixedRate(
 
-            object : TimerTask() {
 
-                override fun run() {
+    private fun animateClock() {
 
-                    animation += 0.03f
+        if (!running) return
 
-                    postInvalidate()
+        postInvalidateDelayed(1000)
 
-                }
-
-            },
-
-            0,
-
-            30
-
-        )
-
+        post {
+            animateClock()
+        }
     }
 
 
@@ -75,21 +62,14 @@ class ClockPageView(
         super.onDraw(canvas)
 
 
-        val w =
-            width.toFloat()
+        val w = width.toFloat()
+
+        val h = height.toFloat()
 
 
-        val h =
-            height.toFloat()
+        val cx = w / 2f
 
-
-
-        val cx =
-            w / 2f
-
-
-        val cy =
-            h / 2f
+        val cy = h / 2f
 
 
 
@@ -100,13 +80,11 @@ class ClockPageView(
         )
 
 
-
         drawLuxuryClock(
             canvas,
             cx,
             cy
         )
-
 
 
         drawInformation(
@@ -128,63 +106,34 @@ class ClockPageView(
     ) {
 
 
-        canvas.drawColor(
-            dark
+        canvas.drawColor(dark)
+
+
+        val glow = Paint(
+            Paint.ANTI_ALIAS_FLAG
         )
 
 
-        val glow =
-            Paint(
-                Paint.ANTI_ALIAS_FLAG
-            )
-
-
-        glow.shader =
-            RadialGradient(
-
-                w / 2f,
-
-                h / 2f,
-
-                w * 0.6f,
-
-                intArrayOf(
-
-                    Color.rgb(
-                        10,
-                        50,
-                        80
-                    ),
-
-                    Color.rgb(
-                        3,
-                        15,
-                        25
-                    ),
-
-                    dark
-
-                ),
-
-                null,
-
-                Shader.TileMode.CLAMP
-
-            )
+        glow.shader = RadialGradient(
+            w / 2f,
+            h / 2f,
+            w * 0.55f,
+            intArrayOf(
+                Color.rgb(10,60,90),
+                Color.rgb(4,18,30),
+                dark
+            ),
+            null,
+            Shader.TileMode.CLAMP
+        )
 
 
         canvas.drawRect(
-
             0f,
-
             0f,
-
             w,
-
             h,
-
             glow
-
         )
 
     }
@@ -193,15 +142,18 @@ class ClockPageView(
 
 
 
-    {
+    private fun drawLuxuryClock(
+        canvas: Canvas,
+        cx: Float,
+        cy: Float
+    ) {
 
 
+        val radius =
+            width.coerceAtMost(height)
+                .toFloat() * 0.28f
 
-   val radius = width.coerceAtMost(height).toFloat() * 0.28f
 
-
-
-        // نور بیرونی
 
         paint.style =
             Paint.Style.STROKE
@@ -213,7 +165,7 @@ class ClockPageView(
 
         paint.color =
             Color.argb(
-                100,
+                120,
                 70,
                 190,
                 255
@@ -221,45 +173,29 @@ class ClockPageView(
 
 
         canvas.drawCircle(
-
             cx,
-
             cy,
-
             radius + 35f,
-
             paint
-
         )
 
 
 
-        // قاب اصلی
-
         paint.strokeWidth =
             5f
-
 
         paint.color =
             Color.WHITE
 
 
-
         canvas.drawCircle(
-
             cx,
-
             cy,
-
             radius,
-
             paint
-
         )
 
 
-
-        // حلقه داخلی
 
         paint.strokeWidth =
             2f
@@ -269,34 +205,21 @@ class ClockPageView(
             cyan
 
 
-
         canvas.drawCircle(
-
             cx,
-
             cy,
-
             radius - 25f,
-
             paint
-
         )
-
 
 
 
         drawNumbers(
-
             canvas,
-
             cx,
-
             cy,
-
             radius
-
         )
-
 
 
 
@@ -306,69 +229,47 @@ class ClockPageView(
 
 
         val hour =
-            calendar.get(
-                Calendar.HOUR
-            )
-
+            calendar.get(Calendar.HOUR)
 
 
         val minute =
-            calendar.get(
-                Calendar.MINUTE
-            )
-
+            calendar.get(Calendar.MINUTE)
 
 
         val second =
-            calendar.get(
-                Calendar.SECOND
-            )
+            calendar.get(Calendar.SECOND)
 
-
-
-
-      drawHand(
-    canvas,
-    cx,
-    cy,
-    radius * 0.5f,
-    (hour + minute / 60f) * 30f,
-    10f
-)
 
 
         drawHand(
-
             canvas,
-
             cx,
-
             cy,
-
-            radius * 0.7f,
-
-            minute * 6f,
-
-            6f
-
+            radius * 0.5f,
+            (hour + minute / 60f) * 30f,
+            10f
         )
 
 
 
         drawHand(
-
             canvas,
-
             cx,
-
             cy,
+            radius * 0.7f,
+            minute * 6f,
+            6f
+        )
 
+
+
+        drawHand(
+            canvas,
+            cx,
+            cy,
             radius * 0.82f,
-
             second * 6f,
-
             2f
-
         )
 
 
@@ -382,15 +283,10 @@ class ClockPageView(
 
 
         canvas.drawCircle(
-
             cx,
-
             cy,
-
             12f,
-
             paint
-
         )
 
 
@@ -412,12 +308,12 @@ class ClockPageView(
 
 
 
-      canvas.drawText(
-    i.toString(),
-    cx + cos(angle).toFloat() * (radius - 55f),
-    cy + sin(angle).toFloat() * (radius - 55f) + 10f,
-    paint
-)
+        canvas.drawText(
+            "MRT",
+            cx,
+            cy + 90f,
+            paint
+        )
 
     }
 
@@ -425,7 +321,12 @@ class ClockPageView(
 
 
 
-   {
+    private fun drawNumbers(
+        canvas: Canvas,
+        cx: Float,
+        cy: Float,
+        radius: Float
+    ) {
 
 
         paint.style =
@@ -455,19 +356,23 @@ class ClockPageView(
                 )
 
 
+            val x =
+                cx + cos(angle).toFloat()
+                    * (radius - 55f)
+
+
+            val y =
+                cy + sin(angle).toFloat()
+                    * (radius - 55f)
+                    + 10f
+
+
 
             canvas.drawText(
-
                 i.toString(),
-
-                cx + cos(angle).toFloat() * (radius - 55f)
-
-
-                cy + sin(angle).toFloat() * (radius - 55f) + 10f
-
-
+                x,
+                y,
                 paint
-
             )
 
         }
@@ -478,11 +383,20 @@ class ClockPageView(
 
 
 
-    {
+    private fun drawHand(
+        canvas: Canvas,
+        cx: Float,
+        cy: Float,
+        length: Float,
+        angle: Float,
+        width: Float
+    ) {
 
 
-      val rad =
-    Math.toRadians(angle.toDouble() - 90)
+        val rad =
+            Math.toRadians(
+                angle.toDouble() - 90
+            )
 
 
 
@@ -502,13 +416,14 @@ class ClockPageView(
             Color.WHITE
 
 
-canvas.drawLine(
-    cx,
-    cy,
-    cx + cos(rad).toFloat() * length,
-    cy + sin(rad).toFloat() * length,
-    paint
-)
+
+        canvas.drawLine(
+            cx,
+            cy,
+            cx + cos(rad).toFloat() * length,
+            cy + sin(rad).toFloat() * length,
+            paint
+        )
 
     }
 
@@ -517,14 +432,10 @@ canvas.drawLine(
 
 
     private fun drawInformation(
-
         canvas: Canvas,
-
         w: Float,
-
         h: Float
-
-    ){
+    ) {
 
 
         paint.style =
@@ -533,7 +444,6 @@ canvas.drawLine(
 
         paint.textAlign =
             Paint.Align.CENTER
-
 
 
         paint.color =
@@ -546,15 +456,10 @@ canvas.drawLine(
 
 
         canvas.drawText(
-
             "PEUGEOT VEHICLE OS",
-
             w / 2f,
-
             h - 90f,
-
             paint
-
         )
 
 
@@ -569,22 +474,13 @@ canvas.drawLine(
 
 
         canvas.drawText(
-
             SimpleDateFormat(
-
-                "EEEE  dd MMMM",
-
+                "EEEE dd MMMM",
                 Locale.ENGLISH
-
             ).format(Date()),
-
-
             w / 2f,
-
             h - 65f,
-
             paint
-
         )
 
     }
@@ -592,9 +488,10 @@ canvas.drawLine(
 
 
 
+
     override fun onDetachedFromWindow() {
 
-        timer.cancel()
+        running = false
 
         super.onDetachedFromWindow()
 
