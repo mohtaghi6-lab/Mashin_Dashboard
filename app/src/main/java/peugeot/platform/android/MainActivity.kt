@@ -8,7 +8,7 @@ import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.widget.FrameLayout
-
+import peugeot.platform.android.ui.SwipeController
 import peugeot.platform.android.ai.AIEngine
 import peugeot.platform.android.ai.AIState
 import peugeot.platform.android.ai.SpeechManager
@@ -36,7 +36,7 @@ class MainActivity : Activity() {
 
 
     private lateinit var displayBootManager: DisplayBootManager
-
+private lateinit var swipeController: SwipeController
     private lateinit var homePageView: HomePageView
     private lateinit var dashboard: DashboardView
 
@@ -232,7 +232,31 @@ class MainActivity : Activity() {
 
         setContentView(root)
 
+swipeController = SwipeController(
 
+    root,
+
+    onSwipeRight = {
+
+        showPage(
+            MainMenuPage.CLOCK
+        )
+
+    },
+
+
+    onSwipeLeft = {
+
+        showPage(
+            MainMenuPage.HOME
+        )
+
+    }
+
+)
+
+
+swipeController.attach()
 
         displayBootManager = DisplayBootManager()
 
