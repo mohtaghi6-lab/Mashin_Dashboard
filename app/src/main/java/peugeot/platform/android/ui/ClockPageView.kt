@@ -336,21 +336,14 @@ class ClockPageView(
 
 
 
-        drawHand(
-
-            canvas,
-
-            cx,
-
-            cy,
-
-            radius * 0.5f,
-(hour + minute / 60f) * 30f
-
-            10f
-
-        )
-
+      drawHand(
+    canvas,
+    cx,
+    cy,
+    radius * 0.5f,
+    (hour + minute / 60f) * 30f,
+    10f
+)
 
 
         drawHand(
@@ -428,17 +421,12 @@ class ClockPageView(
 
 
 
-        canvas.drawText(
-
-            "MRT",
-
-            cx,
-
-            cy + 90f,
-
-            paint
-
-        )
+      canvas.drawText(
+    i.toString(),
+    cx + cos(angle).toFloat() * (radius - 55f),
+    cy + sin(angle).toFloat() * (radius - 55f) + 10f,
+    paint
+)
 
     }
 
@@ -547,22 +535,13 @@ class ClockPageView(
             Color.WHITE
 
 
-
-        canvas.drawLine(
-
-            cx,
-
-            cy,
-
-           cx + cos(rad).toFloat() * length
-
-
-         cy + sin(rad).toFloat() * length
-
-
-            paint
-
-        )
+canvas.drawLine(
+    cx,
+    cy,
+    cx + cos(rad).toFloat() * length,
+    cy + sin(rad).toFloat() * length,
+    paint
+)
 
     }
 
