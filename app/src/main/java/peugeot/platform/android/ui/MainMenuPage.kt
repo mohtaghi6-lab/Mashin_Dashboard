@@ -5,6 +5,8 @@ enum class MainMenuPage {
 
     HOME,
 
+    CLOCK,
+
     CAR,
 
     MUSIC,
