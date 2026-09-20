@@ -193,20 +193,11 @@ class ClockPageView(
 
 
 
-    private fun drawLuxuryClock(
-
-        canvas: Canvas,
-
-        cx: Float,
-
-        cy: Float
-
-    ) {
+    {
 
 
 
-        val radius =
-    width.coerceAtMost(height).toFloat() * 0.28f
+   val radius = width.coerceAtMost(height).toFloat() * 0.28f
 
 
 
@@ -434,17 +425,7 @@ class ClockPageView(
 
 
 
-    private fun drawNumbers(
-
-        canvas: Canvas,
-
-        cx: Float,
-
-        cy: Float,
-
-        radius: Float
-
-    ) {
+   {
 
 
         paint.style =
@@ -464,7 +445,7 @@ class ClockPageView(
 
 
 
-        for(i in 1..12){
+        for (i in 1..12) {
 
 
             val angle =
@@ -497,21 +478,7 @@ class ClockPageView(
 
 
 
-    private fun drawHand(
-
-        canvas: Canvas,
-
-        cx: Float,
-
-        cy: Float,
-
-        length: Float,
-
-        angle: Float,
-
-        width: Float
-
-    ){
+    {
 
 
       val rad =
