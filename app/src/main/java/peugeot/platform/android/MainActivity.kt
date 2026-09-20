@@ -596,7 +596,7 @@ class MainActivity : Activity() {
 
 
 
-    override fun onBackPressed() {
+        override fun onBackPressed() {
 
         when {
 
@@ -606,5 +606,53 @@ class MainActivity : Activity() {
             navigationPageView.visibility == View.VISIBLE ||
             callPageView.visibility == View.VISIBLE ||
             errorScannerPageView.visibility == View.VISIBLE ||
-            vehicle
-             }
+            vehicleSettingsPageView.visibility == View.VISIBLE -> {
+
+                showPage(
+                    MainMenuPage.HOME
+                )
+
+            }
+
+
+            else -> {
+
+                super.onBackPressed()
+
+            }
+
+        }
+
+    }
+
+
+
+    override fun onDestroy() {
+
+
+        if (::voiceManager.isInitialized) {
+
+            voiceManager.destroy()
+
+        }
+
+
+        if (::speechManager.isInitialized) {
+
+            speechManager.destroy()
+
+        }
+
+
+        if (::displayBootManager.isInitialized) {
+
+            displayBootManager.destroy()
+
+        }
+
+
+        super.onDestroy()
+
+    }
+
+}
