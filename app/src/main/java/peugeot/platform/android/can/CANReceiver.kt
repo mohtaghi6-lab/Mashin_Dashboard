@@ -1,80 +1,79 @@
 package peugeot.platform.android.can
 
 /**
+ * Represents one CAN bus frame.
+ *
+ * This is a generic CAN frame model and does not contain
+ * Peugeot Pars specific CAN mappings.
+ */
+data class CANFrame(
+    val id: Int,
+    val data: ByteArray,
+    val timestamp: Long = System.currentTimeMillis()
+)
+
+/**
  * Central CAN frame receiver.
  *
  * Current role:
- * - Keeps the CAN connection state.
- * - Accepts CAN frames from a future hardware adapter.
- * - Stores a limited history of received frames.
- * - Notifies listeners when a new frame arrives.
- * - Can be used in demo/test mode without real CAN hardware.
+ * - Maintains logical CAN connection state.
+ * - Receives CAN frames from future hardware.
+ * - Stores recent frames.
+ * - Notifies listeners about received frames.
+ * - Provides test/simulation support.
  *
- * Future hardware flow:
+ * Future architecture:
  *
- * USB / Serial / CAN Adapter / GPCU
- *              ↓
- *        CANReceiver.receive()
- *              ↓
- *            CANFrame
- *              ↓
- *        CANDataParser
- *              ↓
- *      VehicleDataController
- *
- * IMPORTANT:
- * No Peugeot Pars CAN IDs are hard-coded here.
- * The real IDs and byte mappings belong in CANDataParser
- * after the actual GPCU/CAN protocol is known.
+ * CAN / GPCU / USB Adapter
+ *          ↓
+ *    CANReceiver
+ *          ↓
+ *       CANFrame
+ *          ↓
+ *    CANDataParser
+ *          ↓
+ * VehicleDataController
+ *          ↓
+ *     VehicleData
  */
 object CANReceiver {
 
     private const val MAX_FRAME_HISTORY = 500
 
     private var connected = false
-
     private var receiving = false
 
-    private val frames =
-        mutableListOf<CANFrame>()
+    private val frames = mutableListOf<CANFrame>()
 
-    private var frameListener:
-            ((CANFrame) -> Unit)? = null
+    private var frameListener: ((CANFrame) -> Unit)? = null
 
     /**
-     * Connects the logical CAN receiver.
+     * Starts the logical CAN receiver.
      *
-     * This does NOT open physical CAN hardware yet.
-     * It prepares the receiver for an external adapter.
+     * This does not open real CAN hardware yet.
      */
     @Synchronized
     fun connect(): Boolean {
-
         connected = true
         receiving = true
-
         return true
     }
 
     /**
-     * Disconnects the receiver and clears the current
-     * frame history.
+     * Disconnects the receiver.
      */
     @Synchronized
     fun disconnect() {
-
         receiving = false
         connected = false
-
         frames.clear()
     }
 
     /**
-     * Returns whether the receiver is logically connected.
+     * Returns whether the receiver is connected.
      */
     @Synchronized
     fun isConnected(): Boolean {
-
         return connected
     }
 
@@ -83,35 +82,26 @@ object CANReceiver {
      */
     @Synchronized
     fun isReceiving(): Boolean {
-
         return receiving
     }
 
     /**
-     * Registers a listener for incoming CAN frames.
-     *
-     * The listener is called whenever receive() accepts
-     * a valid frame.
+     * Registers a callback for incoming frames.
      */
     @Synchronized
     fun setFrameListener(
         listener: ((CANFrame) -> Unit)?
     ) {
-
         frameListener = listener
     }
 
     /**
-     * Receives a CAN frame from an external adapter.
-     *
-     * This is the main entry point for future USB/GPCU
-     * hardware integration.
+     * Receives a complete CAN frame.
      */
     @Synchronized
     fun receive(
         frame: CANFrame
     ) {
-
         if (!connected || !receiving) {
             return
         }
@@ -120,17 +110,21 @@ object CANReceiver {
             return
         }
 
-        addFrame(frame)
+        val safeFrame = frame.copy(
+            data = frame.data.copyOf()
+        )
 
-        frameListener?.invoke(frame)
+        frames.add(safeFrame)
+
+        while (frames.size > MAX_FRAME_HISTORY) {
+            frames.removeAt(0)
+        }
+
+        frameListener?.invoke(safeFrame)
     }
 
     /**
-     * Receives a raw CAN ID and payload and converts it
-     * into a CANFrame.
-     *
-     * Useful for USB/Serial adapters that provide
-     * decoded CAN values.
+     * Receives a CAN frame from raw ID + data.
      */
     @Synchronized
     fun receive(
@@ -138,32 +132,13 @@ object CANReceiver {
         data: ByteArray,
         timestamp: Long = System.currentTimeMillis()
     ) {
-
-        val frame = CANFrame(
-            id = id,
-            data = data.copyOf(),
-            timestamp = timestamp
-        )
-
-        receive(frame)
-    }
-
-    /**
-     * Adds a frame to the internal history.
-     */
-    private fun addFrame(
-        frame: CANFrame
-    ) {
-
-        frames.add(
-            frame.copy(
-                data = frame.data.copyOf()
+        receive(
+            CANFrame(
+                id = id,
+                data = data.copyOf(),
+                timestamp = timestamp
             )
         )
-
-        while (frames.size > MAX_FRAME_HISTORY) {
-            frames.removeAt(0)
-        }
     }
 
     /**
@@ -171,18 +146,18 @@ object CANReceiver {
      */
     @Synchronized
     fun getLastFrame(): CANFrame? {
+        val frame = frames.lastOrNull() ?: return null
 
-        return frames.lastOrNull()?.copy(
-            data = frames.last().data.copyOf()
+        return frame.copy(
+            data = frame.data.copyOf()
         )
     }
 
     /**
-     * Returns a snapshot of all currently stored frames.
+     * Returns a safe copy of all stored frames.
      */
     @Synchronized
     fun getFrames(): List<CANFrame> {
-
         return frames.map {
             it.copy(
                 data = it.data.copyOf()
@@ -195,61 +170,46 @@ object CANReceiver {
      */
     @Synchronized
     fun getFrameCount(): Int {
-
         return frames.size
     }
 
     /**
-     * Clears only the stored frame history.
-     *
-     * The CAN connection remains active.
+     * Clears received frame history.
      */
     @Synchronized
     fun clearFrames() {
-
         frames.clear()
     }
 
     /**
-     * Starts frame reception.
-     *
-     * Useful when a hardware adapter has been connected
-     * but frame processing needs to be started separately.
+     * Starts receiving frames without reconnecting.
      */
     @Synchronized
     fun startReceiving(): Boolean {
-
         if (!connected) {
             return false
         }
 
         receiving = true
-
         return true
     }
 
     /**
-     * Stops frame reception without disconnecting
-     * the logical CAN connection.
+     * Stops receiving frames without disconnecting.
      */
     @Synchronized
     fun stopReceiving() {
-
         receiving = false
     }
 
     /**
-     * Checks whether a CAN frame is structurally valid.
+     * Validates basic CAN frame structure.
      *
-     * Standard CAN payload:
-     * 0..8 bytes.
-     *
-     * Extended CAN IDs are also allowed.
+     * Standard CAN payload is 0..8 bytes.
      */
     private fun isValidFrame(
         frame: CANFrame
     ): Boolean {
-
         if (frame.id < 0) {
             return false
         }
@@ -262,51 +222,38 @@ object CANReceiver {
     }
 
     /**
-     * Creates a readable debug representation
-     * of a CAN frame.
-     *
-     * Example:
-     *
-     * ID=123 DATA=01 02 FF 00
+     * Converts a frame to readable hexadecimal text.
      */
     fun frameToString(
         frame: CANFrame
     ): String {
-
-        val hex =
-            frame.data.joinToString(" ") {
-                "%02X".format(
-                    it.toInt() and 0xFF
-                )
-            }
+        val hex = frame.data.joinToString(" ") {
+            "%02X".format(it.toInt() and 0xFF)
+        }
 
         return "ID=${frame.id} DATA=$hex"
     }
 
     /**
-     * Returns all currently stored frames as readable
-     * diagnostic strings.
+     * Returns stored frames as readable debug strings.
      */
     @Synchronized
     fun getDebugFrames(): List<String> {
-
         return frames.map {
             frameToString(it)
         }
     }
 
     /**
-     * Simulates a CAN frame for development/testing.
+     * Simulates a CAN frame for software testing.
      *
-     * This does not represent confirmed Peugeot Pars
-     * CAN data. It is only a transport test.
+     * This is NOT real Peugeot Pars CAN data.
      */
     @Synchronized
     fun simulateFrame(
         id: Int,
         data: ByteArray
     ) {
-
         if (!connected) {
             connect()
         }
@@ -321,16 +268,13 @@ object CANReceiver {
     }
 
     /**
-     * Resets the receiver completely.
+     * Completely resets the receiver.
      */
     @Synchronized
     fun reset() {
-
         receiving = false
         connected = false
-
         frames.clear()
-
         frameListener = null
     }
 }
