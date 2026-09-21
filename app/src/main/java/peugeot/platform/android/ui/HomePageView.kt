@@ -20,55 +20,156 @@ import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
 
-class HomePageView(context: Context) : View(context) {
 
-    private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+class HomePageView(
+    context: Context
+) : View(context) {
 
-    private var vehicleData = VehicleData.demo()
-    private var aiState = AIState.IDLE
-    private var pulse = 0f
 
-    var onAIOrbClick: (() -> Unit)? = null
+    private val paint =
+        Paint(Paint.ANTI_ALIAS_FLAG)
 
-    private val blue = Color.rgb(74, 196, 255)
-    private val cyan = Color.rgb(116, 231, 255)
-    private val white = Color.WHITE
-    private val muted = Color.rgb(142, 164, 180)
-    private val panel = Color.argb(150, 10, 22, 36)
+
+    private var vehicleData =
+        VehicleData.demo()
+
+
+    private var aiState =
+        AIState.IDLE
+
+
+    private var pulse =
+        0f
+
+
+
+    var onAIOrbClick:
+            (() -> Unit)? = null
+
+
+
+    private val blue =
+        Color.rgb(
+            74,
+            196,
+            255
+        )
+
+
+    private val cyan =
+        Color.rgb(
+            116,
+            231,
+            255
+        )
+
+
+    private val white =
+        Color.WHITE
+
+
+    private val muted =
+        Color.rgb(
+            142,
+            164,
+            180
+        )
+
+
+    private val panel =
+        Color.argb(
+            150,
+            10,
+            22,
+            36
+        )
+
+
 
     private val timeFormat =
-        SimpleDateFormat("HH:mm", Locale.getDefault())
+        SimpleDateFormat(
+            "HH:mm",
+            Locale.getDefault()
+        )
+
+
 
     private val dateFormat =
-        SimpleDateFormat("EEE, dd MMM", Locale.ENGLISH)
+        SimpleDateFormat(
+            "EEE, dd MMM",
+            Locale.ENGLISH
+        )
 
-    fun setVehicleData(data: VehicleData) {
-        vehicleData = data
+
+
+    fun setVehicleData(
+        data: VehicleData
+    ) {
+
+        vehicleData =
+            data
+
         invalidate()
+
     }
 
-    fun setAIState(state: AIState) {
-        aiState = state
+
+
+    fun setAIState(
+        state: AIState
+    ) {
+
+        aiState =
+            state
+
         invalidate()
+
     }
 
-    override fun onDraw(canvas: Canvas) {
-        super.onDraw(canvas)
 
-        val w = width.toFloat()
-        val h = height.toFloat()
 
-        if (w <= 0f || h <= 0f) {
+    override fun onDraw(
+        canvas: Canvas
+    ) {
+
+        super.onDraw(
+            canvas
+        )
+
+
+        val w =
+            width.toFloat()
+
+
+        val h =
+            height.toFloat()
+
+
+
+        if (
+            w <= 0f ||
+            h <= 0f
+        ) {
             return
         }
 
-        drawBackground(canvas, w, h)
+
+
+        drawBackground(
+            canvas,
+            w,
+            h
+        )
+
+
 
         drawHeader(
             canvas,
             w,
             h
         )
+
+
 
         drawGauge(
             canvas,
@@ -81,6 +182,8 @@ class HomePageView(context: Context) : View(context) {
             "SPEED"
         )
 
+
+
         drawGauge(
             canvas,
             w * 0.80f,
@@ -92,6 +195,8 @@ class HomePageView(context: Context) : View(context) {
             "ENGINE"
         )
 
+
+
         drawAIOrb(
             canvas,
             w / 2f,
@@ -99,11 +204,15 @@ class HomePageView(context: Context) : View(context) {
             min(w, h) * 0.10f
         )
 
+
+
         drawCenterInfo(
             canvas,
             w,
             h
         )
+
+
 
         drawStatusCards(
             canvas,
@@ -111,38 +220,75 @@ class HomePageView(context: Context) : View(context) {
             h
         )
 
+
+
         drawBottomCards(
             canvas,
             w,
             h
         )
 
-        pulse += 0.035f
 
-        if (pulse > 1000f) {
+
+        pulse +=
+            0.035f
+
+
+
+        if (
+            pulse > 1000f
+        ) {
+
             pulse = 0f
+
         }
 
-        postInvalidateDelayed(40L)
+
+
+        postInvalidateDelayed(
+            40L
+        )
+
     }
+
+
 
     private fun drawBackground(
         canvas: Canvas,
         w: Float,
         h: Float
     ) {
-        val backgroundGradient = LinearGradient(
-            0f,
-            0f,
-            0f,
-            h,
-            Color.rgb(2, 8, 16),
-            Color.rgb(7, 18, 30),
-            Shader.TileMode.CLAMP
-        )
 
-        paint.shader = backgroundGradient
-        paint.style = Paint.Style.FILL
+
+        val backgroundGradient =
+            LinearGradient(
+                0f,
+                0f,
+                0f,
+                h,
+                Color.rgb(
+                    2,
+                    8,
+                    16
+                ),
+                Color.rgb(
+                    7,
+                    18,
+                    30
+                ),
+                Shader.TileMode.CLAMP
+            )
+
+
+
+        paint.shader =
+            backgroundGradient
+
+
+        paint.style =
+            Paint.Style.FILL
+
+
 
         canvas.drawRect(
             0f,
@@ -152,22 +298,43 @@ class HomePageView(context: Context) : View(context) {
             paint
         )
 
-        paint.shader = null
 
-        val glow = RadialGradient(
-            w / 2f,
-            h * 0.42f,
-            min(w, h) * 0.55f,
-            intArrayOf(
-                Color.argb(55, 45, 150, 220),
-                Color.argb(20, 25, 100, 160),
-                Color.TRANSPARENT
-            ),
-            null,
-            Shader.TileMode.CLAMP
-        )
 
-        paint.shader = glow
+        paint.shader =
+            null
+
+
+
+        val glow =
+            RadialGradient(
+                w / 2f,
+                h * 0.42f,
+                min(w, h) * 0.55f,
+                intArrayOf(
+                    Color.argb(
+                        55,
+                        45,
+                        150,
+                        220
+                    ),
+                    Color.argb(
+                        20,
+                        25,
+                        100,
+                        160
+                    ),
+                    Color.TRANSPARENT
+                ),
+                null,
+                Shader.TileMode.CLAMP
+            )
+
+
+
+        paint.shader =
+            glow
+
+
 
         canvas.drawCircle(
             w / 2f,
@@ -176,17 +343,47 @@ class HomePageView(context: Context) : View(context) {
             paint
         )
 
-        paint.shader = null
 
-        paint.color = Color.argb(30, 100, 200, 255)
-        paint.style = Paint.Style.STROKE
-        paint.strokeWidth = 1f
 
-        val gridSize = 80f
+        paint.shader =
+            null
 
-        var x = 0f
 
-        while (x < w) {
+
+        paint.color =
+            Color.argb(
+                30,
+                100,
+                200,
+                255
+            )
+
+
+
+        paint.style =
+            Paint.Style.STROKE
+
+
+
+        paint.strokeWidth =
+            1f
+
+
+
+        val gridSize =
+            80f
+
+
+
+        var x =
+            0f
+
+
+
+        while (
+            x < w
+        ) {
+
             canvas.drawLine(
                 x,
                 0f,
@@ -195,12 +392,22 @@ class HomePageView(context: Context) : View(context) {
                 paint
             )
 
+
             x += gridSize
+
         }
 
-        var y = 0f
 
-        while (y < h) {
+
+        var y =
+            0f
+
+
+
+        while (
+            y < h
+        ) {
+
             canvas.drawLine(
                 0f,
                 y,
@@ -209,17 +416,23 @@ class HomePageView(context: Context) : View(context) {
                 paint
             )
 
+
             y += gridSize
+
         }
 
-        paint.style = Paint.Style.FILL
-    }
 
-    private fun drawHeader(
+
+        paint.style =
+            Paint.Style.FILL
+
+    }
+        private fun drawHeader(
         canvas: Canvas,
         w: Float,
         h: Float
     ) {
+
         val now = Date()
 
         paint.style = Paint.Style.FILL
@@ -236,9 +449,9 @@ class HomePageView(context: Context) : View(context) {
             paint
         )
 
+
         paint.textSize = 11f
         paint.typeface = Typeface.DEFAULT
-
         paint.color = muted
 
         canvas.drawText(
@@ -247,6 +460,7 @@ class HomePageView(context: Context) : View(context) {
             68f,
             paint
         )
+
 
         paint.textAlign = Paint.Align.RIGHT
         paint.textSize = 14f
@@ -260,8 +474,8 @@ class HomePageView(context: Context) : View(context) {
             paint
         )
 
+
         paint.textSize = 10f
-        paint.typeface = Typeface.DEFAULT
         paint.color = cyan
 
         canvas.drawText(
@@ -271,18 +485,13 @@ class HomePageView(context: Context) : View(context) {
             paint
         )
 
+
         paint.textAlign = Paint.Align.LEFT
 
-        paint.color = Color.argb(100, 100, 180, 220)
-
-        canvas.drawRect(
-            35f,
-            82f,
-            w - 35f,
-            83f,
-            paint
-        )
     }
+
+
+
 
     private fun drawGauge(
         canvas: Canvas,
@@ -294,32 +503,45 @@ class HomePageView(context: Context) : View(context) {
         unit: String,
         label: String
     ) {
-        val safeMax = if (maxValue <= 0f) {
-            1f
-        } else {
-            maxValue
-        }
+
 
         val progress =
-            (value / safeMax).coerceIn(0f, 1f)
+            (value / maxValue)
+                .coerceIn(
+                    0f,
+                    1f
+                )
 
-        val rect = RectF(
-            cx - radius,
-            cy - radius,
-            cx + radius,
-            cy + radius
-        )
 
-        paint.style = Paint.Style.STROKE
-        paint.strokeCap = Paint.Cap.ROUND
+        val rect =
+            RectF(
+                cx - radius,
+                cy - radius,
+                cx + radius,
+                cy + radius
+            )
 
-        paint.strokeWidth = 14f
-        paint.color = Color.argb(
-            45,
-            100,
-            200,
-            255
-        )
+
+        paint.style =
+            Paint.Style.STROKE
+
+
+        paint.strokeCap =
+            Paint.Cap.ROUND
+
+
+        paint.strokeWidth =
+            14f
+
+
+        paint.color =
+            Color.argb(
+                45,
+                100,
+                200,
+                255
+            )
+
 
         canvas.drawArc(
             rect,
@@ -329,8 +551,14 @@ class HomePageView(context: Context) : View(context) {
             paint
         )
 
-        paint.strokeWidth = 5f
-        paint.color = cyan
+
+        paint.strokeWidth =
+            5f
+
+
+        paint.color =
+            cyan
+
 
         canvas.drawArc(
             rect,
@@ -340,70 +568,114 @@ class HomePageView(context: Context) : View(context) {
             paint
         )
 
-        paint.strokeCap = Paint.Cap.BUTT
-        paint.strokeWidth = 2f
-        paint.color = Color.argb(
-            90,
-            180,
-            230,
-            255
-        )
 
-        for (i in 0..24) {
+        paint.strokeWidth =
+            2f
+
+
+        paint.color =
+            Color.argb(
+                100,
+                180,
+                230,
+                255
+            )
+
+
+        for (
+            i in 0..24
+        ) {
+
             val angle =
                 Math.toRadians(
-                    (135.0 + i * 11.25)
+                    135.0 +
+                    i * 11.25
                 )
 
-            val outerRadius = radius + 9f
 
-            val innerRadius =
-                if (i % 3 == 0) {
-                    radius - 4f
-                } else {
+            val outer =
+                radius + 10f
+
+
+            val inner =
+                if (
+                    i % 3 == 0
+                )
+                    radius - 5f
+                else
                     radius + 2f
-                }
 
-            val x1 =
-                cx + cos(angle).toFloat() * innerRadius
 
-            val y1 =
-                cy + sin(angle).toFloat() * innerRadius
-
-            val x2 =
-                cx + cos(angle).toFloat() * outerRadius
-
-            val y2 =
-                cy + sin(angle).toFloat() * outerRadius
 
             canvas.drawLine(
-                x1,
-                y1,
-                x2,
-                y2,
+
+                cx +
+                    cos(angle).toFloat()
+                    * inner,
+
+                cy +
+                    sin(angle).toFloat()
+                    * inner,
+
+                cx +
+                    cos(angle).toFloat()
+                    * outer,
+
+                cy +
+                    sin(angle).toFloat()
+                    * outer,
+
                 paint
             )
+
         }
 
-        val needleAngle =
+
+
+        val needle =
             Math.toRadians(
-                (135.0 + 270.0 * progress)
+                135.0 +
+                270.0 * progress
             )
 
-        paint.strokeWidth = 4f
-        paint.strokeCap = Paint.Cap.ROUND
-        paint.color = white
+
+
+        paint.strokeWidth =
+            4f
+
+
+        paint.color =
+            white
+
+
 
         canvas.drawLine(
+
             cx,
+
             cy,
-            cx + cos(needleAngle).toFloat() * (radius - 18f),
-            cy + sin(needleAngle).toFloat() * (radius - 18f),
+
+            cx +
+                cos(needle).toFloat()
+                * (radius - 18f),
+
+            cy +
+                sin(needle).toFloat()
+                * (radius - 18f),
+
             paint
         )
 
-        paint.style = Paint.Style.FILL
-        paint.color = blue
+
+
+        paint.style =
+            Paint.Style.FILL
+
+
+        paint.color =
+            blue
+
+
 
         canvas.drawCircle(
             cx,
@@ -412,11 +684,24 @@ class HomePageView(context: Context) : View(context) {
             paint
         )
 
-        paint.textAlign = Paint.Align.CENTER
-        paint.typeface = Typeface.DEFAULT_BOLD
 
-        paint.textSize = radius * 0.28f
-        paint.color = white
+
+        paint.textAlign =
+            Paint.Align.CENTER
+
+
+        paint.typeface =
+            Typeface.DEFAULT_BOLD
+
+
+        paint.textSize =
+            radius * 0.28f
+
+
+        paint.color =
+            white
+
+
 
         canvas.drawText(
             value.toInt().toString(),
@@ -425,9 +710,16 @@ class HomePageView(context: Context) : View(context) {
             paint
         )
 
-        paint.textSize = 11f
-        paint.color = cyan
-        paint.typeface = Typeface.DEFAULT
+
+
+        paint.textSize =
+            11f
+
+
+        paint.color =
+            cyan
+
+
 
         canvas.drawText(
             unit,
@@ -436,8 +728,16 @@ class HomePageView(context: Context) : View(context) {
             paint
         )
 
-        paint.textSize = 9f
-        paint.color = muted
+
+
+        paint.textSize =
+            9f
+
+
+        paint.color =
+            muted
+
+
 
         canvas.drawText(
             label,
@@ -446,9 +746,19 @@ class HomePageView(context: Context) : View(context) {
             paint
         )
 
-        paint.textAlign = Paint.Align.LEFT
-        paint.strokeCap = Paint.Cap.BUTT
+
+        paint.textAlign =
+            Paint.Align.LEFT
+
+
+        paint.strokeCap =
+            Paint.Cap.BUTT
+
     }
+
+
+
+
 
     private fun drawAIOrb(
         canvas: Canvas,
@@ -456,33 +766,89 @@ class HomePageView(context: Context) : View(context) {
         cy: Float,
         radius: Float
     ) {
-        val animation =
-            ((sin(System.currentTimeMillis() / 300.0) + 1.0) / 2.0)
+
+
+        val time =
+            System.currentTimeMillis()
+
+
+        val wave =
+            (
+                (sin(time / 250.0) + 1)
+                / 2
+            )
                 .toFloat()
 
+
+
+        val statePower =
+            when(aiState) {
+
+                AIState.LISTENING ->
+                    1.35f
+
+                AIState.THINKING ->
+                    1.55f
+
+                AIState.SPEAKING ->
+                    1.75f
+
+                else ->
+                    1.20f
+            }
+
+
+
         val glowRadius =
-            radius * (1.55f + animation * 0.30f)
+            radius *
+            (
+                statePower +
+                wave * 0.25f
+            )
 
-        val glow = Paint(Paint.ANTI_ALIAS_FLAG)
 
-        glow.shader = RadialGradient(
-            cx,
-            cy,
-            glowRadius,
-            intArrayOf(
-                Color.argb(190, 130, 235, 255),
-                Color.argb(100, 70, 196, 255),
-                Color.argb(30, 40, 150, 230),
-                Color.TRANSPARENT
-            ),
-            floatArrayOf(
-                0f,
-                0.35f,
-                0.68f,
-                1f
-            ),
-            Shader.TileMode.CLAMP
-        )
+
+        val glow =
+            Paint(
+                Paint.ANTI_ALIAS_FLAG
+            )
+
+
+        glow.shader =
+            RadialGradient(
+
+                cx,
+
+                cy,
+
+                glowRadius,
+
+                intArrayOf(
+
+                    Color.argb(
+                        210,
+                        130,
+                        235,
+                        255
+                    ),
+
+                    Color.argb(
+                        80,
+                        70,
+                        196,
+                        255
+                    ),
+
+                    Color.TRANSPARENT
+
+                ),
+
+                null,
+
+                Shader.TileMode.CLAMP
+            )
+
+
 
         canvas.drawCircle(
             cx,
@@ -490,27 +856,46 @@ class HomePageView(context: Context) : View(context) {
             glowRadius,
             glow
         )
+                paint.shader =
+            RadialGradient(
+                cx - radius * 0.25f,
+                cy - radius * 0.30f,
+                radius * 1.15f,
+                intArrayOf(
+                    Color.rgb(
+                        190,
+                        245,
+                        255
+                    ),
+                    Color.rgb(
+                        70,
+                        196,
+                        255
+                    ),
+                    Color.rgb(
+                        18,
+                        83,
+                        145
+                    ),
+                    Color.rgb(
+                        4,
+                        25,
+                        48
+                    )
+                ),
+                floatArrayOf(
+                    0f,
+                    0.35f,
+                    0.72f,
+                    1f
+                ),
+                Shader.TileMode.CLAMP
+            )
 
-        paint.shader = RadialGradient(
-            cx - radius * 0.25f,
-            cy - radius * 0.30f,
-            radius * 1.15f,
-            intArrayOf(
-                Color.rgb(190, 245, 255),
-                Color.rgb(70, 196, 255),
-                Color.rgb(18, 83, 145),
-                Color.rgb(4, 25, 48)
-            ),
-            floatArrayOf(
-                0f,
-                0.35f,
-                0.72f,
-                1f
-            ),
-            Shader.TileMode.CLAMP
-        )
 
-        paint.style = Paint.Style.FILL
+        paint.style =
+            Paint.Style.FILL
+
 
         canvas.drawCircle(
             cx,
@@ -519,16 +904,27 @@ class HomePageView(context: Context) : View(context) {
             paint
         )
 
-        paint.shader = null
 
-        paint.style = Paint.Style.STROKE
-        paint.strokeWidth = 2.5f
-        paint.color = Color.argb(
-            210,
-            180,
-            245,
-            255
-        )
+        paint.shader =
+            null
+
+
+        paint.style =
+            Paint.Style.STROKE
+
+
+        paint.strokeWidth =
+            2.5f
+
+
+        paint.color =
+            Color.argb(
+                210,
+                180,
+                245,
+                255
+            )
+
 
         canvas.drawCircle(
             cx,
@@ -537,26 +933,26 @@ class HomePageView(context: Context) : View(context) {
             paint
         )
 
-        paint.strokeWidth = 1f
-        paint.color = Color.argb(
-            110,
-            170,
-            240,
-            255
-        )
 
-        canvas.drawCircle(
-            cx,
-            cy,
-            radius * 1.20f,
-            paint
-        )
+        paint.style =
+            Paint.Style.FILL
 
-        paint.style = Paint.Style.FILL
-        paint.textAlign = Paint.Align.CENTER
-        paint.typeface = Typeface.DEFAULT_BOLD
-        paint.textSize = radius * 0.31f
-        paint.color = Color.WHITE
+
+        paint.textAlign =
+            Paint.Align.CENTER
+
+
+        paint.typeface =
+            Typeface.DEFAULT_BOLD
+
+
+        paint.textSize =
+            radius * 0.31f
+
+
+        paint.color =
+            Color.WHITE
+
 
         canvas.drawText(
             "MRT",
@@ -565,21 +961,43 @@ class HomePageView(context: Context) : View(context) {
             paint
         )
 
-        paint.textSize = radius * 0.12f
-        paint.typeface = Typeface.DEFAULT
 
-        val stateText = when (aiState) {
-            AIState.IDLE -> "READY"
-            AIState.LISTENING -> "LISTENING"
-            else -> "AI"
-        }
+        paint.textSize =
+            radius * 0.12f
 
-        paint.color = Color.argb(
-            225,
-            225,
-            248,
-            255
-        )
+
+        paint.typeface =
+            Typeface.DEFAULT
+
+
+        paint.color =
+            Color.argb(
+                225,
+                225,
+                248,
+                255
+            )
+
+
+        val stateText =
+            when(aiState) {
+
+                AIState.IDLE ->
+                    "READY"
+
+                AIState.LISTENING ->
+                    "LISTENING"
+
+                AIState.THINKING ->
+                    "THINKING"
+
+                AIState.SPEAKING ->
+                    "SPEAKING"
+
+                AIState.ERROR ->
+                    "ERROR"
+            }
+
 
         canvas.drawText(
             stateText,
@@ -587,17 +1005,39 @@ class HomePageView(context: Context) : View(context) {
             cy + radius * 0.40f,
             paint
         )
+
+
+        paint.textAlign =
+            Paint.Align.LEFT
+
     }
+
+
+
 
     private fun drawCenterInfo(
         canvas: Canvas,
         w: Float,
         h: Float
     ) {
-        paint.textAlign = Paint.Align.CENTER
-        paint.typeface = Typeface.DEFAULT_BOLD
-        paint.textSize = 15f
-        paint.color = white
+
+
+        paint.textAlign =
+            Paint.Align.CENTER
+
+
+        paint.typeface =
+            Typeface.DEFAULT_BOLD
+
+
+        paint.textSize =
+            15f
+
+
+        paint.color =
+            white
+
+
 
         canvas.drawText(
             "سلام MRT",
@@ -606,9 +1046,20 @@ class HomePageView(context: Context) : View(context) {
             paint
         )
 
-        paint.textSize = 11f
-        paint.typeface = Typeface.DEFAULT
-        paint.color = muted
+
+
+        paint.textSize =
+            11f
+
+
+        paint.typeface =
+            Typeface.DEFAULT
+
+
+        paint.color =
+            muted
+
+
 
         canvas.drawText(
             "آماده دریافت فرمان صوتی",
@@ -617,37 +1068,61 @@ class HomePageView(context: Context) : View(context) {
             paint
         )
 
-        paint.textSize = 9f
-        paint.color = Color.argb(
-            150,
-            116,
-            231,
-            255
-        )
+
+
+        paint.textSize =
+            9f
+
+
+        paint.color =
+            cyan
+
+
 
         canvas.drawText(
-            "TOUCH THE AI ORB",
+            "VOICE ASSISTANT ONLINE",
             w / 2f,
             h * 0.68f,
             paint
         )
 
-        paint.textAlign = Paint.Align.LEFT
+
+
+        paint.textAlign =
+            Paint.Align.LEFT
+
     }
+
+
+
 
     private fun drawStatusCards(
         canvas: Canvas,
         w: Float,
         h: Float
     ) {
-        val top = h * 0.72f
-        val bottom = h * 0.82f
 
-        val margin = 30f
-        val gap = 12f
+        val top =
+            h * 0.72f
+
+
+        val bottom =
+            h * 0.82f
+
+
+        val margin =
+            30f
+
+
+        val gap =
+            12f
+
 
         val cardW =
-            (w - margin * 2f - gap * 2f) / 3f
+            (w - margin * 2 - gap * 2)
+                    / 3f
+
+
 
         drawGlassCard(
             canvas,
@@ -656,47 +1131,66 @@ class HomePageView(context: Context) : View(context) {
             margin + cardW,
             bottom,
             "ENGINE",
-            vehicleData.engineTempC.toString() + "°C"
+            "${vehicleData.engineTempC}°C"
         )
+
 
         drawGlassCard(
             canvas,
             margin + cardW + gap,
             top,
-            margin + cardW * 2f + gap,
+            margin + cardW * 2 + gap,
             bottom,
             "FUEL",
-            vehicleData.fuelPercent.toString() + "%"
+            "${vehicleData.fuelPercent}%"
         )
+
 
         drawGlassCard(
             canvas,
-            margin + cardW * 2f + gap * 2f,
+            margin + cardW * 2 + gap * 2,
             top,
             w - margin,
             bottom,
             "CAN",
-            if (vehicleData.canConnected) {
+            if(vehicleData.canConnected)
                 "ONLINE"
-            } else {
+            else
                 "STANDBY"
-            }
         )
+
     }
+
+
+
 
     private fun drawBottomCards(
         canvas: Canvas,
         w: Float,
         h: Float
     ) {
-        val top = h * 0.85f
-        val bottom = h * 0.94f
 
-        val margin = 30f
-        val gap = 12f
+        val top =
+            h * 0.85f
+
+
+        val bottom =
+            h * 0.94f
+
+
+        val margin =
+            30f
+
+
+        val gap =
+            12f
+
 
         val cardW =
-            (w - margin * 2f - gap * 2f) / 3f
+            (w - margin * 2 - gap * 2)
+                    / 3f
+
+
 
         drawGlassCard(
             canvas,
@@ -708,26 +1202,32 @@ class HomePageView(context: Context) : View(context) {
             "READY"
         )
 
+
         drawGlassCard(
             canvas,
             margin + cardW + gap,
             top,
-            margin + cardW * 2f + gap,
+            margin + cardW * 2 + gap,
             bottom,
-            "NAVIGATION",
+            "MUSIC",
             "READY"
         )
 
+
         drawGlassCard(
             canvas,
-            margin + cardW * 2f + gap * 2f,
+            margin + cardW * 2 + gap * 2,
             top,
             w - margin,
             bottom,
             "SYSTEM",
             "ONLINE"
         )
+
     }
+
+
+
 
     private fun drawGlassCard(
         canvas: Canvas,
@@ -738,31 +1238,24 @@ class HomePageView(context: Context) : View(context) {
         title: String,
         value: String
     ) {
-        val rect = RectF(
-            left,
-            top,
-            right,
-            bottom
-        )
 
-        paint.style = Paint.Style.FILL
-        paint.color = panel
+        val rect =
+            RectF(
+                left,
+                top,
+                right,
+                bottom
+            )
 
-        canvas.drawRoundRect(
-            rect,
-            18f,
-            18f,
-            paint
-        )
 
-        paint.style = Paint.Style.STROKE
-        paint.strokeWidth = 1f
-        paint.color = Color.argb(
-            75,
-            110,
-            210,
-            255
-        )
+        paint.style =
+            Paint.Style.FILL
+
+
+        paint.color =
+            panel
+
+
 
         canvas.drawRoundRect(
             rect,
@@ -771,12 +1264,47 @@ class HomePageView(context: Context) : View(context) {
             paint
         )
 
-        paint.style = Paint.Style.FILL
-        paint.textAlign = Paint.Align.LEFT
-        paint.typeface = Typeface.DEFAULT
 
-        paint.textSize = 8f
-        paint.color = muted
+        paint.style =
+            Paint.Style.STROKE
+
+
+        paint.strokeWidth =
+            1f
+
+
+        paint.color =
+            Color.argb(
+                75,
+                110,
+                210,
+                255
+            )
+
+
+        canvas.drawRoundRect(
+            rect,
+            18f,
+            18f,
+            paint
+        )
+
+
+        paint.style =
+            Paint.Style.FILL
+
+
+        paint.textAlign =
+            Paint.Align.LEFT
+
+
+        paint.textSize =
+            8f
+
+
+        paint.color =
+            muted
+
 
         canvas.drawText(
             title,
@@ -785,9 +1313,18 @@ class HomePageView(context: Context) : View(context) {
             paint
         )
 
-        paint.textSize = 12f
-        paint.typeface = Typeface.DEFAULT_BOLD
-        paint.color = white
+
+        paint.textSize =
+            12f
+
+
+        paint.typeface =
+            Typeface.DEFAULT_BOLD
+
+
+        paint.color =
+            white
+
 
         canvas.drawText(
             value,
@@ -796,7 +1333,10 @@ class HomePageView(context: Context) : View(context) {
             paint
         )
 
-        paint.color = cyan
+
+        paint.color =
+            cyan
+
 
         canvas.drawCircle(
             right - 15f,
@@ -805,38 +1345,4 @@ class HomePageView(context: Context) : View(context) {
             paint
         )
 
-        paint.textAlign = Paint.Align.LEFT
     }
-
-    override fun onTouchEvent(
-        event: MotionEvent
-    ): Boolean {
-        if (event.action == MotionEvent.ACTION_UP) {
-
-            val cx = width / 2f
-            val cy = height * 0.43f
-            val radius = min(width, height) * 0.14f
-
-            val dx = event.x - cx
-            val dy = event.y - cy
-
-            val distance =
-                kotlin.math.sqrt(
-                    dx * dx + dy * dy
-                )
-
-            if (distance <= radius) {
-                onAIOrbClick?.invoke()
-                performClick()
-                return true
-            }
-        }
-
-        return true
-    }
-
-    override fun performClick(): Boolean {
-        super.performClick()
-        return true
-    }
-}
