@@ -3,10 +3,11 @@ package peugeot.platform.android.ai
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
-import java.util.Locale
 
 
 class VoiceManager(
@@ -21,30 +22,10 @@ class VoiceManager(
     private var listening = false
 
 
-    init {
-
-        if (
-            SpeechRecognizer.isRecognitionAvailable(context)
-        ) {
-
-            speechRecognizer =
-                SpeechRecognizer.createSpeechRecognizer(
-                    context
-                )
-
-
-            speechRecognizer?.setRecognitionListener(
-                listener
-            )
-
-        }
-
-    }
-
-
 
     private val listener =
         object : RecognitionListener {
+
 
 
             override fun onReadyForSpeech(
@@ -104,7 +85,7 @@ class VoiceManager(
                 )
 
 
-                if (listening) {
+                if(listening){
 
                     restartListening()
 
@@ -119,21 +100,19 @@ class VoiceManager(
             ) {
 
 
-                val matches =
-                    results?.getStringArrayList(
-                        SpeechRecognizer.RESULTS_RECOGNITION
-                    )
-
-
                 val text =
-                    matches
+                    results
+                        ?.getStringArrayList(
+                            SpeechRecognizer.RESULTS_RECOGNITION
+                        )
                         ?.firstOrNull()
                         ?: ""
 
 
-                if (
+
+                if(
                     text.isNotBlank()
-                ) {
+                ){
 
                     onResult(
                         text
@@ -142,11 +121,13 @@ class VoiceManager(
                 }
 
 
-                if (listening) {
+
+                if(listening){
 
                     restartListening()
 
                 }
+
 
             }
 
@@ -167,28 +148,68 @@ class VoiceManager(
 
             }
 
+
         }
 
 
 
-    fun startContinuousListening() {
 
-        listening = true
 
-        startListening()
+    init {
+
+
+        if(
+            SpeechRecognizer.isRecognitionAvailable(
+                context
+            )
+        ){
+
+            speechRecognizer =
+                SpeechRecognizer.createSpeechRecognizer(
+                    context
+                )
+
+
+            speechRecognizer?.setRecognitionListener(
+                listener
+            )
+
+
+        }
+
 
     }
 
 
 
-    private fun startListening() {
 
 
-        if (
+    fun startContinuousListening(){
+
+
+        listening = true
+
+
+        startListening()
+
+
+    }
+
+
+
+
+
+    private fun startListening(){
+
+
+        if(
             !listening
-        ) {
+        ){
+
             return
+
         }
+
 
 
         val intent =
@@ -197,10 +218,12 @@ class VoiceManager(
             )
 
 
+
         intent.putExtra(
             RecognizerIntent.EXTRA_LANGUAGE_MODEL,
             RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
         )
+
 
 
         intent.putExtra(
@@ -209,10 +232,12 @@ class VoiceManager(
         )
 
 
+
         intent.putExtra(
             RecognizerIntent.EXTRA_PARTIAL_RESULTS,
             true
         )
+
 
 
         intent.putExtra(
@@ -221,22 +246,37 @@ class VoiceManager(
         )
 
 
+
         speechRecognizer?.startListening(
             intent
         )
+
 
     }
 
 
 
-    private fun restartListening() {
+
+
+    private fun restartListening(){
+
+
+        if(
+            !listening
+        ){
+
+            return
+
+        }
+
 
 
         speechRecognizer?.cancel()
 
 
-        android.os.Handler(
-            android.os.Looper.getMainLooper()
+
+        Handler(
+            Looper.getMainLooper()
         )
             .postDelayed({
 
@@ -244,46 +284,66 @@ class VoiceManager(
 
             },700)
 
+
+
     }
 
 
 
-    fun resumeContinuousListening() {
 
-        if (
+
+    fun resumeContinuousListening(){
+
+
+        if(
             listening
-        ) {
+        ){
 
             startListening()
 
         }
 
+
     }
 
 
 
-    fun stopListening() {
+
+
+    fun stopListening(){
+
 
         listening = false
 
+
         speechRecognizer?.stopListening()
+
+
 
         onStateChanged(
             AIState.IDLE
         )
 
+
     }
 
 
 
-    fun destroy() {
+
+
+    fun destroy(){
+
 
         listening = false
 
+
         speechRecognizer?.destroy()
+
 
         speechRecognizer = null
 
+
     }
+
 
 }
