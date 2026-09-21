@@ -3,6 +3,28 @@ package peugeot.platform.android.vehicle
 import peugeot.platform.android.can.CANDataParser
 import peugeot.platform.android.can.CANFrame
 
+/**
+ * Central controller for vehicle data.
+ *
+ * Data flow:
+ *
+ * CAN / GPCU
+ *      ↓
+ * CANFrame
+ *      ↓
+ * CANDataParser
+ *      ↓
+ * VehicleDataController
+ *      ↓
+ * VehicleData
+ *      ↓
+ * Dashboard / UI
+ *
+ * IMPORTANT:
+ * The CAN decoder currently uses generic parsing rules.
+ * Peugeot Pars / GPCU-specific CAN IDs will be added
+ * when the real CAN/GPCU interface is available.
+ */
 class VehicleDataController(
     private val onDataChanged: (VehicleData) -> Unit
 ) {
@@ -11,52 +33,49 @@ class VehicleDataController(
     private var demoMode = false
 
     /**
-     * دریافت یک فریم CAN
-     *
-     * فعلاً Parser موجود پروژه استفاده می‌شود.
-     * وقتی پروتکل واقعی پژو/GPCU مشخص شود،
-     * IDهای واقعی CAN در همین لایه اضافه خواهند شد.
+     * Receives a CAN frame and tries to extract vehicle values.
      */
     fun updateFromCAN(frame: CANFrame) {
 
+        if (!CANDataParser.isValidFrame(frame)) {
+            return
+        }
+
         demoMode = false
 
-        var data = currentData.copy(
+        var updatedData = currentData.copy(
             canConnected = true,
-            lastUpdate = frame.timestamp
+            lastUpdate = System.currentTimeMillis()
         )
 
-        val speed = CANDataParser.parseSpeed(frame)
-        if (speed != null) {
-            data = data.copy(
+        CANDataParser.parseSpeed(frame)?.let { speed ->
+            updatedData = updatedData.copy(
                 speedKmh = speed
             )
         }
 
-        val rpm = CANDataParser.parseRpm(frame)
-        if (rpm != null) {
-            data = data.copy(
+        CANDataParser.parseRpm(frame)?.let { rpm ->
+            updatedData = updatedData.copy(
                 rpm = rpm
             )
         }
 
-        val temperature = CANDataParser.parseTemperature(frame)
-        if (temperature != null) {
-            data = data.copy(
+        CANDataParser.parseTemperature(frame)?.let { temperature ->
+            updatedData = updatedData.copy(
                 engineTempC = temperature
             )
         }
 
-        currentData = data
+        currentData = updatedData
 
         publish()
     }
 
     /**
-     * فعال کردن حالت Demo
+     * Enables demo mode.
      *
-     * تا زمانی که GPCU/CAN واقعی متصل نشده،
-     * داشبورد می‌تواند با داده آزمایشی اجرا شود.
+     * This is only for UI testing until real CAN/GPCU
+     * hardware is connected.
      */
     fun useDemoMode() {
 
@@ -68,13 +87,13 @@ class VehicleDataController(
     }
 
     /**
-     * خروج از حالت Demo
+     * Disables demo mode.
      */
     fun disableDemoMode() {
+
         demoMode = false
 
         currentData = currentData.copy(
-            canConnected = false,
             lastUpdate = System.currentTimeMillis()
         )
 
@@ -82,23 +101,25 @@ class VehicleDataController(
     }
 
     /**
-     * وضعیت فعلی خودرو
-     */
-    fun getCurrentData(): VehicleData {
-        return currentData
-    }
-
-    /**
-     * آیا در حالت Demo هستیم؟
+     * Returns whether demo mode is active.
      */
     fun isDemoMode(): Boolean {
         return demoMode
     }
 
     /**
-     * اعلام اتصال CAN
+     * Returns the latest vehicle data.
      */
-    fun setCANConnected(connected: Boolean) {
+    fun getCurrentData(): VehicleData {
+        return currentData
+    }
+
+    /**
+     * Updates CAN connection state.
+     */
+    fun setCANConnected(
+        connected: Boolean
+    ) {
 
         currentData = currentData.copy(
             canConnected = connected,
@@ -109,9 +130,11 @@ class VehicleDataController(
     }
 
     /**
-     * اعلام اتصال OBD
+     * Updates OBD connection state.
      */
-    fun setOBDConnected(connected: Boolean) {
+    fun setOBDConnected(
+        connected: Boolean
+    ) {
 
         currentData = currentData.copy(
             obdConnected = connected,
@@ -122,67 +145,16 @@ class VehicleDataController(
     }
 
     /**
-     * ثبت خطای ECU
-     */
-    fun setECUErrorCount(count: Int) {
-
-        currentData = currentData.copy(
-            ecuErrorCount = count.coerceAtLeast(0),
-            lastUpdate = System.currentTimeMillis()
-        )
-
-        publish()
-    }
-
-    /**
-     * وضعیت چراغ Check Engine
-     */
-    fun setCheckEngine(active: Boolean) {
-
-        currentData = currentData.copy(
-            checkEngine = active,
-            lastUpdate = System.currentTimeMillis()
-        )
-
-        publish()
-    }
-
-    /**
-     * وضعیت ABS
-     */
-    fun setABSWarning(active: Boolean) {
-
-        currentData = currentData.copy(
-            absWarning = active,
-            lastUpdate = System.currentTimeMillis()
-        )
-
-        publish()
-    }
-
-    /**
-     * وضعیت Airbag
-     */
-    fun setAirbagWarning(active: Boolean) {
-
-        currentData = currentData.copy(
-            airbagWarning = active,
-            lastUpdate = System.currentTimeMillis()
-        )
-
-        publish()
-    }
-
-    /**
-     * تنظیم سرعت
+     * Updates vehicle speed manually.
      *
-     * برای زمانی که یک منبع دیگر مثل GPCU
-     * داده سرعت را مستقیماً ارسال کند.
+     * Useful for future GPCU/OBD adapters.
      */
-    fun setSpeed(speedKmh: Int) {
+    fun setSpeed(
+        speedKmh: Int
+    ) {
 
         currentData = currentData.copy(
-            speedKmh = speedKmh.coerceAtLeast(0),
+            speedKmh = speedKmh.coerceIn(0, 300),
             lastUpdate = System.currentTimeMillis()
         )
 
@@ -190,12 +162,14 @@ class VehicleDataController(
     }
 
     /**
-     * تنظیم RPM
+     * Updates engine RPM manually.
      */
-    fun setRPM(rpm: Int) {
+    fun setRpm(
+        rpm: Int
+    ) {
 
         currentData = currentData.copy(
-            rpm = rpm.coerceAtLeast(0),
+            rpm = rpm.coerceIn(0, 8000),
             lastUpdate = System.currentTimeMillis()
         )
 
@@ -203,12 +177,14 @@ class VehicleDataController(
     }
 
     /**
-     * تنظیم دمای موتور
+     * Updates engine temperature.
      */
-    fun setEngineTemperature(tempC: Int) {
+    fun setEngineTemperature(
+        temperatureC: Int
+    ) {
 
         currentData = currentData.copy(
-            engineTempC = tempC,
+            engineTempC = temperatureC.coerceIn(-40, 150),
             lastUpdate = System.currentTimeMillis()
         )
 
@@ -216,9 +192,11 @@ class VehicleDataController(
     }
 
     /**
-     * تنظیم سطح سوخت
+     * Updates fuel percentage.
      */
-    fun setFuelPercent(percent: Int) {
+    fun setFuelPercent(
+        percent: Int
+    ) {
 
         currentData = currentData.copy(
             fuelPercent = percent.coerceIn(0, 100),
@@ -229,12 +207,14 @@ class VehicleDataController(
     }
 
     /**
-     * تنظیم ولتاژ باتری
+     * Updates battery voltage.
      */
-    fun setBatteryVoltage(voltage: Float) {
+    fun setBatteryVoltage(
+        voltage: Float
+    ) {
 
         currentData = currentData.copy(
-            batteryVoltage = voltage.coerceAtLeast(0f),
+            batteryVoltage = voltage.coerceIn(0f, 32f),
             lastUpdate = System.currentTimeMillis()
         )
 
@@ -242,12 +222,14 @@ class VehicleDataController(
     }
 
     /**
-     * تنظیم کیلومتر خودرو
+     * Updates odometer.
      */
-    fun setOdometer(km: Int) {
+    fun setOdometer(
+        kilometers: Int
+    ) {
 
         currentData = currentData.copy(
-            odometerKm = km.coerceAtLeast(0),
+            odometerKm = kilometers.coerceAtLeast(0),
             lastUpdate = System.currentTimeMillis()
         )
 
@@ -255,13 +237,85 @@ class VehicleDataController(
     }
 
     /**
-     * بازنشانی اطلاعات
+     * Updates ECU error count.
+     */
+    fun setECUErrorCount(
+        count: Int
+    ) {
+
+        currentData = currentData.copy(
+            ecuErrorCount = count.coerceAtLeast(0),
+            lastUpdate = System.currentTimeMillis()
+        )
+
+        publish()
+    }
+
+    /**
+     * Updates Check Engine warning.
+     */
+    fun setCheckEngine(
+        enabled: Boolean
+    ) {
+
+        currentData = currentData.copy(
+            checkEngine = enabled,
+            lastUpdate = System.currentTimeMillis()
+        )
+
+        publish()
+    }
+
+    /**
+     * Updates ABS warning.
+     */
+    fun setABSWarning(
+        enabled: Boolean
+    ) {
+
+        currentData = currentData.copy(
+            absWarning = enabled,
+            lastUpdate = System.currentTimeMillis()
+        )
+
+        publish()
+    }
+
+    /**
+     * Updates Airbag warning.
+     */
+    fun setAirbagWarning(
+        enabled: Boolean
+    ) {
+
+        currentData = currentData.copy(
+            airbagWarning = enabled,
+            lastUpdate = System.currentTimeMillis()
+        )
+
+        publish()
+    }
+
+    /**
+     * Resets vehicle data to a clean state.
      */
     fun reset() {
 
         demoMode = false
 
         currentData = VehicleData(
+            speedKmh = 0,
+            rpm = 0,
+            engineTempC = 0,
+            batteryVoltage = 0f,
+            fuelPercent = 0,
+            odometerKm = 0,
+            canConnected = false,
+            obdConnected = false,
+            ecuErrorCount = 0,
+            checkEngine = false,
+            absWarning = false,
+            airbagWarning = false,
             lastUpdate = System.currentTimeMillis()
         )
 
@@ -269,7 +323,7 @@ class VehicleDataController(
     }
 
     /**
-     * ارسال اطلاعات جدید به Dashboard
+     * Sends the latest data to the UI.
      */
     private fun publish() {
 
