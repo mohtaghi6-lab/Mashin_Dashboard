@@ -1,4 +1,3 @@
-```kotlin
 package peugeot.platform.android
 
 import android.Manifest
@@ -914,4 +913,4 @@ class MainActivity : Activity() {
     }
 
 }
-```
+
