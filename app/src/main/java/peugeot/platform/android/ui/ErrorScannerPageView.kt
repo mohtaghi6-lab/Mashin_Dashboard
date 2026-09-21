@@ -5,11 +5,10 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
-import android.view.MotionEvent
 import android.view.View
-import peugeot.platform.android.diagnostics.ErrorScanner
-import peugeot.platform.android.diagnostics.Severity
-import peugeot.platform.android.vehicle.VehicleData
+import peugeot.platform.android.vehicle.ErrorScannerEngine
+import peugeot.platform.android.vehicle.ErrorSeverity
+import peugeot.platform.android.vehicle.VehicleError
 
 
 class ErrorScannerPageView(
@@ -21,32 +20,79 @@ class ErrorScannerPageView(
         Paint(Paint.ANTI_ALIAS_FLAG)
 
 
-    private var vehicleData =
-        VehicleData.demo()
 
+    private val engine =
+        ErrorScannerEngine()
 
-    private var scanning =
-        false
-
-
-    private var scanResult =
-        "READY TO SCAN"
 
 
     private var errors =
-        emptyList<peugeot.platform.android.diagnostics.ErrorCode>()
+        emptyList<VehicleError>()
 
 
-    fun setVehicleData(
-        data: VehicleData
-    ) {
 
-        vehicleData =
-            data
+    private var vehicleData =
+        null
+
+
+
+    init {
+
+
+        engine.onErrorUpdated = { list ->
+
+
+            errors =
+                list
+
+
+            postInvalidate()
+
+        }
+
+
+    }
+
+
+
+
+
+    fun startScan() {
+
+        engine.startScan()
 
         invalidate()
 
     }
+
+
+
+
+
+    fun clearErrors() {
+
+        engine.clearErrors()
+
+        invalidate()
+
+    }
+
+
+
+
+
+    fun receiveFrame(
+        frame: peugeot.platform.android.can.CANFrame
+    ) {
+
+        engine.processFrame(
+            frame
+        )
+
+    }
+
+
+
 
 
     override fun onDraw(
@@ -56,19 +102,20 @@ class ErrorScannerPageView(
         super.onDraw(canvas)
 
 
-        val width =
-            this.width.toFloat()
+        val w =
+            width.toFloat()
 
 
-        val height =
-            this.height.toFloat()
+        val h =
+            height.toFloat()
+
 
 
         canvas.drawColor(
             Color.rgb(
                 3,
-                7,
-                13
+                8,
+                15
             )
         )
 
@@ -82,330 +129,172 @@ class ErrorScannerPageView(
             Typeface.DEFAULT_BOLD
 
 
+        paint.textSize =
+            26f
+
+
         paint.color =
             Color.WHITE
 
-
-        paint.textSize =
-            30f
 
 
         canvas.drawText(
             "ECU ERROR SCANNER",
-            width / 2f,
-            65f,
+            w / 2f,
+            55f,
             paint
         )
 
-
-
-        paint.color =
-            Color.rgb(
-                70,
-                190,
-                255
-            )
-
-
-        paint.textSize =
-            18f
-
-
-        canvas.drawText(
-            if (vehicleData.canConnected)
-                "CAN CONNECTION : ONLINE"
-            else
-                "CAN CONNECTION : WAITING",
-            width / 2f,
-            105f,
-            paint
-        )
-
-
-
-        paint.color =
-            Color.rgb(
-                10,
-                20,
-                32
-            )
-
-
-        canvas.drawRoundRect(
-            40f,
-            145f,
-            width - 40f,
-            height - 190f,
-            25f,
-            25f,
-            paint
-        )
-
-
-
-        paint.color =
-            Color.WHITE
-
-
-        paint.textSize =
-            22f
-
-
-        canvas.drawText(
-            "DIAGNOSTIC STATUS",
-            width / 2f,
-            190f,
-            paint
-        )
-
-
-
-        val count =
-            errors.size
-
-
-        paint.color =
-            if (count > 0)
-                Color.RED
-            else
-                Color.rgb(
-                    80,
-                    255,
-                    150
-                )
-
-
-        paint.textSize =
-            55f
-
-
-        canvas.drawText(
-            "$count",
-            width / 2f,
-            255f,
-            paint
-        )
-
-
-
-        paint.color =
-            Color.LTGRAY
-
-
-        paint.textSize =
-            17f
-
-
-        canvas.drawText(
-            if (count == 0)
-                "NO ACTIVE ERRORS"
-            else
-                "ACTIVE ERROR(S)",
-            width / 2f,
-            290f,
-            paint
-        )
-
-
-
-        var y =
-            335f
-
-
-        errors.take(4).forEach { error ->
-
-
-            paint.color =
-                when (error.severity) {
-
-                    Severity.CRITICAL ->
-                        Color.RED
-
-                    Severity.WARNING ->
-                        Color.rgb(
-                            255,
-                            190,
-                            60
-                        )
-
-                    Severity.INFO ->
-                        Color.rgb(
-                            70,
-                            190,
-                            255
-                        )
-                }
-
-
-            paint.textSize =
-                17f
-
-
-            paint.textAlign =
-                Paint.Align.LEFT
-
-
-            canvas.drawText(
-                error.code,
-                65f,
-                y,
-                paint
-            )
-
-
-            paint.color =
-                Color.WHITE
-
-
-            canvas.drawText(
-                error.title,
-                145f,
-                y,
-                paint
-            )
-
-
-            y += 38f
-        }
-
-
-
-        paint.textAlign =
-            Paint.Align.CENTER
-
-
-        paint.color =
-            Color.LTGRAY
 
 
         paint.textSize =
             16f
 
 
-        canvas.drawText(
-            scanResult,
-            width / 2f,
-            height - 145f,
-            paint
-        )
-
-
-
         paint.color =
             Color.rgb(
-                20,
-                120,
-                220
+                100,
+                220,
+                255
             )
 
 
-        canvas.drawRoundRect(
-            width / 2f - 130f,
-            height - 105f,
-            width / 2f + 130f,
-            height - 40f,
-            30f,
-            30f,
-            paint
-        )
-
-
-
-        paint.color =
-            Color.WHITE
-
-
-        paint.textSize =
-            20f
-
-
         canvas.drawText(
-            if (scanning)
-                "SCANNING..."
-            else
-                "START SCAN",
-            width / 2f,
-            height - 64f,
+            "ACTIVE ERRORS: ${errors.size}",
+            w / 2f,
+            90f,
             paint
         )
 
-    }
+
+
+        var y =
+            140f
 
 
 
-    override fun onTouchEvent(
-        event: MotionEvent
-    ): Boolean {
+        if(errors.isEmpty()) {
 
 
-        if (
-            event.action ==
-            MotionEvent.ACTION_UP
-        ) {
+            paint.color =
+                Color.GREEN
 
 
-            if (
-                event.y >
-                height - 130f
-            ) {
-
-                startScan()
-
-                return true
-            }
-        }
-
-
-        return true
-
-    }
+            paint.textSize =
+                18f
 
 
 
-    private fun startScan() {
+            canvas.drawText(
+                "NO ECU ERRORS",
+                w / 2f,
+                y,
+                paint
+            )
 
 
-        if (scanning) {
-            return
-        }
+        } else {
 
 
-        scanning =
-            true
+            errors.forEach { error ->
 
 
-        scanResult =
-            "READING ECU MODULES..."
-
-
-        invalidate()
-
-
-
-        postDelayed({
-
-            errors =
-                ErrorScanner.scanVehicle(
-                    vehicleData
+                drawError(
+                    canvas,
+                    error,
+                    y
                 )
 
 
-            scanning =
-                false
+                y += 75f
 
 
-            scanResult =
-                if (errors.isEmpty())
-                    "SCAN COMPLETE — NO ACTIVE ERRORS"
-                else
-                    "SCAN COMPLETE — ${errors.size} ERROR(S) FOUND"
+            }
 
 
-            invalidate()
+        }
 
-
-        }, 1200)
 
     }
+
+
+
+
+
+    private fun drawError(
+        canvas: Canvas,
+        error: VehicleError,
+        y: Float
+    ) {
+
+
+        val color =
+            when(error.severity) {
+
+                ErrorSeverity.INFO ->
+                    Color.CYAN
+
+
+                ErrorSeverity.WARNING ->
+                    Color.YELLOW
+
+
+                ErrorSeverity.CRITICAL ->
+                    Color.RED
+
+            }
+
+
+
+        paint.textAlign =
+            Paint.Align.LEFT
+
+
+
+        paint.typeface =
+            Typeface.DEFAULT_BOLD
+
+
+        paint.textSize =
+            18f
+
+
+        paint.color =
+            color
+
+
+
+        canvas.drawText(
+            error.code,
+            40f,
+            y,
+            paint
+        )
+
+
+
+        paint.typeface =
+            Typeface.DEFAULT
+
+
+        paint.textSize =
+            14f
+
+
+        paint.color =
+            Color.LTGRAY
+
+
+
+        canvas.drawText(
+            error.description,
+            40f,
+            y + 25f,
+            paint
+        )
+
+
+    }
+
 
 }
