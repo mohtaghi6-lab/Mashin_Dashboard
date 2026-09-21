@@ -13,9 +13,8 @@ import peugeot.platform.android.ai.AIEngine
 import peugeot.platform.android.ai.AIState
 import peugeot.platform.android.ai.SpeechManager
 import peugeot.platform.android.ai.VoiceManager
-import peugeot.platform.android.dashboard.DashboardView
 import peugeot.platform.android.can.CANReceiver
-
+import peugeot.platform.android.dashboard.Dashboard3DView
 
 import peugeot.platform.android.ui.CallPageView
 import peugeot.platform.android.ui.CarPageView
@@ -45,7 +44,7 @@ class MainActivity : Activity() {
     private lateinit var root: FrameLayout
 
 
-private lateinit var dashboard: DashboardView
+private lateinit var dashboard: Dashboard3DView
     private lateinit var homePageView: HomePageView
 
     private lateinit var clockPageView: ClockPageView
@@ -124,8 +123,7 @@ private lateinit var dashboard: DashboardView
          * BMW STYLE 3D DASHBOARD
          */
 
-      dashboard =
-    DashboardView(this).apply {
+    dashboard = Dashboard3DView(this).apply {
 
                 setVehicleData(
                     VehicleData.demo()
