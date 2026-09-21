@@ -1,3 +1,4 @@
+```kotlin
 package peugeot.platform.android
 
 import android.Manifest
@@ -110,11 +111,9 @@ class MainActivity : Activity() {
         root = FrameLayout(this)
 
 
-        /*
-         * ---------------------------------------------------------
+        /* ---------------------------------------------------------
          * DASHBOARD
-         * ---------------------------------------------------------
-         */
+         * --------------------------------------------------------- */
 
         dashboard = DashboardView(this).apply {
 
@@ -133,11 +132,9 @@ class MainActivity : Activity() {
         )
 
 
-        /*
-         * ---------------------------------------------------------
+        /* ---------------------------------------------------------
          * HOME
-         * ---------------------------------------------------------
-         */
+         * --------------------------------------------------------- */
 
         homePageView = HomePageView(this).apply {
 
@@ -156,11 +153,9 @@ class MainActivity : Activity() {
         )
 
 
-        /*
-         * ---------------------------------------------------------
+        /* ---------------------------------------------------------
          * CLOCK
-         * ---------------------------------------------------------
-         */
+         * --------------------------------------------------------- */
 
         clockPageView = ClockPageView(this).apply {
 
@@ -175,11 +170,9 @@ class MainActivity : Activity() {
         )
 
 
-        /*
-         * ---------------------------------------------------------
+        /* ---------------------------------------------------------
          * CAR
-         * ---------------------------------------------------------
-         */
+         * --------------------------------------------------------- */
 
         carPageView = CarPageView(this).apply {
 
@@ -194,11 +187,9 @@ class MainActivity : Activity() {
         )
 
 
-        /*
-         * ---------------------------------------------------------
+        /* ---------------------------------------------------------
          * MUSIC
-         * ---------------------------------------------------------
-         */
+         * --------------------------------------------------------- */
 
         musicPageView = MusicPageView(this).apply {
 
@@ -213,11 +204,9 @@ class MainActivity : Activity() {
         )
 
 
-        /*
-         * ---------------------------------------------------------
+        /* ---------------------------------------------------------
          * NAVIGATION
-         * ---------------------------------------------------------
-         */
+         * --------------------------------------------------------- */
 
         navigationPageView =
             NavigationPageView(this).apply {
@@ -233,11 +222,9 @@ class MainActivity : Activity() {
         )
 
 
-        /*
-         * ---------------------------------------------------------
+        /* ---------------------------------------------------------
          * CALL
-         * ---------------------------------------------------------
-         */
+         * --------------------------------------------------------- */
 
         callPageView = CallPageView(this).apply {
 
@@ -252,11 +239,9 @@ class MainActivity : Activity() {
         )
 
 
-        /*
-         * ---------------------------------------------------------
+        /* ---------------------------------------------------------
          * ERROR SCANNER
-         * ---------------------------------------------------------
-         */
+         * --------------------------------------------------------- */
 
         errorScannerPageView =
             ErrorScannerPageView(this).apply {
@@ -272,11 +257,9 @@ class MainActivity : Activity() {
         )
 
 
-        /*
-         * ---------------------------------------------------------
+        /* ---------------------------------------------------------
          * VEHICLE SETTINGS
-         * ---------------------------------------------------------
-         */
+         * --------------------------------------------------------- */
 
         vehicleSettingsPageView =
             VehicleSettingsPageView(this).apply {
@@ -292,11 +275,9 @@ class MainActivity : Activity() {
         )
 
 
-        /*
-         * ---------------------------------------------------------
+        /* ---------------------------------------------------------
          * MAIN MENU
-         * ---------------------------------------------------------
-         */
+         * --------------------------------------------------------- */
 
         mainMenuView = MainMenuView(this).apply {
 
@@ -318,50 +299,32 @@ class MainActivity : Activity() {
         setContentView(root)
 
 
-        /*
-         * ---------------------------------------------------------
+        /* ---------------------------------------------------------
          * DISPLAY BOOT
-         * ---------------------------------------------------------
-         */
+         * --------------------------------------------------------- */
 
         displayBootManager =
             DisplayBootManager()
 
-
         displayBootManager.onWindowReady()
 
 
-        /*
-         * ---------------------------------------------------------
+        /* ---------------------------------------------------------
          * ERROR SCANNER ENGINE
-         * ---------------------------------------------------------
-         */
+         * --------------------------------------------------------- */
 
         errorScannerEngine =
             ErrorScannerEngine()
 
-
-        /*
-         * Connect the CAN receiver directly
-         * to the ECU error scanner.
-         *
-         * CAN
-         *  ↓
-         * CANReceiver
-         *  ↓
-         * ErrorScannerEngine
-         */
 
         CANReceiver.attachErrorScanner(
             errorScannerEngine
         )
 
 
-        /*
-         * ---------------------------------------------------------
+        /* ---------------------------------------------------------
          * VEHICLE DATA CONTROLLER
-         * ---------------------------------------------------------
-         */
+         * --------------------------------------------------------- */
 
         vehicleDataController =
             VehicleDataController { data ->
@@ -385,11 +348,9 @@ class MainActivity : Activity() {
         vehicleDataController.useDemoMode()
 
 
-        /*
-         * ---------------------------------------------------------
+        /* ---------------------------------------------------------
          * MAIN MENU CONTROLLER
-         * ---------------------------------------------------------
-         */
+         * --------------------------------------------------------- */
 
         mainMenuController =
             MainMenuController { page ->
@@ -415,21 +376,17 @@ class MainActivity : Activity() {
             }
 
 
-        /*
-         * ---------------------------------------------------------
+        /* ---------------------------------------------------------
          * AI ENGINE
-         * ---------------------------------------------------------
-         */
+         * --------------------------------------------------------- */
 
         aiEngine =
             AIEngine(this)
 
 
-        /*
-         * ---------------------------------------------------------
+        /* ---------------------------------------------------------
          * SPEECH MANAGER
-         * ---------------------------------------------------------
-         */
+         * --------------------------------------------------------- */
 
         speechManager =
             SpeechManager(
@@ -448,6 +405,19 @@ class MainActivity : Activity() {
                             state
                         )
 
+                        /*
+                         * وقتی پاسخ صوتی AI تمام شد،
+                         * دوباره Listening را فعال می‌کنیم.
+                         */
+
+                        if (
+                            state == AIState.IDLE
+                        ) {
+
+                            voiceManager.resumeContinuousListening()
+
+                        }
+
                     }
 
                 }
@@ -455,11 +425,9 @@ class MainActivity : Activity() {
             )
 
 
-        /*
-         * ---------------------------------------------------------
+        /* ---------------------------------------------------------
          * VOICE MANAGER
-         * ---------------------------------------------------------
-         */
+         * --------------------------------------------------------- */
 
         voiceManager =
             VoiceManager(
@@ -479,6 +447,11 @@ class MainActivity : Activity() {
                         )
 
 
+                        /*
+                         * ارسال آنلاین متن فارسی
+                         * به OpenAI
+                         */
+
                         aiEngine.process(
 
                             text = text,
@@ -495,7 +468,7 @@ class MainActivity : Activity() {
 
                             },
 
-                            onError = {
+                            onError = { error ->
 
                                 runOnUiThread {
 
@@ -506,6 +479,14 @@ class MainActivity : Activity() {
                                     homePageView.setAIState(
                                         AIState.ERROR
                                     )
+
+                                    /*
+                                     * حتی در صورت خطا
+                                     * دوباره گوش دادن فعال شود.
+                                     */
+
+                                    voiceManager
+                                        .resumeContinuousListening()
 
                                 }
 
@@ -536,55 +517,54 @@ class MainActivity : Activity() {
             )
 
 
+        /* ---------------------------------------------------------
+         * NO CLICK TO TALK
+         * --------------------------------------------------------- */
+
         /*
-         * ---------------------------------------------------------
-         * AI ORB / VOICE START
-         * ---------------------------------------------------------
+         * دیگر برای شروع مکالمه نیازی به کلیک
+         * روی AI Orb نیست.
+         *
+         * Orb فقط وضعیت AI را نمایش می‌دهد.
          */
 
-        val startVoice = {
+        dashboard.onAIOrbClick = null
 
-            if (
-                checkSelfPermission(
-                    Manifest.permission.RECORD_AUDIO
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
+        homePageView.onAIOrbClick = null
 
-                voiceManager.startListening()
 
-            } else {
+        /* ---------------------------------------------------------
+         * MICROPHONE
+         * --------------------------------------------------------- */
 
-                pendingVoiceStart = true
+        if (
+            checkSelfPermission(
+                Manifest.permission.RECORD_AUDIO
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
 
-                requestMicrophonePermission()
+            /*
+             * میکروفون از همین ابتدا
+             * وارد حالت Listening می‌شود.
+             */
 
-            }
+            voiceManager.startContinuousListening()
+
+        } else {
+
+            pendingVoiceStart = true
+
+            requestMicrophonePermission()
 
         }
-
-
-        dashboard.onAIOrbClick =
-            startVoice
-
-
-        homePageView.onAIOrbClick =
-            startVoice
-
-
-        /*
-         * ---------------------------------------------------------
-         * MICROPHONE PERMISSION
-         * ---------------------------------------------------------
-         */
-
-        requestMicrophonePermission()
 
     }
 
 
-    /**
-     * Sends vehicle data to all vehicle-related pages.
-     */
+    /* ---------------------------------------------------------
+     * VEHICLE DATA
+     * --------------------------------------------------------- */
+
     private fun updateVehicleViews(
         data: VehicleData
     ) {
@@ -608,9 +588,10 @@ class MainActivity : Activity() {
     }
 
 
-    /**
-     * Full-screen layout parameters.
-     */
+    /* ---------------------------------------------------------
+     * FULL SCREEN PARAMETERS
+     * --------------------------------------------------------- */
+
     private fun fullScreenParams():
             FrameLayout.LayoutParams {
 
@@ -622,9 +603,10 @@ class MainActivity : Activity() {
     }
 
 
-    /**
-     * Shows the selected application page.
-     */
+    /* ---------------------------------------------------------
+     * PAGE NAVIGATION
+     * --------------------------------------------------------- */
+
     private fun showPage(
         page: MainMenuPage
     ) {
@@ -732,11 +714,6 @@ class MainActivity : Activity() {
                 errorScannerPageView.visibility =
                     View.VISIBLE
 
-                /*
-                 * Start ECU scan when the
-                 * scanner page is opened.
-                 */
-
                 errorScannerPageView.startScan()
 
                 mainMenuView.visibility =
@@ -760,9 +737,10 @@ class MainActivity : Activity() {
     }
 
 
-    /**
-     * Requests microphone permission.
-     */
+    /* ---------------------------------------------------------
+     * MICROPHONE PERMISSION
+     * --------------------------------------------------------- */
+
     private fun requestMicrophonePermission() {
 
         if (
@@ -793,6 +771,10 @@ class MainActivity : Activity() {
     }
 
 
+    /* ---------------------------------------------------------
+     * PERMISSION RESULT
+     * --------------------------------------------------------- */
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -821,12 +803,21 @@ class MainActivity : Activity() {
             pendingVoiceStart =
                 false
 
-            voiceManager.startListening()
+            /*
+             * بعد از اجازه میکروفون،
+             * مستقیماً وارد حالت Listening می‌شویم.
+             */
+
+            voiceManager.startContinuousListening()
 
         }
 
     }
 
+
+    /* ---------------------------------------------------------
+     * BACK
+     * --------------------------------------------------------- */
 
     override fun onBackPressed() {
 
@@ -871,6 +862,10 @@ class MainActivity : Activity() {
     }
 
 
+    /* ---------------------------------------------------------
+     * DESTROY
+     * --------------------------------------------------------- */
+
     override fun onDestroy() {
 
         /*
@@ -887,21 +882,27 @@ class MainActivity : Activity() {
         }
 
 
-        if (::voiceManager.isInitialized) {
+        if (
+            ::voiceManager.isInitialized
+        ) {
 
             voiceManager.destroy()
 
         }
 
 
-        if (::speechManager.isInitialized) {
+        if (
+            ::speechManager.isInitialized
+        ) {
 
             speechManager.destroy()
 
         }
 
 
-        if (::displayBootManager.isInitialized) {
+        if (
+            ::displayBootManager.isInitialized
+        ) {
 
             displayBootManager.destroy()
 
@@ -913,3 +914,4 @@ class MainActivity : Activity() {
     }
 
 }
+```
