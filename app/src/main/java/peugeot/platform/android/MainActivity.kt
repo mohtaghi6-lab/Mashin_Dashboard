@@ -16,7 +16,7 @@ import peugeot.platform.android.ai.VoiceManager
 
 import peugeot.platform.android.can.CANReceiver
 
-import peugeot.platform.android.dashboard.DashboardView
+import peugeot.platform.android.ui.Dashboard3DView
 
 import peugeot.platform.android.ui.CallPageView
 import peugeot.platform.android.ui.CarPageView
@@ -38,13 +38,15 @@ import peugeot.platform.android.vehicle.VehicleDataController
 
 class MainActivity : Activity() {
 
+
     private lateinit var displayBootManager: DisplayBootManager
 
     private lateinit var swipeController: SwipeController
 
     private lateinit var root: FrameLayout
 
-    private lateinit var dashboard: DashboardView
+
+    private lateinit var dashboard: Dashboard3DView
 
     private lateinit var homePageView: HomePageView
 
@@ -62,13 +64,16 @@ class MainActivity : Activity() {
 
     private lateinit var vehicleSettingsPageView: VehicleSettingsPageView
 
+
     private lateinit var mainMenuView: MainMenuView
 
     private lateinit var mainMenuController: MainMenuController
 
+
     private lateinit var vehicleDataController: VehicleDataController
 
     private lateinit var errorScannerEngine: ErrorScannerEngine
+
 
     private lateinit var voiceManager: VoiceManager
 
@@ -76,14 +81,18 @@ class MainActivity : Activity() {
 
     private lateinit var aiEngine: AIEngine
 
+
+
     private var pendingVoiceStart = false
 
+
+
     companion object {
+
         private const val AUDIO_PERMISSION_REQUEST = 1001
+
     }
-
-
-    override fun onCreate(
+        override fun onCreate(
         savedInstanceState: Bundle?
     ) {
 
@@ -107,22 +116,26 @@ class MainActivity : Activity() {
             View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
 
 
-        root = FrameLayout(this)
+
+        root =
+            FrameLayout(this)
 
 
-        /* ---------------------------------------------------------
-         * DASHBOARD
-         * --------------------------------------------------------- */
 
-        dashboard = DashboardView(this).apply {
+        /*
+         * BMW STYLE 3D DASHBOARD
+         */
 
-            setVehicleData(
-                VehicleData.demo()
-            )
+        dashboard =
+            Dashboard3DView(this).apply {
 
-            visibility = View.GONE
+                setVehicleData(
+                    VehicleData.demo()
+                )
 
-        }
+                visibility =
+                    View.GONE
+            }
 
 
         root.addView(
@@ -131,19 +144,21 @@ class MainActivity : Activity() {
         )
 
 
-        /* ---------------------------------------------------------
-         * HOME
-         * --------------------------------------------------------- */
 
-        homePageView = HomePageView(this).apply {
+        /*
+         * HOME PAGE
+         */
 
-            setVehicleData(
-                VehicleData.demo()
-            )
+        homePageView =
+            HomePageView(this).apply {
 
-            visibility = View.VISIBLE
+                setVehicleData(
+                    VehicleData.demo()
+                )
 
-        }
+                visibility =
+                    View.VISIBLE
+            }
 
 
         root.addView(
@@ -152,15 +167,17 @@ class MainActivity : Activity() {
         )
 
 
-        /* ---------------------------------------------------------
+
+        /*
          * CLOCK
-         * --------------------------------------------------------- */
+         */
 
-        clockPageView = ClockPageView(this).apply {
+        clockPageView =
+            ClockPageView(this).apply {
 
-            visibility = View.GONE
-
-        }
+                visibility =
+                    View.GONE
+            }
 
 
         root.addView(
@@ -169,15 +186,17 @@ class MainActivity : Activity() {
         )
 
 
-        /* ---------------------------------------------------------
-         * CAR
-         * --------------------------------------------------------- */
 
-        carPageView = CarPageView(this).apply {
+        /*
+         * CAR PAGE
+         */
 
-            visibility = View.GONE
+        carPageView =
+            CarPageView(this).apply {
 
-        }
+                visibility =
+                    View.GONE
+            }
 
 
         root.addView(
@@ -186,15 +205,17 @@ class MainActivity : Activity() {
         )
 
 
-        /* ---------------------------------------------------------
+
+        /*
          * MUSIC
-         * --------------------------------------------------------- */
+         */
 
-        musicPageView = MusicPageView(this).apply {
+        musicPageView =
+            MusicPageView(this).apply {
 
-            visibility = View.GONE
-
-        }
+                visibility =
+                    View.GONE
+            }
 
 
         root.addView(
@@ -203,15 +224,16 @@ class MainActivity : Activity() {
         )
 
 
-        /* ---------------------------------------------------------
+
+        /*
          * NAVIGATION
-         * --------------------------------------------------------- */
+         */
 
         navigationPageView =
             NavigationPageView(this).apply {
 
-                visibility = View.GONE
-
+                visibility =
+                    View.GONE
             }
 
 
@@ -221,15 +243,17 @@ class MainActivity : Activity() {
         )
 
 
-        /* ---------------------------------------------------------
+
+        /*
          * CALL
-         * --------------------------------------------------------- */
+         */
 
-        callPageView = CallPageView(this).apply {
+        callPageView =
+            CallPageView(this).apply {
 
-            visibility = View.GONE
-
-        }
+                visibility =
+                    View.GONE
+            }
 
 
         root.addView(
@@ -238,15 +262,16 @@ class MainActivity : Activity() {
         )
 
 
-        /* ---------------------------------------------------------
+
+        /*
          * ERROR SCANNER
-         * --------------------------------------------------------- */
+         */
 
         errorScannerPageView =
             ErrorScannerPageView(this).apply {
 
-                visibility = View.GONE
-
+                visibility =
+                    View.GONE
             }
 
 
@@ -256,15 +281,16 @@ class MainActivity : Activity() {
         )
 
 
-        /* ---------------------------------------------------------
+
+        /*
          * VEHICLE SETTINGS
-         * --------------------------------------------------------- */
+         */
 
         vehicleSettingsPageView =
             VehicleSettingsPageView(this).apply {
 
-                visibility = View.GONE
-
+                visibility =
+                    View.GONE
             }
 
 
@@ -274,19 +300,21 @@ class MainActivity : Activity() {
         )
 
 
-        /* ---------------------------------------------------------
+
+        /*
          * MAIN MENU
-         * --------------------------------------------------------- */
+         */
 
-        mainMenuView = MainMenuView(this).apply {
+        mainMenuView =
+            MainMenuView(this).apply {
 
-            setPage(
-                MainMenuPage.HOME
-            )
+                setPage(
+                    MainMenuPage.HOME
+                )
 
-            visibility = View.VISIBLE
-
-        }
+                visibility =
+                    View.VISIBLE
+            }
 
 
         root.addView(
@@ -295,12 +323,13 @@ class MainActivity : Activity() {
         )
 
 
-        setContentView(root)
 
-
-        /* ---------------------------------------------------------
+        setContentView(
+            root
+        )
+                /*
          * DISPLAY BOOT
-         * --------------------------------------------------------- */
+         */
 
         displayBootManager =
             DisplayBootManager()
@@ -308,9 +337,10 @@ class MainActivity : Activity() {
         displayBootManager.onWindowReady()
 
 
-        /* ---------------------------------------------------------
-         * ERROR SCANNER ENGINE
-         * --------------------------------------------------------- */
+
+        /*
+         * ERROR SCANNER
+         */
 
         errorScannerEngine =
             ErrorScannerEngine()
@@ -321,9 +351,10 @@ class MainActivity : Activity() {
         )
 
 
-        /* ---------------------------------------------------------
-         * VEHICLE DATA CONTROLLER
-         * --------------------------------------------------------- */
+
+        /*
+         * VEHICLE DATA
+         */
 
         vehicleDataController =
             VehicleDataController { data ->
@@ -340,16 +371,17 @@ class MainActivity : Activity() {
 
 
         /*
-         * Until real CAN/GPCU hardware
-         * is connected, keep demo data active.
+         * فعلاً بدون CAN واقعی
+         * حالت تست فعال است
          */
 
         vehicleDataController.useDemoMode()
 
 
-        /* ---------------------------------------------------------
-         * MAIN MENU CONTROLLER
-         * --------------------------------------------------------- */
+
+        /*
+         * MENU CONTROLLER
+         */
 
         mainMenuController =
             MainMenuController { page ->
@@ -375,17 +407,19 @@ class MainActivity : Activity() {
             }
 
 
-        /* ---------------------------------------------------------
-         * AI ENGINE
-         * --------------------------------------------------------- */
+
+        /*
+         * OPENAI ENGINE
+         */
 
         aiEngine =
             AIEngine(this)
 
 
-        /* ---------------------------------------------------------
-         * SPEECH MANAGER
-         * --------------------------------------------------------- */
+
+        /*
+         * TEXT TO SPEECH
+         */
 
         speechManager =
             SpeechManager(
@@ -394,26 +428,38 @@ class MainActivity : Activity() {
 
                 onStateChanged = { state ->
 
+
                     runOnUiThread {
+
 
                         dashboard.setAIState(
                             state
                         )
 
+
                         homePageView.setAIState(
                             state
                         )
 
+
+
                         /*
-                         * وقتی پاسخ صوتی AI تمام شد،
-                         * دوباره Listening را فعال می‌کنیم.
+                         * بعد از صحبت AI
+                         * دوباره گوش دادن فعال شود
                          */
 
                         if (
                             state == AIState.IDLE
                         ) {
 
-                            voiceManager.resumeContinuousListening()
+                            if (
+                                ::voiceManager.isInitialized
+                            ) {
+
+                                voiceManager
+                                    .resumeContinuousListening()
+
+                            }
 
                         }
 
@@ -424,65 +470,77 @@ class MainActivity : Activity() {
             )
 
 
-        /* ---------------------------------------------------------
-         * VOICE MANAGER
-         * --------------------------------------------------------- */
+
+        /*
+         * VOICE AI
+         */
 
         voiceManager =
             VoiceManager(
 
                 context = this,
 
+
                 onResult = { text ->
 
+
                     runOnUiThread {
+
 
                         dashboard.setAIState(
                             AIState.THINKING
                         )
+
 
                         homePageView.setAIState(
                             AIState.THINKING
                         )
 
 
-                        /*
-                         * ارسال آنلاین متن فارسی
-                         * به OpenAI
-                         */
 
                         aiEngine.process(
 
                             text = text,
 
-                            onResponse = { response ->
+
+                            onResponse = { answer ->
+
 
                                 runOnUiThread {
 
-                                    speechManager.speak(
-                                        response
-                                    )
+
+                                    speechManager
+                                        .speak(
+                                            answer
+                                        )
+
 
                                 }
 
                             },
 
+
                             onError = { error ->
 
+
                                 runOnUiThread {
+
 
                                     dashboard.setAIState(
                                         AIState.ERROR
                                     )
 
+
                                     homePageView.setAIState(
                                         AIState.ERROR
                                     )
 
-                                    /*
-                                     * حتی در صورت خطا
-                                     * دوباره گوش دادن فعال شود.
-                                     */
+
+
+                                    speechManager.speak(
+                                        "متاسفانه مشکلی پیش آمد"
+                                    )
+
 
                                     voiceManager
                                         .resumeContinuousListening()
@@ -497,13 +555,18 @@ class MainActivity : Activity() {
 
                 },
 
+
+
                 onStateChanged = { state ->
 
+
                     runOnUiThread {
+
 
                         dashboard.setAIState(
                             state
                         )
+
 
                         homePageView.setAIState(
                             state
@@ -516,55 +579,29 @@ class MainActivity : Activity() {
             )
 
 
-        /* ---------------------------------------------------------
-         * NO CLICK TO TALK
-         * --------------------------------------------------------- */
 
         /*
-         * دیگر برای شروع مکالمه نیازی به کلیک
-         * روی AI Orb نیست.
-         *
-         * Orb فقط وضعیت AI را نمایش می‌دهد.
+         * بدون کلیک
+         * همیشه آماده شنیدن
          */
 
-        dashboard.onAIOrbClick = null
+        dashboard.onAIOrbClick =
+            null
 
-        homePageView.onAIOrbClick = null
+
+        homePageView.onAIOrbClick =
+            null
 
 
-        /* ---------------------------------------------------------
+
+        /*
          * MICROPHONE
-         * --------------------------------------------------------- */
+         */
 
-        if (
-            checkSelfPermission(
-                Manifest.permission.RECORD_AUDIO
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-
-            /*
-             * میکروفون از همین ابتدا
-             * وارد حالت Listening می‌شود.
-             */
-
-            voiceManager.startContinuousListening()
-
-        } else {
-
-            pendingVoiceStart = true
-
-            requestMicrophonePermission()
-
-        }
+        startVoiceSystem()
 
     }
-
-
-    /* ---------------------------------------------------------
-     * VEHICLE DATA
-     * --------------------------------------------------------- */
-
-    private fun updateVehicleViews(
+            private fun updateVehicleViews(
         data: VehicleData
     ) {
 
@@ -587,9 +624,6 @@ class MainActivity : Activity() {
     }
 
 
-    /* ---------------------------------------------------------
-     * FULL SCREEN PARAMETERS
-     * --------------------------------------------------------- */
 
     private fun fullScreenParams():
             FrameLayout.LayoutParams {
@@ -602,183 +636,70 @@ class MainActivity : Activity() {
     }
 
 
-    /* ---------------------------------------------------------
-     * PAGE NAVIGATION
-     * --------------------------------------------------------- */
 
-    private fun showPage(
-        page: MainMenuPage
-    ) {
-
-        dashboard.visibility =
-            View.GONE
-
-        homePageView.visibility =
-            View.GONE
-
-        clockPageView.visibility =
-            View.GONE
-
-        carPageView.visibility =
-            View.GONE
-
-        musicPageView.visibility =
-            View.GONE
-
-        navigationPageView.visibility =
-            View.GONE
-
-        callPageView.visibility =
-            View.GONE
-
-        errorScannerPageView.visibility =
-            View.GONE
-
-        vehicleSettingsPageView.visibility =
-            View.GONE
+    private fun startVoiceSystem() {
 
 
-        when (page) {
-
-            MainMenuPage.HOME -> {
-
-                homePageView.visibility =
-                    View.VISIBLE
-
-                mainMenuView.visibility =
-                    View.VISIBLE
-
-            }
+        if (
+            checkSelfPermission(
+                Manifest.permission.RECORD_AUDIO
+            )
+            ==
+            PackageManager.PERMISSION_GRANTED
+        ) {
 
 
-            MainMenuPage.CLOCK -> {
-
-                clockPageView.visibility =
-                    View.VISIBLE
-
-                mainMenuView.visibility =
-                    View.GONE
-
-            }
+            voiceManager
+                .startContinuousListening()
 
 
-            MainMenuPage.CAR -> {
-
-                carPageView.visibility =
-                    View.VISIBLE
-
-                mainMenuView.visibility =
-                    View.GONE
-
-            }
+        } else {
 
 
-            MainMenuPage.MUSIC -> {
-
-                musicPageView.visibility =
-                    View.VISIBLE
-
-                mainMenuView.visibility =
-                    View.GONE
-
-            }
+            pendingVoiceStart =
+                true
 
 
-            MainMenuPage.NAVIGATION -> {
-
-                navigationPageView.visibility =
-                    View.VISIBLE
-
-                navigationPageView.refresh()
-
-                mainMenuView.visibility =
-                    View.GONE
-
-            }
-
-
-            MainMenuPage.CALL -> {
-
-                callPageView.visibility =
-                    View.VISIBLE
-
-                mainMenuView.visibility =
-                    View.GONE
-
-            }
-
-
-            MainMenuPage.SCAN -> {
-
-                errorScannerPageView.visibility =
-                    View.VISIBLE
-
-                errorScannerPageView.startScan()
-
-                mainMenuView.visibility =
-                    View.GONE
-
-            }
-
-
-            MainMenuPage.SETTINGS -> {
-
-                vehicleSettingsPageView.visibility =
-                    View.VISIBLE
-
-                mainMenuView.visibility =
-                    View.GONE
-
-            }
+            requestMicrophonePermission()
 
         }
 
     }
 
 
-    /* ---------------------------------------------------------
-     * MICROPHONE PERMISSION
-     * --------------------------------------------------------- */
 
     private fun requestMicrophonePermission() {
+
 
         if (
             android.os.Build.VERSION.SDK_INT >=
             android.os.Build.VERSION_CODES.M
         ) {
 
-            if (
-                checkSelfPermission(
+
+            requestPermissions(
+
+                arrayOf(
                     Manifest.permission.RECORD_AUDIO
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
+                ),
 
-                requestPermissions(
+                AUDIO_PERMISSION_REQUEST
 
-                    arrayOf(
-                        Manifest.permission.RECORD_AUDIO
-                    ),
-
-                    AUDIO_PERMISSION_REQUEST
-
-                )
-
-            }
+            )
 
         }
 
     }
 
 
-    /* ---------------------------------------------------------
-     * PERMISSION RESULT
-     * --------------------------------------------------------- */
+
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
+
 
         super.onRequestPermissionsResult(
             requestCode,
@@ -787,61 +708,45 @@ class MainActivity : Activity() {
         )
 
 
+
         if (
+
             requestCode ==
             AUDIO_PERMISSION_REQUEST &&
 
+
             grantResults.isNotEmpty() &&
 
-            grantResults[0] ==
-            PackageManager.PERMISSION_GRANTED &&
 
-            pendingVoiceStart
+            grantResults[0] ==
+            PackageManager.PERMISSION_GRANTED
+
         ) {
+
 
             pendingVoiceStart =
                 false
 
-            /*
-             * بعد از اجازه میکروفون،
-             * مستقیماً وارد حالت Listening می‌شویم.
-             */
 
-            voiceManager.startContinuousListening()
+            voiceManager
+                .startContinuousListening()
 
         }
 
     }
 
 
-    /* ---------------------------------------------------------
-     * BACK
-     * --------------------------------------------------------- */
+
 
     override fun onBackPressed() {
 
+
         when {
 
+
             clockPageView.visibility ==
-                    View.VISIBLE ||
-
-            carPageView.visibility ==
-                    View.VISIBLE ||
-
-            musicPageView.visibility ==
-                    View.VISIBLE ||
-
-            navigationPageView.visibility ==
-                    View.VISIBLE ||
-
-            callPageView.visibility ==
-                    View.VISIBLE ||
-
-            errorScannerPageView.visibility ==
-                    View.VISIBLE ||
-
-            vehicleSettingsPageView.visibility ==
                     View.VISIBLE -> {
+
 
                 showPage(
                     MainMenuPage.HOME
@@ -850,7 +755,81 @@ class MainActivity : Activity() {
             }
 
 
+
+            carPageView.visibility ==
+                    View.VISIBLE -> {
+
+
+                showPage(
+                    MainMenuPage.HOME
+                )
+
+            }
+
+
+
+            musicPageView.visibility ==
+                    View.VISIBLE -> {
+
+
+                showPage(
+                    MainMenuPage.HOME
+                )
+
+            }
+
+
+
+            navigationPageView.visibility ==
+                    View.VISIBLE -> {
+
+
+                showPage(
+                    MainMenuPage.HOME
+                )
+
+            }
+
+
+
+            callPageView.visibility ==
+                    View.VISIBLE -> {
+
+
+                showPage(
+                    MainMenuPage.HOME
+                )
+
+            }
+
+
+
+            errorScannerPageView.visibility ==
+                    View.VISIBLE -> {
+
+
+                showPage(
+                    MainMenuPage.HOME
+                )
+
+            }
+
+
+
+            vehicleSettingsPageView.visibility ==
+                    View.VISIBLE -> {
+
+
+                showPage(
+                    MainMenuPage.HOME
+                )
+
+            }
+
+
+
             else -> {
+
 
                 super.onBackPressed()
 
@@ -861,56 +840,62 @@ class MainActivity : Activity() {
     }
 
 
-    /* ---------------------------------------------------------
-     * DESTROY
-     * --------------------------------------------------------- */
+
+
 
     override fun onDestroy() {
-
-        /*
-         * Stop CAN reception before
-         * destroying the Activity.
-         */
-
-        if (CANReceiver.isConnected()) {
-
-            CANReceiver.stopReceiving()
-
-            CANReceiver.disconnect()
-
-        }
 
 
         if (
             ::voiceManager.isInitialized
         ) {
 
+
             voiceManager.destroy()
 
         }
+
 
 
         if (
             ::speechManager.isInitialized
         ) {
 
+
             speechManager.destroy()
 
         }
+
 
 
         if (
             ::displayBootManager.isInitialized
         ) {
 
+
             displayBootManager.destroy()
 
         }
+
+
+
+        if (
+            CANReceiver.isConnected()
+        ) {
+
+
+            CANReceiver.stopReceiving()
+
+
+            CANReceiver.disconnect()
+
+        }
+
 
 
         super.onDestroy()
 
     }
 
-}
 
+}
