@@ -1,6 +1,7 @@
 package peugeot.platform.android.ai
 
 import android.content.Context
+import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import java.util.Locale
@@ -12,18 +13,19 @@ class SpeechManager(
 ) : TextToSpeech.OnInitListener {
 
 
-    private var textToSpeech: TextToSpeech? = null
+    private var tts: TextToSpeech? = null
 
     private var ready = false
 
 
     init {
 
-        textToSpeech =
+        tts =
             TextToSpeech(
                 context,
                 this
             )
+
     }
 
 
@@ -44,12 +46,13 @@ class SpeechManager(
             )
 
             return
+
         }
 
 
 
         val languageResult =
-            textToSpeech?.setLanguage(
+            tts?.setLanguage(
                 Locale(
                     "fa",
                     "IR"
@@ -60,12 +63,11 @@ class SpeechManager(
 
         if (
             languageResult ==
-            TextToSpeech.LANG_MISSING_DATA ||
-
+            TextToSpeech.LANG_MISSING_DATA
+            ||
             languageResult ==
             TextToSpeech.LANG_NOT_SUPPORTED
         ) {
-
 
             ready = false
 
@@ -74,26 +76,27 @@ class SpeechManager(
             )
 
             return
+
         }
 
 
 
-        selectFemaleVoice()
+        findPersianVoice()
 
 
 
-        textToSpeech?.setSpeechRate(
+        tts?.setSpeechRate(
             0.92f
         )
 
 
-        textToSpeech?.setPitch(
+        tts?.setPitch(
             1.05f
         )
 
 
 
-        textToSpeech?.setOnUtteranceProgressListener(
+        tts?.setOnUtteranceProgressListener(
 
             object :
                 UtteranceProgressListener() {
@@ -133,6 +136,7 @@ class SpeechManager(
 
                 }
 
+
             }
 
         )
@@ -141,17 +145,26 @@ class SpeechManager(
 
         ready = true
 
+
+
+        // تست اولیه صدا
+        tts?.speak(
+            "سلام، سیستم هوشمند خودرو آماده است",
+            TextToSpeech.QUEUE_FLUSH,
+            Bundle(),
+            "startup"
+        )
+
     }
 
 
 
 
-
-    private fun selectFemaleVoice() {
+    private fun findPersianVoice() {
 
 
         val voices =
-            textToSpeech?.voices
+            tts?.voices
                 ?: return
 
 
@@ -165,24 +178,16 @@ class SpeechManager(
                     )
 
 
-                it.locale.language == "fa" &&
-
+                it.locale.language == "fa"
+                &&
                 (
-                    name.contains(
-                        "female"
-                    )
-
+                    name.contains("female")
                     ||
-
-                    name.contains(
-                        "woman"
-                    )
-
+                    name.contains("woman")
                     ||
-
-                    name.contains(
-                        "zira"
-                    )
+                    name.contains("zira")
+                    ||
+                    name.contains("girl")
                 )
 
             }
@@ -193,7 +198,7 @@ class SpeechManager(
             female != null
         ) {
 
-            textToSpeech?.voice =
+            tts?.voice =
                 female
 
             return
@@ -206,7 +211,7 @@ class SpeechManager(
             voices.firstOrNull {
 
                 it.locale.language ==
-                    "fa"
+                        "fa"
 
             }
 
@@ -216,7 +221,7 @@ class SpeechManager(
             persian != null
         ) {
 
-            textToSpeech?.voice =
+            tts?.voice =
                 persian
 
         }
@@ -247,15 +252,15 @@ class SpeechManager(
 
 
 
-        textToSpeech?.speak(
+        tts?.speak(
 
             text.trim(),
 
             TextToSpeech.QUEUE_FLUSH,
 
-            null,
+            Bundle(),
 
-            "peugeot_ai_response"
+            "mrt_answer"
 
         )
 
@@ -267,8 +272,7 @@ class SpeechManager(
 
     fun stop() {
 
-
-        textToSpeech?.stop()
+        tts?.stop()
 
 
         onStateChanged(
@@ -283,16 +287,14 @@ class SpeechManager(
 
     fun destroy() {
 
-
         ready = false
 
 
-        textToSpeech?.stop()
+        tts?.stop()
 
-        textToSpeech?.shutdown()
+        tts?.shutdown()
 
-
-        textToSpeech = null
+        tts = null
 
     }
 
