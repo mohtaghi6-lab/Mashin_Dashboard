@@ -42,7 +42,6 @@ class HomePageView(
         0f
 
 
-
     var onAIOrbClick:
             (() -> Unit)? = null
 
@@ -93,7 +92,6 @@ class HomePageView(
         )
 
 
-
     private val dateFormat =
         SimpleDateFormat(
             "EEE, dd MMM",
@@ -106,11 +104,9 @@ class HomePageView(
         data: VehicleData
     ) {
 
-        vehicleData =
-            data
+        vehicleData = data
 
         invalidate()
-
     }
 
 
@@ -119,11 +115,9 @@ class HomePageView(
         state: AIState
     ) {
 
-        aiState =
-            state
+        aiState = state
 
         invalidate()
-
     }
 
 
@@ -132,9 +126,7 @@ class HomePageView(
         canvas: Canvas
     ) {
 
-        super.onDraw(
-            canvas
-        )
+        super.onDraw(canvas)
 
 
         val w =
@@ -143,7 +135,6 @@ class HomePageView(
 
         val h =
             height.toFloat()
-
 
 
         if (
@@ -162,13 +153,11 @@ class HomePageView(
         )
 
 
-
         drawHeader(
             canvas,
             w,
             h
         )
-
 
 
         drawGauge(
@@ -183,7 +172,6 @@ class HomePageView(
         )
 
 
-
         drawGauge(
             canvas,
             w * 0.80f,
@@ -196,14 +184,12 @@ class HomePageView(
         )
 
 
-
         drawAIOrb(
             canvas,
             w / 2f,
             h * 0.43f,
             min(w, h) * 0.10f
         )
-
 
 
         drawCenterInfo(
@@ -213,13 +199,11 @@ class HomePageView(
         )
 
 
-
         drawStatusCards(
             canvas,
             w,
             h
         )
-
 
 
         drawBottomCards(
@@ -229,10 +213,7 @@ class HomePageView(
         )
 
 
-
-        pulse +=
-            0.035f
-
+        pulse += 0.035f
 
 
         if (
@@ -244,10 +225,7 @@ class HomePageView(
         }
 
 
-
-        postInvalidateDelayed(
-            40L
-        )
+        postInvalidateDelayed(40L)
 
     }
 
@@ -280,14 +258,12 @@ class HomePageView(
             )
 
 
-
         paint.shader =
             backgroundGradient
 
 
         paint.style =
             Paint.Style.FILL
-
 
 
         canvas.drawRect(
@@ -299,9 +275,7 @@ class HomePageView(
         )
 
 
-
-        paint.shader =
-            null
+        paint.shader = null
 
 
 
@@ -330,10 +304,8 @@ class HomePageView(
             )
 
 
-
         paint.shader =
             glow
-
 
 
         canvas.drawCircle(
@@ -344,10 +316,7 @@ class HomePageView(
         )
 
 
-
-        paint.shader =
-            null
-
+        paint.shader = null
 
 
         paint.color =
@@ -359,25 +328,20 @@ class HomePageView(
             )
 
 
-
         paint.style =
             Paint.Style.STROKE
-
 
 
         paint.strokeWidth =
             1f
 
 
-
         val gridSize =
             80f
 
 
-
         var x =
             0f
-
 
 
         while (
@@ -392,16 +356,12 @@ class HomePageView(
                 paint
             )
 
-
             x += gridSize
-
         }
-
 
 
         var y =
             0f
-
 
 
         while (
@@ -416,11 +376,8 @@ class HomePageView(
                 paint
             )
 
-
             y += gridSize
-
         }
-
 
 
         paint.style =
@@ -433,14 +390,29 @@ class HomePageView(
         h: Float
     ) {
 
-        val now = Date()
+        val now =
+            Date()
 
-        paint.style = Paint.Style.FILL
-        paint.textAlign = Paint.Align.LEFT
-        paint.typeface = Typeface.DEFAULT_BOLD
 
-        paint.textSize = 28f
-        paint.color = white
+        paint.style =
+            Paint.Style.FILL
+
+
+        paint.textAlign =
+            Paint.Align.LEFT
+
+
+        paint.typeface =
+            Typeface.DEFAULT_BOLD
+
+
+        paint.textSize =
+            28f
+
+
+        paint.color =
+            white
+
 
         canvas.drawText(
             timeFormat.format(now),
@@ -450,9 +422,17 @@ class HomePageView(
         )
 
 
-        paint.textSize = 11f
-        paint.typeface = Typeface.DEFAULT
-        paint.color = muted
+        paint.textSize =
+            11f
+
+
+        paint.typeface =
+            Typeface.DEFAULT
+
+
+        paint.color =
+            muted
+
 
         canvas.drawText(
             dateFormat.format(now),
@@ -462,10 +442,21 @@ class HomePageView(
         )
 
 
-        paint.textAlign = Paint.Align.RIGHT
-        paint.textSize = 14f
-        paint.typeface = Typeface.DEFAULT_BOLD
-        paint.color = white
+        paint.textAlign =
+            Paint.Align.RIGHT
+
+
+        paint.textSize =
+            14f
+
+
+        paint.typeface =
+            Typeface.DEFAULT_BOLD
+
+
+        paint.color =
+            white
+
 
         canvas.drawText(
             "PEUGEOT PARS",
@@ -475,8 +466,13 @@ class HomePageView(
         )
 
 
-        paint.textSize = 10f
-        paint.color = cyan
+        paint.textSize =
+            10f
+
+
+        paint.color =
+            cyan
+
 
         canvas.drawText(
             "LUXURY VEHICLE OS",
@@ -486,9 +482,11 @@ class HomePageView(
         )
 
 
-        paint.textAlign = Paint.Align.LEFT
+        paint.textAlign =
+            Paint.Align.LEFT
 
     }
+
 
 
 
@@ -600,15 +598,15 @@ class HomePageView(
             val inner =
                 if (
                     i % 3 == 0
-                )
+                ) {
                     radius - 5f
-                else
+                } else {
                     radius + 2f
+                }
 
 
 
             canvas.drawLine(
-
                 cx +
                     cos(angle).toFloat()
                     * inner,
@@ -639,9 +637,12 @@ class HomePageView(
             )
 
 
-
         paint.strokeWidth =
             4f
+
+
+        paint.strokeCap =
+            Paint.Cap.ROUND
 
 
         paint.color =
@@ -650,22 +651,21 @@ class HomePageView(
 
 
         canvas.drawLine(
-
             cx,
-
             cy,
 
             cx +
                 cos(needle).toFloat()
-                * (radius - 18f),
+                *
+                (radius - 18f),
 
             cy +
                 sin(needle).toFloat()
-                * (radius - 18f),
+                *
+                (radius - 18f),
 
             paint
         )
-
 
 
         paint.style =
@@ -674,7 +674,6 @@ class HomePageView(
 
         paint.color =
             blue
-
 
 
         canvas.drawCircle(
@@ -711,14 +710,12 @@ class HomePageView(
         )
 
 
-
         paint.textSize =
             11f
 
 
         paint.color =
             cyan
-
 
 
         canvas.drawText(
@@ -729,14 +726,12 @@ class HomePageView(
         )
 
 
-
         paint.textSize =
             9f
 
 
         paint.color =
             muted
-
 
 
         canvas.drawText(
@@ -755,12 +750,7 @@ class HomePageView(
             Paint.Cap.BUTT
 
     }
-
-
-
-
-
-    private fun drawAIOrb(
+        private fun drawAIOrb(
         canvas: Canvas,
         cx: Float,
         cy: Float,
@@ -772,12 +762,12 @@ class HomePageView(
             System.currentTimeMillis()
 
 
+
         val wave =
             (
-                (sin(time / 250.0) + 1)
-                / 2
-            )
-                .toFloat()
+                (sin(time / 250.0) + 1.0)
+                / 2.0
+            ).toFloat()
 
 
 
@@ -787,11 +777,14 @@ class HomePageView(
                 AIState.LISTENING ->
                     1.35f
 
+
                 AIState.THINKING ->
                     1.55f
 
+
                 AIState.SPEAKING ->
                     1.75f
+
 
                 else ->
                     1.20f
@@ -801,20 +794,21 @@ class HomePageView(
 
         val glowRadius =
             radius *
-            (
-                statePower +
-                wave * 0.25f
-            )
+                (
+                    statePower +
+                    wave * 0.25f
+                )
 
 
 
-        val glow =
+        val glowPaint =
             Paint(
                 Paint.ANTI_ALIAS_FLAG
             )
 
 
-        glow.shader =
+
+        glowPaint.shader =
             RadialGradient(
 
                 cx,
@@ -826,24 +820,36 @@ class HomePageView(
                 intArrayOf(
 
                     Color.argb(
-                        210,
+                        220,
                         130,
                         235,
                         255
                     ),
 
                     Color.argb(
-                        80,
+                        100,
                         70,
                         196,
                         255
+                    ),
+
+                    Color.argb(
+                        20,
+                        30,
+                        120,
+                        220
                     ),
 
                     Color.TRANSPARENT
 
                 ),
 
-                null,
+                floatArrayOf(
+                    0f,
+                    0.45f,
+                    0.70f,
+                    1f
+                ),
 
                 Shader.TileMode.CLAMP
             )
@@ -854,47 +860,63 @@ class HomePageView(
             cx,
             cy,
             glowRadius,
-            glow
+            glowPaint
         )
-                paint.shader =
+
+
+
+        paint.shader =
             RadialGradient(
+
                 cx - radius * 0.25f,
+
                 cy - radius * 0.30f,
+
                 radius * 1.15f,
+
                 intArrayOf(
+
                     Color.rgb(
-                        190,
-                        245,
+                        220,
+                        250,
                         255
                     ),
+
                     Color.rgb(
                         70,
                         196,
                         255
                     ),
+
                     Color.rgb(
                         18,
                         83,
                         145
                     ),
+
                     Color.rgb(
-                        4,
-                        25,
-                        48
+                        3,
+                        20,
+                        40
                     )
+
                 ),
+
                 floatArrayOf(
                     0f,
                     0.35f,
                     0.72f,
                     1f
                 ),
+
                 Shader.TileMode.CLAMP
             )
 
 
+
         paint.style =
             Paint.Style.FILL
+
 
 
         canvas.drawCircle(
@@ -903,27 +925,32 @@ class HomePageView(
             radius,
             paint
         )
+
 
 
         paint.shader =
             null
 
 
+
         paint.style =
             Paint.Style.STROKE
+
 
 
         paint.strokeWidth =
             2.5f
 
 
+
         paint.color =
             Color.argb(
-                210,
+                220,
                 180,
                 245,
                 255
             )
+
 
 
         canvas.drawCircle(
@@ -934,24 +961,54 @@ class HomePageView(
         )
 
 
+
+        paint.strokeWidth =
+            1f
+
+
+
+        paint.color =
+            Color.argb(
+                120,
+                120,
+                220,
+                255
+            )
+
+
+
+        canvas.drawCircle(
+            cx,
+            cy,
+            radius * 1.25f,
+            paint
+        )
+
+
+
         paint.style =
             Paint.Style.FILL
+
 
 
         paint.textAlign =
             Paint.Align.CENTER
 
 
+
         paint.typeface =
             Typeface.DEFAULT_BOLD
 
 
+
         paint.textSize =
-            radius * 0.31f
+            radius * 0.32f
+
 
 
         paint.color =
             Color.WHITE
+
 
 
         canvas.drawText(
@@ -962,21 +1019,15 @@ class HomePageView(
         )
 
 
+
         paint.textSize =
             radius * 0.12f
+
 
 
         paint.typeface =
             Typeface.DEFAULT
 
-
-        paint.color =
-            Color.argb(
-                225,
-                225,
-                248,
-                255
-            )
 
 
         val stateText =
@@ -985,58 +1036,66 @@ class HomePageView(
                 AIState.IDLE ->
                     "READY"
 
+
                 AIState.LISTENING ->
                     "LISTENING"
+
 
                 AIState.THINKING ->
                     "THINKING"
 
+
                 AIState.SPEAKING ->
                     "SPEAKING"
 
+
                 AIState.ERROR ->
                     "ERROR"
+
             }
+
+
+
+        paint.color =
+            Color.argb(
+                230,
+                225,
+                248,
+                255
+            )
+
 
 
         canvas.drawText(
             stateText,
             cx,
-            cy + radius * 0.40f,
+            cy + radius * 0.42f,
             paint
         )
+
 
 
         paint.textAlign =
             Paint.Align.LEFT
 
     }
-
-
-
-
-    private fun drawCenterInfo(
+            private fun drawCenterInfo(
         canvas: Canvas,
         w: Float,
         h: Float
     ) {
 
-
         paint.textAlign =
             Paint.Align.CENTER
-
 
         paint.typeface =
             Typeface.DEFAULT_BOLD
 
-
         paint.textSize =
             15f
 
-
         paint.color =
             white
-
 
 
         canvas.drawText(
@@ -1047,18 +1106,14 @@ class HomePageView(
         )
 
 
-
         paint.textSize =
             11f
-
 
         paint.typeface =
             Typeface.DEFAULT
 
-
         paint.color =
             muted
-
 
 
         canvas.drawText(
@@ -1069,14 +1124,11 @@ class HomePageView(
         )
 
 
-
         paint.textSize =
             9f
 
-
         paint.color =
             cyan
-
 
 
         canvas.drawText(
@@ -1087,11 +1139,11 @@ class HomePageView(
         )
 
 
-
         paint.textAlign =
             Paint.Align.LEFT
 
     }
+
 
 
 
@@ -1119,8 +1171,7 @@ class HomePageView(
 
 
         val cardW =
-            (w - margin * 2 - gap * 2)
-                    / 3f
+            (w - margin * 2f - gap * 2f) / 3f
 
 
 
@@ -1139,7 +1190,7 @@ class HomePageView(
             canvas,
             margin + cardW + gap,
             top,
-            margin + cardW * 2 + gap,
+            margin + cardW * 2f + gap,
             bottom,
             "FUEL",
             "${vehicleData.fuelPercent}%"
@@ -1148,7 +1199,7 @@ class HomePageView(
 
         drawGlassCard(
             canvas,
-            margin + cardW * 2 + gap * 2,
+            margin + cardW * 2f + gap * 2f,
             top,
             w - margin,
             bottom,
@@ -1160,6 +1211,7 @@ class HomePageView(
         )
 
     }
+
 
 
 
@@ -1187,8 +1239,7 @@ class HomePageView(
 
 
         val cardW =
-            (w - margin * 2 - gap * 2)
-                    / 3f
+            (w - margin * 2f - gap * 2f) / 3f
 
 
 
@@ -1207,7 +1258,7 @@ class HomePageView(
             canvas,
             margin + cardW + gap,
             top,
-            margin + cardW * 2 + gap,
+            margin + cardW * 2f + gap,
             bottom,
             "MUSIC",
             "READY"
@@ -1216,7 +1267,7 @@ class HomePageView(
 
         drawGlassCard(
             canvas,
-            margin + cardW * 2 + gap * 2,
+            margin + cardW * 2f + gap * 2f,
             top,
             w - margin,
             bottom,
@@ -1225,6 +1276,7 @@ class HomePageView(
         )
 
     }
+
 
 
 
@@ -1238,6 +1290,7 @@ class HomePageView(
         title: String,
         value: String
     ) {
+
 
         val rect =
             RectF(
@@ -1256,13 +1309,13 @@ class HomePageView(
             panel
 
 
-
         canvas.drawRoundRect(
             rect,
             18f,
             18f,
             paint
         )
+
 
 
         paint.style =
@@ -1290,6 +1343,7 @@ class HomePageView(
         )
 
 
+
         paint.style =
             Paint.Style.FILL
 
@@ -1314,6 +1368,7 @@ class HomePageView(
         )
 
 
+
         paint.textSize =
             12f
 
@@ -1334,6 +1389,7 @@ class HomePageView(
         )
 
 
+
         paint.color =
             cyan
 
@@ -1346,3 +1402,78 @@ class HomePageView(
         )
 
     }
+
+
+
+
+
+    override fun onTouchEvent(
+        event: MotionEvent
+    ): Boolean {
+
+
+        if(
+            event.action ==
+            MotionEvent.ACTION_UP
+        ) {
+
+
+            val cx =
+                width / 2f
+
+
+            val cy =
+                height * 0.43f
+
+
+            val radius =
+                min(width, height) * 0.14f
+
+
+
+            val dx =
+                event.x - cx
+
+
+            val dy =
+                event.y - cy
+
+
+
+            val distance =
+                kotlin.math.sqrt(
+                    dx * dx +
+                    dy * dy
+                )
+
+
+
+            if(
+                distance <= radius
+            ) {
+
+                onAIOrbClick?.invoke()
+
+                performClick()
+
+                return true
+            }
+
+        }
+
+
+        return true
+    }
+
+
+
+
+
+    override fun performClick(): Boolean {
+
+        super.performClick()
+
+        return true
+    }
+
+}
