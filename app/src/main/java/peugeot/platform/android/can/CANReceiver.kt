@@ -15,8 +15,15 @@ object CANReceiver {
 
 
 
+    private var frameListener:
+            ((CANFrame) -> Unit)? = null
+
+
+
     private var errorScannerEngine:
             ErrorScannerEngine? = null
+
+
 
 
 
@@ -27,6 +34,19 @@ object CANReceiver {
         errorScannerEngine = engine
 
     }
+
+
+
+
+
+    fun setFrameListener(
+        listener: ((CANFrame) -> Unit)?
+    ) {
+
+        frameListener = listener
+
+    }
+
 
 
 
@@ -54,7 +74,6 @@ object CANReceiver {
 
 
         running = true
-
 
         return true
 
@@ -86,31 +105,22 @@ object CANReceiver {
 
 
 
-    fun isConnected(): Boolean {
-
-        return connected
-
-    }
-
-
-
-
-
-    /**
-     * دریافت فریم واقعی CAN
-     *
-     * این تابع بعداً از USB/Bluetooth CAN Driver صدا زده می‌شود
-     */
     fun receive(
         frame: CANFrame
     ) {
 
 
-        if (!running) {
+        if (!running || !connected) {
 
             return
 
         }
+
+
+
+        frameListener?.invoke(
+            frame
+        )
 
 
 
@@ -120,6 +130,73 @@ object CANReceiver {
 
     }
 
+
+
+
+
+    fun simulateFrame(
+        id: Int,
+        data: ByteArray,
+        timestamp: Long = System.currentTimeMillis()
+    ) {
+
+
+        if (!connected) {
+
+            connect()
+
+            startReceiving()
+
+        }
+
+
+
+        receive(
+
+            CANFrame(
+
+                id = id,
+
+                data = data.copyOf(),
+
+                timestamp = timestamp
+
+            )
+
+        )
+
+    }
+
+
+
+
+
+    fun reset() {
+
+
+        running = false
+
+
+        connected = false
+
+
+        frameListener = null
+
+
+        errorScannerEngine = null
+
+
+    }
+
+
+
+
+
+    fun isConnected(): Boolean {
+
+        return connected
+
+    }
 
 
 }
