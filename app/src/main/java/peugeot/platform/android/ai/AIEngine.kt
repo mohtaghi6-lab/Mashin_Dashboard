@@ -3,41 +3,25 @@ package peugeot.platform.android.ai
 import android.content.Context
 import okhttp3.Call
 import okhttp3.Callback
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.Response
-import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
 import org.json.JSONArray
 import org.json.JSONObject
 import peugeot.platform.android.BuildConfig
 import java.io.IOException
-import java.util.concurrent.TimeUnit
 
 
 class AIEngine(
     private val context: Context
 ) {
 
+
     private val client =
-        OkHttpClient.Builder()
-            .connectTimeout(
-                20,
-                TimeUnit.SECONDS
-            )
-            .readTimeout(
-                30,
-                TimeUnit.SECONDS
-            )
-            .writeTimeout(
-                30,
-                TimeUnit.SECONDS
-            )
-            .build()
+        OkHttpClient()
 
-
-    @Volatile
-    private var busy = false
 
 
     fun process(
@@ -47,41 +31,37 @@ class AIEngine(
     ) {
 
 
-        if (busy) {
+        if (
+            text.isBlank()
+        ) {
 
             onError(
-                "در حال پردازش درخواست قبلی هستم"
+                "صدایی دریافت نشد"
             )
 
             return
+
         }
 
-
-        if (text.isBlank()) {
-
-            onError(
-                "متنی دریافت نشد"
-            )
-
-            return
-        }
 
 
         val apiKey =
             BuildConfig.OPENAI_API_KEY
 
 
-        if (apiKey.isBlank()) {
+
+        if (
+            apiKey.isBlank()
+        ) {
 
             onError(
-                "کلید OpenAI تنظیم نشده است"
+                "کلید هوش مصنوعی تنظیم نشده است"
             )
 
             return
+
         }
 
-
-        busy = true
 
 
         val json =
@@ -94,18 +74,15 @@ class AIEngine(
                 )
 
 
-                put(
-                    "temperature",
-                    0.7
-                )
-
 
                 put(
                     "messages",
+
                     JSONArray().apply {
 
 
                         put(
+
                             JSONObject().apply {
 
                                 put(
@@ -113,20 +90,27 @@ class AIEngine(
                                     "system"
                                 )
 
+
                                 put(
                                     "content",
+
                                     """
-                                    تو دستیار هوشمند خودرو پژو پارس هستی.
-                                    فقط فارسی صحبت کن.
-                                    جواب‌ها کوتاه، طبیعی و مناسب رانندگی باشند.
-                                    رسمی و کتابی صحبت نکن.
-                                    """.trimIndent()
+                                    تو MRT هستی.
+                                    دستیار هوشمند خودرو پژو پارس.
+                                    فقط فارسی جواب بده.
+                                    کوتاه، طبیعی و دوستانه صحبت کن.
+                                    مثل یک دستیار داخل خودرو پاسخ بده.
+                                    """
                                 )
+
                             }
+
                         )
 
 
+
                         put(
+
                             JSONObject().apply {
 
                                 put(
@@ -134,14 +118,19 @@ class AIEngine(
                                     "user"
                                 )
 
+
                                 put(
                                     "content",
-                                    text.trim()
+                                    text
                                 )
+
                             }
+
                         )
 
+
                     }
+
                 )
 
             }
@@ -151,30 +140,42 @@ class AIEngine(
         val body =
             json.toString()
                 .toRequestBody(
-                    "application/json".toMediaType()
+                    "application/json"
+                        .toMediaType()
                 )
+
 
 
         val request =
             Request.Builder()
+
                 .url(
                     "https://api.openai.com/v1/chat/completions"
                 )
+
                 .addHeader(
                     "Authorization",
                     "Bearer $apiKey"
                 )
+
                 .addHeader(
                     "Content-Type",
                     "application/json"
                 )
-                .post(body)
+
+                .post(
+                    body
+                )
+
                 .build()
 
 
 
-        client.newCall(request)
+        client.newCall(
+            request
+        )
             .enqueue(
+
                 object : Callback {
 
 
@@ -183,11 +184,10 @@ class AIEngine(
                         e: IOException
                     ) {
 
-                        busy = false
-
                         onError(
-                            "اتصال اینترنت برقرار نیست"
+                            "خطای اینترنت"
                         )
+
                     }
 
 
@@ -201,17 +201,18 @@ class AIEngine(
                         response.use {
 
 
-                            busy = false
-
-
-                            if (!response.isSuccessful) {
+                            if (
+                                !response.isSuccessful
+                            ) {
 
                                 onError(
                                     "خطای سرور هوش مصنوعی ${response.code}"
                                 )
 
                                 return
+
                             }
+
 
 
                             try {
@@ -223,49 +224,60 @@ class AIEngine(
                                         ?: ""
 
 
+
                                 val answer =
-                                    JSONObject(result)
+
+                                    JSONObject(
+                                        result
+                                    )
+
                                         .getJSONArray(
                                             "choices"
                                         )
-                                        .getJSONObject(0)
+
+                                        .getJSONObject(
+                                            0
+                                        )
+
                                         .getJSONObject(
                                             "message"
                                         )
+
                                         .getString(
                                             "content"
                                         )
-                                        .trim()
 
 
 
-                                if (answer.isEmpty()) {
-
-                                    onError(
-                                        "جوابی دریافت نشد"
-                                    )
-
-                                } else {
-
-                                    onResponse(
-                                        answer
-                                    )
-
-                                }
+                                onResponse(
+                                    answer.trim()
+                                )
 
 
-                            } catch (
+                            }
+                            catch (
                                 e: Exception
                             ) {
 
+
                                 onError(
-                                    "خطا در پردازش پاسخ"
+                                    "پاسخ نامعتبر دریافت شد"
                                 )
 
+
                             }
+
+
                         }
+
+
                     }
+
+
                 }
+
             )
+
     }
+
 }
