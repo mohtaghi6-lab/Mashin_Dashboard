@@ -1,4 +1,3 @@
-```kotlin
 package peugeot.platform.android.ai
 
 import android.content.Context
@@ -277,4 +276,4 @@ class VoiceManager(
         stopRecognizerOnly()
     }
 }
-```
+
