@@ -35,13 +35,11 @@ import peugeot.platform.android.vehicle.VehicleDataController
 
 class MainActivity : Activity() {
 
-
     private lateinit var displayBootManager: DisplayBootManager
 
     private lateinit var swipeController: SwipeController
 
     private lateinit var root: FrameLayout
-
 
     private lateinit var dashboard: DashboardView
 
@@ -61,14 +59,11 @@ class MainActivity : Activity() {
 
     private lateinit var vehicleSettingsPageView: VehicleSettingsPageView
 
-
     private lateinit var mainMenuView: MainMenuView
 
     private lateinit var mainMenuController: MainMenuController
 
-
     private lateinit var vehicleDataController: VehicleDataController
-
 
     private lateinit var voiceManager: VoiceManager
 
@@ -76,42 +71,34 @@ class MainActivity : Activity() {
 
     private lateinit var aiEngine: AIEngine
 
-
     private var pendingVoiceStart = false
 
-
     companion object {
-
         private const val AUDIO_PERMISSION_REQUEST = 1001
-
     }
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
 
-
         requestWindowFeature(Window.FEATURE_NO_TITLE)
-
 
         window.setFlags(
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
 
-
         window.decorView.systemUiVisibility =
             View.SYSTEM_UI_FLAG_FULLSCREEN or
             View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
             View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
 
-
-
         root = FrameLayout(this)
 
-
+        /*
+         * ---------------------------------------------------------
+         * DASHBOARD
+         * ---------------------------------------------------------
+         */
 
         dashboard = DashboardView(this).apply {
 
@@ -120,16 +107,18 @@ class MainActivity : Activity() {
             )
 
             visibility = View.GONE
-
         }
-
 
         root.addView(
             dashboard,
             fullScreenParams()
         )
 
-
+        /*
+         * ---------------------------------------------------------
+         * HOME
+         * ---------------------------------------------------------
+         */
 
         homePageView = HomePageView(this).apply {
 
@@ -138,111 +127,123 @@ class MainActivity : Activity() {
             )
 
             visibility = View.VISIBLE
-
         }
-
 
         root.addView(
             homePageView,
             fullScreenParams()
         )
 
-
+        /*
+         * ---------------------------------------------------------
+         * CLOCK
+         * ---------------------------------------------------------
+         */
 
         clockPageView = ClockPageView(this).apply {
-
             visibility = View.GONE
-
         }
-
 
         root.addView(
             clockPageView,
             fullScreenParams()
         )
-                carPageView = CarPageView(this).apply {
 
+        /*
+         * ---------------------------------------------------------
+         * CAR
+         * ---------------------------------------------------------
+         */
+
+        carPageView = CarPageView(this).apply {
             visibility = View.GONE
-
         }
-
 
         root.addView(
             carPageView,
             fullScreenParams()
         )
 
-
+        /*
+         * ---------------------------------------------------------
+         * MUSIC
+         * ---------------------------------------------------------
+         */
 
         musicPageView = MusicPageView(this).apply {
-
             visibility = View.GONE
-
         }
-
 
         root.addView(
             musicPageView,
             fullScreenParams()
         )
 
-
+        /*
+         * ---------------------------------------------------------
+         * NAVIGATION
+         * ---------------------------------------------------------
+         */
 
         navigationPageView = NavigationPageView(this).apply {
-
             visibility = View.GONE
-
         }
-
 
         root.addView(
             navigationPageView,
             fullScreenParams()
         )
 
-
+        /*
+         * ---------------------------------------------------------
+         * CALL
+         * ---------------------------------------------------------
+         */
 
         callPageView = CallPageView(this).apply {
-
             visibility = View.GONE
-
         }
-
 
         root.addView(
             callPageView,
             fullScreenParams()
         )
 
-
+        /*
+         * ---------------------------------------------------------
+         * ERROR SCANNER
+         * ---------------------------------------------------------
+         */
 
         errorScannerPageView = ErrorScannerPageView(this).apply {
-
             visibility = View.GONE
-
         }
-
 
         root.addView(
             errorScannerPageView,
             fullScreenParams()
         )
 
-
+        /*
+         * ---------------------------------------------------------
+         * VEHICLE SETTINGS
+         * ---------------------------------------------------------
+         */
 
         vehicleSettingsPageView = VehicleSettingsPageView(this).apply {
-
             visibility = View.GONE
-
         }
-
 
         root.addView(
             vehicleSettingsPageView,
             fullScreenParams()
         )
 
-
+        /*
+         * ---------------------------------------------------------
+         * MAIN MENU
+         * ---------------------------------------------------------
+         */
 
         mainMenuView = MainMenuView(this).apply {
 
@@ -251,49 +252,70 @@ class MainActivity : Activity() {
             )
 
             visibility = View.VISIBLE
-
         }
-
 
         root.addView(
             mainMenuView,
             fullScreenParams()
         )
 
-
+        /*
+         * ---------------------------------------------------------
+         * SET CONTENT
+         * ---------------------------------------------------------
+         */
 
         setContentView(root)
 
-
+        /*
+         * ---------------------------------------------------------
+         * DISPLAY BOOT
+         * ---------------------------------------------------------
+         */
 
         displayBootManager = DisplayBootManager()
 
         displayBootManager.onWindowReady()
 
-
+        /*
+         * ---------------------------------------------------------
+         * VEHICLE DATA CONTROLLER
+         * ---------------------------------------------------------
+         *
+         * Central vehicle data pipeline:
+         *
+         * CANFrame
+         *     ↓
+         * CANDataParser
+         *     ↓
+         * VehicleDataController
+         *     ↓
+         * VehicleData
+         *     ↓
+         * Dashboard / Home / Car / Scanner
+         */
 
         vehicleDataController =
             VehicleDataController { data ->
 
                 runOnUiThread {
 
-                    dashboard.setVehicleData(data)
-
-                    homePageView.setVehicleData(data)
-
-                    carPageView.setVehicleData(data)
-
-                    errorScannerPageView.setVehicleData(data)
+                    updateVehicleViews(data)
 
                 }
-
             }
 
-
-
+        /*
+         * Until real CAN/GPCU hardware is connected,
+         * use demo data for UI testing.
+         */
         vehicleDataController.useDemoMode()
 
-
+        /*
+         * ---------------------------------------------------------
+         * MAIN MENU CONTROLLER
+         * ---------------------------------------------------------
+         */
 
         mainMenuController =
             MainMenuController { page ->
@@ -303,10 +325,7 @@ class MainActivity : Activity() {
                     showPage(page)
 
                 }
-
             }
-
-
 
         mainMenuView.onPageSelected = { page ->
 
@@ -314,11 +333,19 @@ class MainActivity : Activity() {
 
         }
 
-
+        /*
+         * ---------------------------------------------------------
+         * AI ENGINE
+         * ---------------------------------------------------------
+         */
 
         aiEngine = AIEngine(this)
 
-
+        /*
+         * ---------------------------------------------------------
+         * SPEECH MANAGER
+         * ---------------------------------------------------------
+         */
 
         speechManager = SpeechManager(
 
@@ -333,12 +360,14 @@ class MainActivity : Activity() {
                     homePageView.setAIState(state)
 
                 }
-
             }
-
         )
 
-
+        /*
+         * ---------------------------------------------------------
+         * VOICE MANAGER
+         * ---------------------------------------------------------
+         */
 
         voiceManager = VoiceManager(
 
@@ -356,11 +385,9 @@ class MainActivity : Activity() {
                         AIState.THINKING
                     )
 
-
                     aiEngine.process(
 
                         text = text,
-
 
                         onResponse = { response ->
 
@@ -369,11 +396,8 @@ class MainActivity : Activity() {
                                 speechManager.speak(
                                     response
                                 )
-
                             }
-
                         },
-
 
                         onError = {
 
@@ -386,17 +410,11 @@ class MainActivity : Activity() {
                                 homePageView.setAIState(
                                     AIState.ERROR
                                 )
-
                             }
-
                         }
-
                     )
-
                 }
-
             },
-
 
             onStateChanged = { state ->
 
@@ -407,12 +425,14 @@ class MainActivity : Activity() {
                     homePageView.setAIState(state)
 
                 }
-
             }
-
         )
 
-
+        /*
+         * ---------------------------------------------------------
+         * AI ORB / VOICE START
+         * ---------------------------------------------------------
+         */
 
         val startVoice = {
 
@@ -431,112 +451,139 @@ class MainActivity : Activity() {
                 requestMicrophonePermission()
 
             }
-
         }
-
-
 
         dashboard.onAIOrbClick = startVoice
 
         homePageView.onAIOrbClick = startVoice
 
-
+        /*
+         * ---------------------------------------------------------
+         * MICROPHONE PERMISSION
+         * ---------------------------------------------------------
+         */
 
         requestMicrophonePermission()
-
     }
+
+    /**
+     * Sends the latest vehicle data to every UI component
+     * that displays vehicle information.
+     */
+    private fun updateVehicleViews(
+        data: VehicleData
+    ) {
+
+        dashboard.setVehicleData(data)
+
+        homePageView.setVehicleData(data)
+
+        carPageView.setVehicleData(data)
+
+        errorScannerPageView.setVehicleData(data)
+    }
+
+    /**
+     * Creates full-screen layout parameters.
+     */
     private fun fullScreenParams(): FrameLayout.LayoutParams {
+
         return FrameLayout.LayoutParams(
             FrameLayout.LayoutParams.MATCH_PARENT,
             FrameLayout.LayoutParams.MATCH_PARENT
         )
     }
 
-
-    private fun showPage(page: MainMenuPage) {
+    /**
+     * Changes the active application page.
+     */
+    private fun showPage(
+        page: MainMenuPage
+    ) {
 
         dashboard.visibility = View.GONE
+
         homePageView.visibility = View.GONE
+
         clockPageView.visibility = View.GONE
+
         carPageView.visibility = View.GONE
+
         musicPageView.visibility = View.GONE
+
         navigationPageView.visibility = View.GONE
+
         callPageView.visibility = View.GONE
+
         errorScannerPageView.visibility = View.GONE
+
         vehicleSettingsPageView.visibility = View.GONE
 
-
-        when(page) {
+        when (page) {
 
             MainMenuPage.HOME -> {
 
                 homePageView.visibility = View.VISIBLE
+
                 mainMenuView.visibility = View.VISIBLE
-
             }
-
 
             MainMenuPage.CLOCK -> {
 
                 clockPageView.visibility = View.VISIBLE
+
                 mainMenuView.visibility = View.GONE
-
             }
-
 
             MainMenuPage.CAR -> {
 
                 carPageView.visibility = View.VISIBLE
+
                 mainMenuView.visibility = View.GONE
-
             }
-
 
             MainMenuPage.MUSIC -> {
 
                 musicPageView.visibility = View.VISIBLE
+
                 mainMenuView.visibility = View.GONE
-
             }
-
 
             MainMenuPage.NAVIGATION -> {
 
                 navigationPageView.visibility = View.VISIBLE
+
                 navigationPageView.refresh()
+
                 mainMenuView.visibility = View.GONE
-
             }
-
 
             MainMenuPage.CALL -> {
 
                 callPageView.visibility = View.VISIBLE
+
                 mainMenuView.visibility = View.GONE
-
             }
-
 
             MainMenuPage.SCAN -> {
 
                 errorScannerPageView.visibility = View.VISIBLE
+
                 mainMenuView.visibility = View.GONE
-
             }
-
 
             MainMenuPage.SETTINGS -> {
 
                 vehicleSettingsPageView.visibility = View.VISIBLE
+
                 mainMenuView.visibility = View.GONE
-
             }
-
         }
-
     }
 
-
+    /**
+     * Requests microphone permission.
+     */
     private fun requestMicrophonePermission() {
 
         if (
@@ -556,15 +603,13 @@ class MainActivity : Activity() {
                     ),
                     AUDIO_PERMISSION_REQUEST
                 )
-
             }
-
         }
-
     }
 
-
-
+    /**
+     * Handles microphone permission result.
+     */
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -577,7 +622,6 @@ class MainActivity : Activity() {
             grantResults
         )
 
-
         if (
             requestCode == AUDIO_PERMISSION_REQUEST &&
             grantResults.isNotEmpty() &&
@@ -589,70 +633,62 @@ class MainActivity : Activity() {
             pendingVoiceStart = false
 
             voiceManager.startListening()
-
         }
-
     }
 
-
-
-        override fun onBackPressed() {
+    /**
+     * Handles Android back navigation.
+     */
+    override fun onBackPressed() {
 
         when {
 
             clockPageView.visibility == View.VISIBLE ||
+
             carPageView.visibility == View.VISIBLE ||
+
             musicPageView.visibility == View.VISIBLE ||
+
             navigationPageView.visibility == View.VISIBLE ||
+
             callPageView.visibility == View.VISIBLE ||
+
             errorScannerPageView.visibility == View.VISIBLE ||
+
             vehicleSettingsPageView.visibility == View.VISIBLE -> {
 
                 showPage(
                     MainMenuPage.HOME
                 )
-
             }
-
 
             else -> {
 
                 super.onBackPressed()
-
             }
-
         }
-
     }
 
-
-
+    /**
+     * Releases application resources.
+     */
     override fun onDestroy() {
-
 
         if (::voiceManager.isInitialized) {
 
             voiceManager.destroy()
-
         }
-
 
         if (::speechManager.isInitialized) {
 
             speechManager.destroy()
-
         }
-
 
         if (::displayBootManager.isInitialized) {
 
             displayBootManager.destroy()
-
         }
 
-
         super.onDestroy()
-
     }
-
 }
