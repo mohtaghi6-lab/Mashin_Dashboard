@@ -736,7 +736,135 @@ class MainActivity : Activity() {
     }
 
 
+private fun showPage(
+    page: MainMenuPage
+) {
 
+    dashboard.visibility =
+        View.GONE
+
+    homePageView.visibility =
+        View.GONE
+
+    clockPageView.visibility =
+        View.GONE
+
+    carPageView.visibility =
+        View.GONE
+
+    musicPageView.visibility =
+        View.GONE
+
+    navigationPageView.visibility =
+        View.GONE
+
+    callPageView.visibility =
+        View.GONE
+
+    errorScannerPageView.visibility =
+        View.GONE
+
+    vehicleSettingsPageView.visibility =
+        View.GONE
+
+
+
+    when (page) {
+
+
+        MainMenuPage.HOME -> {
+
+            homePageView.visibility =
+                View.VISIBLE
+
+            mainMenuView.visibility =
+                View.VISIBLE
+        }
+
+
+
+        MainMenuPage.CLOCK -> {
+
+            clockPageView.visibility =
+                View.VISIBLE
+
+            mainMenuView.visibility =
+                View.GONE
+        }
+
+
+
+        MainMenuPage.CAR -> {
+
+            carPageView.visibility =
+                View.VISIBLE
+
+            mainMenuView.visibility =
+                View.GONE
+        }
+
+
+
+        MainMenuPage.MUSIC -> {
+
+            musicPageView.visibility =
+                View.VISIBLE
+
+            mainMenuView.visibility =
+                View.GONE
+        }
+
+
+
+        MainMenuPage.NAVIGATION -> {
+
+            navigationPageView.visibility =
+                View.VISIBLE
+
+            navigationPageView.refresh()
+
+            mainMenuView.visibility =
+                View.GONE
+        }
+
+
+
+        MainMenuPage.CALL -> {
+
+            callPageView.visibility =
+                View.VISIBLE
+
+            mainMenuView.visibility =
+                View.GONE
+        }
+
+
+
+        MainMenuPage.SCAN -> {
+
+            errorScannerPageView.visibility =
+                View.VISIBLE
+
+            errorScannerPageView.startScan()
+
+            mainMenuView.visibility =
+                View.GONE
+        }
+
+
+
+        MainMenuPage.SETTINGS -> {
+
+            vehicleSettingsPageView.visibility =
+                View.VISIBLE
+
+            mainMenuView.visibility =
+                View.GONE
+        }
+
+    }
+
+}
 
     override fun onBackPressed() {
 
