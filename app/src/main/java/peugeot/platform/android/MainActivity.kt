@@ -13,7 +13,9 @@ import peugeot.platform.android.ai.AIEngine
 import peugeot.platform.android.ai.AIState
 import peugeot.platform.android.ai.SpeechManager
 import peugeot.platform.android.ai.VoiceManager
+
 import peugeot.platform.android.can.CANReceiver
+
 import peugeot.platform.android.dashboard.Dashboard3DView
 
 import peugeot.platform.android.ui.CallPageView
@@ -44,8 +46,10 @@ class MainActivity : Activity() {
     private lateinit var root: FrameLayout
 
 
-private lateinit var dashboard: Dashboard3DView
+    private lateinit var dashboard: Dashboard3DView
+
     private lateinit var homePageView: HomePageView
+
 
     private lateinit var clockPageView: ClockPageView
 
@@ -79,7 +83,6 @@ private lateinit var dashboard: Dashboard3DView
     private lateinit var aiEngine: AIEngine
 
 
-
     private var pendingVoiceStart = false
 
 
@@ -89,7 +92,10 @@ private lateinit var dashboard: Dashboard3DView
         private const val AUDIO_PERMISSION_REQUEST = 1001
 
     }
-        override fun onCreate(
+
+
+
+    override fun onCreate(
         savedInstanceState: Bundle?
     ) {
 
@@ -119,18 +125,18 @@ private lateinit var dashboard: Dashboard3DView
 
 
 
-        /*
-         * BMW STYLE 3D DASHBOARD
-         */
+        dashboard =
+            Dashboard3DView(this).apply {
 
-    dashboard = Dashboard3DView(this).apply {
 
                 setVehicleData(
                     VehicleData.demo()
                 )
 
+
                 visibility =
                     View.GONE
+
             }
 
 
@@ -141,19 +147,18 @@ private lateinit var dashboard: Dashboard3DView
 
 
 
-        /*
-         * HOME PAGE
-         */
-
         homePageView =
             HomePageView(this).apply {
+
 
                 setVehicleData(
                     VehicleData.demo()
                 )
 
+
                 visibility =
                     View.VISIBLE
+
             }
 
 
@@ -161,14 +166,7 @@ private lateinit var dashboard: Dashboard3DView
             homePageView,
             fullScreenParams()
         )
-
-
-
-        /*
-         * CLOCK
-         */
-
-        clockPageView =
+                clockPageView =
             ClockPageView(this).apply {
 
                 visibility =
@@ -182,10 +180,6 @@ private lateinit var dashboard: Dashboard3DView
         )
 
 
-
-        /*
-         * CAR PAGE
-         */
 
         carPageView =
             CarPageView(this).apply {
@@ -202,10 +196,6 @@ private lateinit var dashboard: Dashboard3DView
 
 
 
-        /*
-         * MUSIC
-         */
-
         musicPageView =
             MusicPageView(this).apply {
 
@@ -220,10 +210,6 @@ private lateinit var dashboard: Dashboard3DView
         )
 
 
-
-        /*
-         * NAVIGATION
-         */
 
         navigationPageView =
             NavigationPageView(this).apply {
@@ -240,10 +226,6 @@ private lateinit var dashboard: Dashboard3DView
 
 
 
-        /*
-         * CALL
-         */
-
         callPageView =
             CallPageView(this).apply {
 
@@ -258,10 +240,6 @@ private lateinit var dashboard: Dashboard3DView
         )
 
 
-
-        /*
-         * ERROR SCANNER
-         */
 
         errorScannerPageView =
             ErrorScannerPageView(this).apply {
@@ -278,10 +256,6 @@ private lateinit var dashboard: Dashboard3DView
 
 
 
-        /*
-         * VEHICLE SETTINGS
-         */
-
         vehicleSettingsPageView =
             VehicleSettingsPageView(this).apply {
 
@@ -297,19 +271,18 @@ private lateinit var dashboard: Dashboard3DView
 
 
 
-        /*
-         * MAIN MENU
-         */
-
         mainMenuView =
             MainMenuView(this).apply {
+
 
                 setPage(
                     MainMenuPage.HOME
                 )
 
+
                 visibility =
                     View.VISIBLE
+
             }
 
 
@@ -323,12 +296,16 @@ private lateinit var dashboard: Dashboard3DView
         setContentView(
             root
         )
-                /*
+
+
+
+        /*
          * DISPLAY BOOT
          */
 
         displayBootManager =
             DisplayBootManager()
+
 
         displayBootManager.onWindowReady()
 
@@ -349,64 +326,73 @@ private lateinit var dashboard: Dashboard3DView
 
 
         /*
-         * VEHICLE DATA
+         * VEHICLE DATA CONTROLLER
          */
+
 
         vehicleDataController =
             VehicleDataController { data ->
 
+
                 runOnUiThread {
+
 
                     updateVehicleViews(
                         data
                     )
+
 
                 }
 
             }
 
 
-        /*
-         * فعلاً بدون CAN واقعی
-         * حالت تست فعال است
-         */
 
         vehicleDataController.useDemoMode()
 
 
 
         /*
-         * MENU CONTROLLER
+         * MENU
          */
+
 
         mainMenuController =
             MainMenuController { page ->
 
+
                 runOnUiThread {
+
 
                     showPage(
                         page
                     )
+
 
                 }
 
             }
 
 
+
         mainMenuView.onPageSelected =
             { page ->
+
 
                 mainMenuController.open(
                     page
                 )
 
+
             }
 
 
 
+
         /*
-         * OPENAI ENGINE
+         * AI ENGINE
          */
+
 
         aiEngine =
             AIEngine(this)
@@ -414,13 +400,15 @@ private lateinit var dashboard: Dashboard3DView
 
 
         /*
-         * TEXT TO SPEECH
+         * SPEECH
          */
+
 
         speechManager =
             SpeechManager(
 
                 context = this,
+
 
                 onStateChanged = { state ->
 
@@ -439,35 +427,25 @@ private lateinit var dashboard: Dashboard3DView
 
 
 
-                        /*
-                         * بعد از صحبت AI
-                         * دوباره گوش دادن فعال شود
-                         */
-
                         if (
-                            state == AIState.IDLE
+                            state == AIState.IDLE &&
+                            ::voiceManager.isInitialized
                         ) {
 
-                            if (
-                                ::voiceManager.isInitialized
-                            ) {
 
-                                voiceManager
-                                    .resumeContinuousListening()
-
-                            }
+                            voiceManager
+                                .resumeContinuousListening()
 
                         }
 
+
                     }
+
 
                 }
 
             )
-
-
-
-        /*
+                    /*
          * VOICE AI
          */
 
@@ -505,18 +483,18 @@ private lateinit var dashboard: Dashboard3DView
                                 runOnUiThread {
 
 
-                                    speechManager
-                                        .speak(
-                                            answer
-                                        )
+                                    speechManager.speak(
+                                        answer
+                                    )
 
 
                                 }
 
+
                             },
 
 
-                            onError = { error ->
+                            onError = {
 
 
                                 runOnUiThread {
@@ -532,7 +510,6 @@ private lateinit var dashboard: Dashboard3DView
                                     )
 
 
-
                                     speechManager.speak(
                                         "متاسفانه مشکلی پیش آمد"
                                     )
@@ -541,16 +518,19 @@ private lateinit var dashboard: Dashboard3DView
                                     voiceManager
                                         .resumeContinuousListening()
 
+
                                 }
+
 
                             }
 
                         )
 
+
                     }
 
-                },
 
+                },
 
 
                 onStateChanged = { state ->
@@ -568,9 +548,12 @@ private lateinit var dashboard: Dashboard3DView
                             state
                         )
 
+
                     }
 
+
                 }
+
 
             )
 
@@ -578,8 +561,9 @@ private lateinit var dashboard: Dashboard3DView
 
         /*
          * بدون کلیک
-         * همیشه آماده شنیدن
+         * Voice همیشه آماده است
          */
+
 
         dashboard.onAIOrbClick =
             null
@@ -591,45 +575,66 @@ private lateinit var dashboard: Dashboard3DView
 
 
         /*
-         * MICROPHONE
+         * شروع سیستم صدا
          */
+
 
         startVoiceSystem()
 
+
     }
-            private fun updateVehicleViews(
+
+
+
+
+
+    private fun updateVehicleViews(
         data: VehicleData
     ) {
+
 
         dashboard.setVehicleData(
             data
         )
 
+
         homePageView.setVehicleData(
             data
         )
+
 
         carPageView.setVehicleData(
             data
         )
 
+
         errorScannerPageView.setVehicleData(
             data
         )
 
+
     }
+
+
 
 
 
     private fun fullScreenParams():
             FrameLayout.LayoutParams {
 
+
         return FrameLayout.LayoutParams(
+
             FrameLayout.LayoutParams.MATCH_PARENT,
+
             FrameLayout.LayoutParams.MATCH_PARENT
+
         )
 
+
     }
+
+
 
 
 
@@ -637,11 +642,13 @@ private lateinit var dashboard: Dashboard3DView
 
 
         if (
+
             checkSelfPermission(
                 Manifest.permission.RECORD_AUDIO
             )
             ==
             PackageManager.PERMISSION_GRANTED
+
         ) {
 
 
@@ -658,9 +665,13 @@ private lateinit var dashboard: Dashboard3DView
 
             requestMicrophonePermission()
 
+
         }
 
+
     }
+
+
 
 
 
@@ -668,39 +679,55 @@ private lateinit var dashboard: Dashboard3DView
 
 
         if (
+
             android.os.Build.VERSION.SDK_INT >=
             android.os.Build.VERSION_CODES.M
+
         ) {
 
 
             requestPermissions(
 
                 arrayOf(
+
                     Manifest.permission.RECORD_AUDIO
+
                 ),
+
 
                 AUDIO_PERMISSION_REQUEST
 
             )
 
+
         }
+
 
     }
 
 
 
 
+
     override fun onRequestPermissionsResult(
+
         requestCode: Int,
+
         permissions: Array<out String>,
+
         grantResults: IntArray
+
     ) {
 
 
         super.onRequestPermissionsResult(
+
             requestCode,
+
             permissions,
+
             grantResults
+
         )
 
 
@@ -727,140 +754,154 @@ private lateinit var dashboard: Dashboard3DView
             voiceManager
                 .startContinuousListening()
 
+
         }
+
+
+    }
+        private fun showPage(
+        page: MainMenuPage
+    ) {
+
+
+        dashboard.visibility =
+            View.GONE
+
+        homePageView.visibility =
+            View.GONE
+
+        clockPageView.visibility =
+            View.GONE
+
+        carPageView.visibility =
+            View.GONE
+
+        musicPageView.visibility =
+            View.GONE
+
+        navigationPageView.visibility =
+            View.GONE
+
+        callPageView.visibility =
+            View.GONE
+
+        errorScannerPageView.visibility =
+            View.GONE
+
+        vehicleSettingsPageView.visibility =
+            View.GONE
+
+
+
+        when(page) {
+
+
+            MainMenuPage.HOME -> {
+
+                homePageView.visibility =
+                    View.VISIBLE
+
+                mainMenuView.visibility =
+                    View.VISIBLE
+
+            }
+
+
+            MainMenuPage.CLOCK -> {
+
+                clockPageView.visibility =
+                    View.VISIBLE
+
+                mainMenuView.visibility =
+                    View.GONE
+
+            }
+
+
+            MainMenuPage.CAR -> {
+
+                carPageView.visibility =
+                    View.VISIBLE
+
+                mainMenuView.visibility =
+                    View.GONE
+
+            }
+
+
+            MainMenuPage.MUSIC -> {
+
+                musicPageView.visibility =
+                    View.VISIBLE
+
+                mainMenuView.visibility =
+                    View.GONE
+
+            }
+
+
+            MainMenuPage.NAVIGATION -> {
+
+                navigationPageView.visibility =
+                    View.VISIBLE
+
+
+                navigationPageView.refresh()
+
+
+                mainMenuView.visibility =
+                    View.GONE
+
+            }
+
+
+            MainMenuPage.CALL -> {
+
+                callPageView.visibility =
+                    View.VISIBLE
+
+
+                mainMenuView.visibility =
+                    View.GONE
+
+            }
+
+
+            MainMenuPage.SCAN -> {
+
+                errorScannerPageView.visibility =
+                    View.VISIBLE
+
+
+                errorScannerPageView.startScan()
+
+
+                mainMenuView.visibility =
+                    View.GONE
+
+            }
+
+
+            MainMenuPage.SETTINGS -> {
+
+                vehicleSettingsPageView.visibility =
+                    View.VISIBLE
+
+
+                mainMenuView.visibility =
+                    View.GONE
+
+            }
+
+
+        }
+
 
     }
 
 
-private fun showPage(
-    page: MainMenuPage
-) {
-
-    dashboard.visibility =
-        View.GONE
-
-    homePageView.visibility =
-        View.GONE
-
-    clockPageView.visibility =
-        View.GONE
-
-    carPageView.visibility =
-        View.GONE
-
-    musicPageView.visibility =
-        View.GONE
-
-    navigationPageView.visibility =
-        View.GONE
-
-    callPageView.visibility =
-        View.GONE
-
-    errorScannerPageView.visibility =
-        View.GONE
-
-    vehicleSettingsPageView.visibility =
-        View.GONE
 
 
-
-    when (page) {
-
-
-        MainMenuPage.HOME -> {
-
-            homePageView.visibility =
-                View.VISIBLE
-
-            mainMenuView.visibility =
-                View.VISIBLE
-        }
-
-
-
-        MainMenuPage.CLOCK -> {
-
-            clockPageView.visibility =
-                View.VISIBLE
-
-            mainMenuView.visibility =
-                View.GONE
-        }
-
-
-
-        MainMenuPage.CAR -> {
-
-            carPageView.visibility =
-                View.VISIBLE
-
-            mainMenuView.visibility =
-                View.GONE
-        }
-
-
-
-        MainMenuPage.MUSIC -> {
-
-            musicPageView.visibility =
-                View.VISIBLE
-
-            mainMenuView.visibility =
-                View.GONE
-        }
-
-
-
-        MainMenuPage.NAVIGATION -> {
-
-            navigationPageView.visibility =
-                View.VISIBLE
-
-            navigationPageView.refresh()
-
-            mainMenuView.visibility =
-                View.GONE
-        }
-
-
-
-        MainMenuPage.CALL -> {
-
-            callPageView.visibility =
-                View.VISIBLE
-
-            mainMenuView.visibility =
-                View.GONE
-        }
-
-
-
-        MainMenuPage.SCAN -> {
-
-            errorScannerPageView.visibility =
-                View.VISIBLE
-
-            errorScannerPageView.startScan()
-
-            mainMenuView.visibility =
-                View.GONE
-        }
-
-
-
-        MainMenuPage.SETTINGS -> {
-
-            vehicleSettingsPageView.visibility =
-                View.VISIBLE
-
-            mainMenuView.visibility =
-                View.GONE
-        }
-
-    }
-
-}
 
     override fun onBackPressed() {
 
@@ -868,85 +909,19 @@ private fun showPage(
         when {
 
 
-            clockPageView.visibility ==
-                    View.VISIBLE -> {
+            clockPageView.visibility == View.VISIBLE ||
+            carPageView.visibility == View.VISIBLE ||
+            musicPageView.visibility == View.VISIBLE ||
+            navigationPageView.visibility == View.VISIBLE ||
+            callPageView.visibility == View.VISIBLE ||
+            errorScannerPageView.visibility == View.VISIBLE ||
+            vehicleSettingsPageView.visibility == View.VISIBLE -> {
 
 
                 showPage(
                     MainMenuPage.HOME
                 )
 
-            }
-
-
-
-            carPageView.visibility ==
-                    View.VISIBLE -> {
-
-
-                showPage(
-                    MainMenuPage.HOME
-                )
-
-            }
-
-
-
-            musicPageView.visibility ==
-                    View.VISIBLE -> {
-
-
-                showPage(
-                    MainMenuPage.HOME
-                )
-
-            }
-
-
-
-            navigationPageView.visibility ==
-                    View.VISIBLE -> {
-
-
-                showPage(
-                    MainMenuPage.HOME
-                )
-
-            }
-
-
-
-            callPageView.visibility ==
-                    View.VISIBLE -> {
-
-
-                showPage(
-                    MainMenuPage.HOME
-                )
-
-            }
-
-
-
-            errorScannerPageView.visibility ==
-                    View.VISIBLE -> {
-
-
-                showPage(
-                    MainMenuPage.HOME
-                )
-
-            }
-
-
-
-            vehicleSettingsPageView.visibility ==
-                    View.VISIBLE -> {
-
-
-                showPage(
-                    MainMenuPage.HOME
-                )
 
             }
 
@@ -957,9 +932,12 @@ private fun showPage(
 
                 super.onBackPressed()
 
+
             }
 
+
         }
+
 
     }
 
@@ -970,7 +948,7 @@ private fun showPage(
     override fun onDestroy() {
 
 
-        if (
+        if(
             ::voiceManager.isInitialized
         ) {
 
@@ -981,7 +959,7 @@ private fun showPage(
 
 
 
-        if (
+        if(
             ::speechManager.isInitialized
         ) {
 
@@ -992,7 +970,7 @@ private fun showPage(
 
 
 
-        if (
+        if(
             ::displayBootManager.isInitialized
         ) {
 
@@ -1003,7 +981,7 @@ private fun showPage(
 
 
 
-        if (
+        if(
             CANReceiver.isConnected()
         ) {
 
@@ -1013,11 +991,13 @@ private fun showPage(
 
             CANReceiver.disconnect()
 
+
         }
 
 
 
         super.onDestroy()
+
 
     }
 
