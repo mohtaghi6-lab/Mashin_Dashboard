@@ -425,13 +425,8 @@ class Dashboard3DView(
 
 
         val pulse =
-            (
-                System.currentTimeMillis()
-                    % 2000
-            )
-                .toFloat()
-                /
-                2000f
+    (System.currentTimeMillis() % 2000L)
+        .toFloat() / 2000f
 
 
 
