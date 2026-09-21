@@ -10,270 +10,220 @@ import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import java.util.Locale
 
+
 class VoiceManager(
     private val context: Context,
     private val onResult: (String) -> Unit,
     private val onStateChanged: (AIState) -> Unit
 ) {
 
-    private var recognizer: SpeechRecognizer? = null
+    private var speechRecognizer: SpeechRecognizer? = null
 
     private val handler =
         Handler(Looper.getMainLooper())
 
     private var continuousMode = false
-    private var restarting = false
+
 
     fun startContinuousListening() {
 
         continuousMode = true
-        startListeningInternal()
+
+        createRecognizer()
+
+        startListening()
+
     }
 
-    fun startListening() {
 
-        continuousMode = false
-        startListeningInternal()
-    }
+    private fun createRecognizer() {
 
-    private fun startListeningInternal() {
+        speechRecognizer?.destroy()
 
-        if (!SpeechRecognizer.isRecognitionAvailable(context)) {
-            onStateChanged(AIState.ERROR)
-            return
-        }
+        speechRecognizer =
+            SpeechRecognizer.createSpeechRecognizer(
+                context
+            )
 
-        if (restarting) {
-            return
-        }
 
-        stopRecognizerOnly()
-
-        recognizer =
-            SpeechRecognizer.createSpeechRecognizer(context)
-
-        recognizer?.setRecognitionListener(
+        speechRecognizer?.setRecognitionListener(
             object : RecognitionListener {
+
 
                 override fun onReadyForSpeech(
                     params: Bundle?
                 ) {
+
                     onStateChanged(
                         AIState.LISTENING
                     )
                 }
+
 
                 override fun onBeginningOfSpeech() {
+
                     onStateChanged(
                         AIState.LISTENING
                     )
                 }
 
-                override fun onRmsChanged(
-                    rmsdB: Float
-                ) {
-                }
-
-                override fun onBufferReceived(
-                    buffer: ByteArray?
-                ) {
-                }
 
                 override fun onEndOfSpeech() {
+
                     onStateChanged(
                         AIState.THINKING
                     )
                 }
 
+
                 override fun onError(
                     error: Int
                 ) {
 
+                    onStateChanged(
+                        AIState.IDLE
+                    )
+
+
                     if (continuousMode) {
 
-                        scheduleRestart()
+                        handler.postDelayed({
 
-                    } else {
+                            startListening()
 
-                        onStateChanged(
-                            AIState.ERROR
-                        )
+                        },1000)
+
                     }
+
                 }
+
 
                 override fun onResults(
                     results: Bundle?
                 ) {
 
-                    val matches =
+                    val list =
                         results?.getStringArrayList(
                             SpeechRecognizer.RESULTS_RECOGNITION
                         )
 
+
                     val text =
-                        matches
-                            ?.firstOrNull()
-                            ?.trim()
+                        list?.firstOrNull()
+                            ?: ""
 
-                    if (!text.isNullOrEmpty()) {
 
-                        onStateChanged(
-                            AIState.THINKING
-                        )
+                    if(text.isNotBlank()) {
 
                         onResult(text)
 
-                    } else {
-
-                        if (continuousMode) {
-                            scheduleRestart()
-                        } else {
-                            onStateChanged(
-                                AIState.IDLE
-                            )
-                        }
                     }
+
+
                 }
+
 
                 override fun onPartialResults(
                     partialResults: Bundle?
-                ) {
-                }
+                ) {}
+
+
+                override fun onRmsChanged(
+                    rmsdB: Float
+                ) {}
+
+
+                override fun onBufferReceived(
+                    buffer: ByteArray?
+                ) {}
+
 
                 override fun onEvent(
                     eventType: Int,
                     params: Bundle?
-                ) {
-                }
+                ) {}
+
             }
         )
+
+    }
+
+
+
+    private fun startListening() {
+
+        if(!continuousMode)
+            return
+
 
         val intent =
             Intent(
                 RecognizerIntent.ACTION_RECOGNIZE_SPEECH
-            ).apply {
-
-                putExtra(
-                    RecognizerIntent.EXTRA_LANGUAGE,
-                    "fa-IR"
-                )
-
-                putExtra(
-                    RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE,
-                    "fa-IR"
-                )
-
-                putExtra(
-                    RecognizerIntent.EXTRA_PARTIAL_RESULTS,
-                    true
-                )
-
-                putExtra(
-                    RecognizerIntent.EXTRA_MAX_RESULTS,
-                    3
-                )
-
-                putExtra(
-                    RecognizerIntent.EXTRA_CALLING_PACKAGE,
-                    context.packageName
-                )
-            }
-
-        try {
-
-            recognizer?.startListening(
-                intent
             )
 
-        } catch (e: Exception) {
 
-            onStateChanged(
-                AIState.ERROR
-            )
+        intent.putExtra(
+            RecognizerIntent.EXTRA_LANGUAGE,
+            "fa-IR"
+        )
 
-            if (continuousMode) {
-                scheduleRestart()
-            }
-        }
+
+        intent.putExtra(
+            RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+        )
+
+
+        intent.putExtra(
+            RecognizerIntent.EXTRA_PARTIAL_RESULTS,
+            true
+        )
+
+
+        speechRecognizer?.startListening(
+            intent
+        )
+
     }
 
-    private fun scheduleRestart() {
 
-        if (!continuousMode) {
-            return
-        }
-
-        if (restarting) {
-            return
-        }
-
-        restarting = true
-
-        handler.postDelayed({
-
-            restarting = false
-
-            if (continuousMode) {
-                startListeningInternal()
-            }
-
-        }, 700)
-    }
 
     fun resumeContinuousListening() {
 
-        if (!continuousMode) {
-            return
+        if(continuousMode) {
+
+            handler.postDelayed({
+
+                startListening()
+
+            },800)
+
         }
 
-        handler.postDelayed({
-
-            if (continuousMode) {
-                startListeningInternal()
-            }
-
-        }, 500)
     }
 
-    fun stopListening() {
 
-        continuousMode = false
+
+    fun stopRecognizerOnly(){
+
+        speechRecognizer?.stopListening()
+
+    }
+
+
+
+    fun destroy(){
+
+        continuousMode=false
 
         handler.removeCallbacksAndMessages(
             null
         )
 
-        stopRecognizerOnly()
+        speechRecognizer?.destroy()
 
-        onStateChanged(
-            AIState.IDLE
-        )
+        speechRecognizer=null
+
     }
 
-    private fun stopRecognizerOnly() {
-
-        try {
-            recognizer?.cancel()
-        } catch (_: Exception) {
-        }
-
-        try {
-            recognizer?.destroy()
-        } catch (_: Exception) {
-        }
-
-        recognizer = null
-    }
-
-    fun destroy() {
-
-        continuousMode = false
-
-        handler.removeCallbacksAndMessages(
-            null
-        )
-
-        stopRecognizerOnly()
-    }
 }
-
