@@ -1,292 +1,206 @@
 package peugeot.platform.android.can
 
-import peugeot.platform.android.vehicle.VehicleData
 
-
-/**
- * Converts CAN frames into VehicleData.
- *
- * Flow:
- *
- * CANReceiver
- *       ↓
- *    CANFrame
- *       ↓
- * CANDataParser
- *       ↓
- * VehicleData
- *
- * NOTE:
- * Current mappings are placeholders.
- * Real Peugeot Pars CAN IDs must be filled after
- * capturing GPCU/CAN traffic.
- */
 object CANDataParser {
 
 
-    /**
-     * Last decoded vehicle values.
-     */
-    private var currentData =
-        VehicleData.demo()
-
-
-
-    /**
-     * Parses one CAN frame.
-     */
-    fun parse(
+    fun isValidFrame(
         frame: CANFrame
-    ): VehicleData {
+    ): Boolean {
+
+        return frame.id >= 0 &&
+                frame.data.size <= 8
+
+    }
 
 
-        val id =
-            frame.id
+
+    fun parseSpeed(
+        frame: CANFrame
+    ): Int? {
+
+
+        if (!isValidFrame(frame)) {
+            return null
+        }
+
+
+        if (frame.data.size < 2) {
+            return null
+        }
+
+
+        val raw =
+            ((frame.data[0].toInt() and 0xFF) shl 8) or
+                    (frame.data[1].toInt() and 0xFF)
+
+
+
+        val speed =
+            raw / 100
+
+
+
+        return speed.takeIf {
+
+            it in 0..300
+
+        }
+
+    }
+
+
+
+
+
+    fun parseRpm(
+        frame: CANFrame
+    ): Int? {
+
+
+        if (!isValidFrame(frame)) {
+            return null
+        }
+
+
+        if (frame.data.size < 2) {
+            return null
+        }
+
+
+
+        val raw =
+            ((frame.data[0].toInt() and 0xFF) shl 8) or
+                    (frame.data[1].toInt() and 0xFF)
+
+
+
+        val rpm =
+            raw / 4
+
+
+
+        return rpm.takeIf {
+
+            it in 0..8000
+
+        }
+
+    }
+
+
+
+
+
+    fun parseTemperature(
+        frame: CANFrame
+    ): Int? {
+
+
+        if (!isValidFrame(frame)) {
+            return null
+        }
+
+
+        if (frame.data.isEmpty()) {
+            return null
+        }
+
+
+
+        val temperature =
+            (frame.data[0].toInt() and 0xFF) - 40
+
+
+
+        return temperature.takeIf {
+
+            it in -40..150
+
+        }
+
+    }
+
+
+
+
+
+    fun parseFuel(
+        frame: CANFrame
+    ): Int? {
+
+
+        if (!isValidFrame(frame)) {
+            return null
+        }
+
+
+        if (frame.data.isEmpty()) {
+            return null
+        }
+
+
+        val fuel =
+            frame.data[0].toInt() and 0xFF
+
+
+
+        return fuel.takeIf {
+
+            it in 0..100
+
+        }
+
+    }
+
+
+
+
+
+    fun parseBatteryVoltage(
+        frame: CANFrame
+    ): Float? {
+
+
+        if (!isValidFrame(frame)) {
+            return null
+        }
+
+
+        if (frame.data.isEmpty()) {
+            return null
+        }
+
+
+
+        return (frame.data[0].toInt() and 0xFF)
+            .toFloat() / 10f
+
+    }
+
+
+
+
+
+    fun getFrameDescription(
+        frame: CANFrame
+    ): String {
 
 
         val bytes =
-            frame.data
+            frame.data.joinToString(" ") {
 
-
-
-        when(id) {
-
-
-            /*
-             * Speed message
-             *
-             * Example placeholder:
-             *
-             * Byte 0-1 = speed
-             */
-            CAN_IDS.SPEED -> {
-
-                if(bytes.size >= 2) {
-
-                    val raw =
-                        ((bytes[0].toInt() and 0xFF) shl 8) or
-                        (bytes[1].toInt() and 0xFF)
-
-
-                    currentData =
-                        currentData.copy(
-                            speedKmh = raw / 100
-                        )
-
-                }
+                "%02X".format(
+                    it.toInt() and 0xFF
+                )
 
             }
 
 
 
-            /*
-             * RPM message
-             *
-             * Example:
-             * Byte 0-1 RPM value
-             */
-            CAN_IDS.RPM -> {
-
-                if(bytes.size >= 2) {
-
-
-                    val raw =
-                        ((bytes[0].toInt() and 0xFF) shl 8) or
-                        (bytes[1].toInt() and 0xFF)
-
-
-
-                    currentData =
-                        currentData.copy(
-                            rpm = raw
-                        )
-
-                }
-
-            }
-
-
-
-            /*
-             * Engine temperature
-             */
-            CAN_IDS.ENGINE_TEMP -> {
-
-
-                if(bytes.isNotEmpty()) {
-
-
-                    val temp =
-                        bytes[0].toInt() and 0xFF
-
-
-
-                    currentData =
-                        currentData.copy(
-                            engineTempC = temp
-                        )
-
-                }
-
-            }
-
-
-
-            /*
-             * Fuel level
-             */
-            CAN_IDS.FUEL -> {
-
-
-                if(bytes.isNotEmpty()) {
-
-
-                    val fuel =
-                        bytes[0].toInt() and 0xFF
-
-
-
-                    currentData =
-                        currentData.copy(
-                            fuelPercent = fuel
-                        )
-
-                }
-
-            }
-
-
-
-            /*
-             * Battery voltage
-             */
-            CAN_IDS.BATTERY -> {
-
-
-                if(bytes.isNotEmpty()) {
-
-
-                    val voltage =
-                        bytes[0].toInt()
-                            .and(0xFF)
-                            .toFloat()
-                            /
-                            10f
-
-
-
-                    currentData =
-                        currentData.copy(
-                            batteryVoltage = voltage
-                        )
-
-                }
-
-            }
-
-
-
-            /*
-             * Error / diagnostic frame
-             */
-            CAN_IDS.ERROR -> {
-
-
-                currentData =
-                    currentData.copy(
-                        canConnected = true
-                    )
-
-            }
-
-
-        }
-
-
-
-        return currentData.copy()
+        return "ID=${frame.id} DATA=$bytes"
 
     }
 
-
-
-    /**
-     * Parses multiple frames.
-     */
-    fun parseFrames(
-        frames: List<CANFrame>
-    ): VehicleData {
-
-
-        frames.forEach { frame ->
-
-            parse(frame)
-
-        }
-
-
-        return currentData.copy()
-
-    }
-
-
-
-    /**
-     * Returns current decoded data.
-     */
-    fun getCurrentData(): VehicleData {
-
-        return currentData.copy()
-
-    }
-
-
-
-    /**
-     * Reset parser.
-     */
-    fun reset() {
-
-        currentData =
-            VehicleData.demo()
-
-    }
-
-
-
-    /**
-     * Placeholder CAN identifiers.
-     *
-     * These are NOT confirmed Peugeot Pars IDs.
-     *
-     * They must be replaced after real CAN capture.
-     */
-    object CAN_IDS {
-
-
-        const val SPEED =
-            0x100
-
-
-        const val RPM =
-            0x101
-
-
-        const val ENGINE_TEMP =
-            0x102
-
-
-        const val FUEL =
-            0x103
-
-
-        const val BATTERY =
-            0x104
-
-
-        const val ERROR =
-            0x700
-
-    }
 
 }
