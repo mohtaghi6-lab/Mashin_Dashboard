@@ -6,8 +6,11 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.view.View
+
+import peugeot.platform.android.can.CANFrame
 import peugeot.platform.android.vehicle.ErrorScannerEngine
 import peugeot.platform.android.vehicle.ErrorSeverity
+import peugeot.platform.android.vehicle.VehicleData
 import peugeot.platform.android.vehicle.VehicleError
 
 
@@ -20,36 +23,43 @@ class ErrorScannerPageView(
         Paint(Paint.ANTI_ALIAS_FLAG)
 
 
-
-    private val engine =
+    private val errorScannerEngine =
         ErrorScannerEngine()
 
 
-
-    private var errors =
-        emptyList<VehicleError>()
-
+    private var vehicleData:
+            VehicleData? = null
 
 
-    private var vehicleData =
-        null
+    private var errors:
+            List<VehicleError> = emptyList()
 
 
 
     init {
 
+        errorScannerEngine.onErrorUpdated =
+            { list ->
 
-        engine.onErrorUpdated = { list ->
+                errors = list
+
+                invalidate()
+
+            }
+
+    }
 
 
-            errors =
-                list
 
 
-            postInvalidate()
 
-        }
+    fun setVehicleData(
+        data: VehicleData
+    ) {
 
+        vehicleData = data
+
+        invalidate()
 
     }
 
@@ -59,7 +69,7 @@ class ErrorScannerPageView(
 
     fun startScan() {
 
-        engine.startScan()
+        errorScannerEngine.startScan()
 
         invalidate()
 
@@ -71,7 +81,7 @@ class ErrorScannerPageView(
 
     fun clearErrors() {
 
-        engine.clearErrors()
+        errorScannerEngine.clearErrors()
 
         invalidate()
 
@@ -82,10 +92,10 @@ class ErrorScannerPageView(
 
 
     fun receiveFrame(
-        frame: peugeot.platform.android.can.CANFrame
+        frame: CANFrame
     ) {
 
-        engine.processFrame(
+        errorScannerEngine.processFrame(
             frame
         )
 
@@ -106,11 +116,6 @@ class ErrorScannerPageView(
             width.toFloat()
 
 
-        val h =
-            height.toFloat()
-
-
-
         canvas.drawColor(
             Color.rgb(
                 3,
@@ -129,12 +134,12 @@ class ErrorScannerPageView(
             Typeface.DEFAULT_BOLD
 
 
-        paint.textSize =
-            26f
-
-
         paint.color =
             Color.WHITE
+
+
+        paint.textSize =
+            26f
 
 
 
@@ -160,7 +165,7 @@ class ErrorScannerPageView(
 
 
         canvas.drawText(
-            "ACTIVE ERRORS: ${errors.size}",
+            "ACTIVE ERRORS : ${errors.size}",
             w / 2f,
             90f,
             paint
@@ -169,11 +174,11 @@ class ErrorScannerPageView(
 
 
         var y =
-            140f
+            150f
 
 
 
-        if(errors.isEmpty()) {
+        if (errors.isEmpty()) {
 
 
             paint.color =
@@ -208,12 +213,9 @@ class ErrorScannerPageView(
 
                 y += 75f
 
-
             }
 
-
         }
-
 
     }
 
@@ -228,7 +230,20 @@ class ErrorScannerPageView(
     ) {
 
 
-        val color =
+        paint.textAlign =
+            Paint.Align.LEFT
+
+
+        paint.typeface =
+            Typeface.DEFAULT_BOLD
+
+
+        paint.textSize =
+            18f
+
+
+
+        paint.color =
             when(error.severity) {
 
                 ErrorSeverity.INFO ->
@@ -243,24 +258,6 @@ class ErrorScannerPageView(
                     Color.RED
 
             }
-
-
-
-        paint.textAlign =
-            Paint.Align.LEFT
-
-
-
-        paint.typeface =
-            Typeface.DEFAULT_BOLD
-
-
-        paint.textSize =
-            18f
-
-
-        paint.color =
-            color
 
 
 
@@ -293,8 +290,6 @@ class ErrorScannerPageView(
             paint
         )
 
-
     }
-
 
 }
