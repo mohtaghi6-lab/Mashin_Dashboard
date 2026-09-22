@@ -12,7 +12,6 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 
-
 class DashboardView(
     context: Context
 ) : View(context) {
@@ -24,6 +23,10 @@ class DashboardView(
 
     private val vehicleRenderer =
         VehicleRenderer()
+
+
+    private val warningLights =
+        WarningLights()
 
 
     private var data =
@@ -73,7 +76,6 @@ class DashboardView(
 
 
 
-
     fun setAIState(
         value: AIState
     ) {
@@ -92,7 +94,6 @@ class DashboardView(
     ) {
 
         super.onDraw(canvas)
-
 
 
         val w =
@@ -119,6 +120,7 @@ class DashboardView(
 
 
 
+
         // Header
 
         paint.color =
@@ -130,20 +132,17 @@ class DashboardView(
 
 
         canvas.drawText(
-
             "PEUGEOT VEHICLE OS",
-
             w / 2f,
-
             45f,
-
             paint
-
         )
 
 
 
-        // Vehicle center
+
+
+        // Center vehicle
 
         vehicleRenderer.drawVehicle(
 
@@ -159,7 +158,10 @@ class DashboardView(
 
 
 
-        // Left gauge
+
+
+
+        // RPM
 
         drawGauge(
 
@@ -181,7 +183,9 @@ class DashboardView(
 
 
 
-        // Right gauge
+
+
+        // SPEED
 
         drawGauge(
 
@@ -204,7 +208,26 @@ class DashboardView(
 
 
 
-        // Information cards
+
+
+        // Warning Lights
+
+        warningLights.draw(
+
+            canvas,
+
+            w / 2f - 160f,
+
+            h * 0.80f
+
+        )
+
+
+
+
+
+
+        // Information
 
         drawInfo(
 
@@ -219,7 +242,9 @@ class DashboardView(
 
 
 
-        // AI core
+
+
+        // AI Orb
 
         drawAIOrb(
 
@@ -227,9 +252,11 @@ class DashboardView(
 
             w / 2f,
 
-            h * 0.72f
+            h * 0.68f
 
         )
+
+
 
 
 
@@ -239,6 +266,7 @@ class DashboardView(
         postInvalidateOnAnimation()
 
     }
+
 
 
 
@@ -282,6 +310,7 @@ class DashboardView(
             )
 
 
+
         canvas.drawCircle(
 
             cx,
@@ -298,7 +327,10 @@ class DashboardView(
 
         val percent =
             (value / max)
-                .coerceIn(0f,1f)
+                .coerceIn(
+                    0f,
+                    1f
+                )
 
 
 
@@ -310,13 +342,13 @@ class DashboardView(
         val rect =
             RectF(
 
-                cx-radius,
+                cx - radius,
 
-                cy-radius,
+                cy - radius,
 
-                cx+radius,
+                cx + radius,
 
-                cy+radius
+                cy + radius
 
             )
 
@@ -347,6 +379,7 @@ class DashboardView(
             Color.WHITE
 
 
+
         paint.textSize =
             42f
 
@@ -370,6 +403,7 @@ class DashboardView(
             18f
 
 
+
         paint.color =
             blue
 
@@ -389,13 +423,15 @@ class DashboardView(
 
 
 
+
+
         // Needle
 
         val angle =
 
             Math.toRadians(
 
-                (135 + 270 * percent)
+                (135f + 270f * percent)
                     .toDouble()
 
             )
@@ -431,7 +467,9 @@ class DashboardView(
 
         )
 
+
     }
+
 
 
 
@@ -478,7 +516,7 @@ class DashboardView(
 
             "VOLT 13.8V",
 
-            w * 0.5f,
+            w * 0.50f,
 
             h * 0.93f,
 
@@ -505,8 +543,8 @@ class DashboardView(
 
         )
 
-
     }
+
 
 
 
@@ -534,6 +572,7 @@ class DashboardView(
 
         paint.style =
             Paint.Style.STROKE
+
 
 
         paint.strokeWidth =
@@ -578,22 +617,28 @@ class DashboardView(
         paint.color =
             when(aiState){
 
+
                 AIState.LISTENING ->
                     Color.CYAN
+
 
                 AIState.THINKING ->
                     Color.YELLOW
 
+
                 AIState.SPEAKING ->
                     Color.GREEN
 
+
                 AIState.ERROR ->
                     Color.RED
+
 
                 else ->
                     blue
 
             }
+
 
 
 
@@ -608,6 +653,7 @@ class DashboardView(
             paint
 
         )
+
 
 
 
@@ -639,6 +685,7 @@ class DashboardView(
 
 
 
+
     override fun onTouchEvent(
 
         event: MotionEvent
@@ -648,14 +695,18 @@ class DashboardView(
 
 
         if(
+
             event.action ==
             MotionEvent.ACTION_UP
+
         ){
+
 
 
             val dx =
                 event.x -
                         width / 2f
+
 
 
             val dy =
@@ -665,7 +716,11 @@ class DashboardView(
 
 
             if(
-                dx*dx + dy*dy < 10000
+
+                dx * dx +
+                        dy * dy <
+                        10000
+
             ){
 
                 onAIOrbClick?.invoke()
@@ -673,6 +728,7 @@ class DashboardView(
             }
 
         }
+
 
 
         return true
