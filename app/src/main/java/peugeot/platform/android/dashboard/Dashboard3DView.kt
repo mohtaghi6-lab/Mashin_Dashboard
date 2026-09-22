@@ -696,214 +696,248 @@ class Dashboard3DView(
 
     }
         private fun drawAIOrb(
-        canvas: Canvas,
-        cx: Float,
-        cy: Float
-    ){
+    canvas: Canvas,
+    cx: Float,
+    cy: Float
+){
+
+    val pulse =
+        (System.currentTimeMillis() % 2000L)
+            .toFloat() / 2000f
 
 
-        val pulse =
-            (System.currentTimeMillis() % 2000L)
-                .toFloat() / 2000f
-
-
-
-        val size =
-            60f + pulse*15f
-
-
-
-        paint.style =
-            Paint.Style.FILL
+    val size =
+        60f + pulse * 15f
 
 
 
-        paint.color =
-            Color.argb(
-                90,
-                0,
-                170,
-                255
-            )
+    // Energy Ring
+
+    paint.style =
+        Paint.Style.STROKE
+
+
+    paint.strokeWidth =
+        8f
+
+
+    paint.color =
+        when(aiState){
+
+            AIState.LISTENING ->
+                Color.GREEN
+
+
+            AIState.THINKING ->
+                Color.YELLOW
+
+
+            AIState.SPEAKING ->
+                Color.CYAN
+
+
+            AIState.ERROR ->
+                Color.RED
+
+
+            else ->
+                Color.BLUE
+
+        }
 
 
 
-        // Outer AI Energy Ring
+    canvas.drawCircle(
 
-paint.style =
-    Paint.Style.STROKE
+        cx,
 
+        cy,
 
-paint.strokeWidth =
-    8f
+        size + 35f,
 
+        paint
 
-paint.color =
-    when(aiState){
-
-        AIState.LISTENING ->
-            Color.GREEN
-
-
-        AIState.THINKING ->
-            Color.YELLOW
-
-
-        AIState.SPEAKING ->
-            Color.CYAN
-
-
-        AIState.ERROR ->
-            Color.RED
-
-
-        else ->
-            Color.BLUE
-    }
-
-
-
-canvas.drawCircle(
-
-    cx,
-
-    cy,
-
-    size + 35f,
-
-    paint
-
-)
-
-
-
-
-
-// Main AI Orb
-
-paint.style =
-    Paint.Style.FILL
-
-
-paint.color =
-    Color.rgb(
-        0,
-        140,
-        255
     )
 
 
 
-canvas.drawCircle(
-
-    cx,
-
-    cy,
-
-    size,
-
-    paint
-
-)
 
 
+    // Glow outer
 
-        paint.color =
-            Color.rgb(
-                0,
-                140,
-                255
-            )
+    paint.style =
+        Paint.Style.FILL
 
 
+    paint.color =
+        Color.argb(
 
-        canvas.drawCircle(
+            80,
 
-            cx,
+            0,
 
-            cy,
+            170,
 
-            size,
-
-            paint
+            255
 
         )
 
 
+    canvas.drawCircle(
 
-        paint.textAlign =
-            Paint.Align.CENTER
+        cx,
 
+        cy,
 
-        paint.typeface =
-            Typeface.DEFAULT_BOLD
+        size + 20f,
 
+        paint
 
-        paint.color =
-            Color.WHITE
-
-
-
-        paint.textSize =
-            28f
+    )
 
 
 
-        canvas.drawText(
 
-            "AI",
 
-            cx,
+    // Main Orb
 
-            cy+8f,
+    paint.color =
+        Color.rgb(
 
-            paint
+            0,
+
+            140,
+
+            255
 
         )
 
 
+    canvas.drawCircle(
 
-        paint.textSize =
-            13f
+        cx,
 
+        cy,
 
+        size,
 
-        canvas.drawText(
+        paint
 
-            when(aiState){
-
-                AIState.LISTENING ->
-                    "LISTENING"
-
-
-                AIState.THINKING ->
-                    "THINKING"
+    )
 
 
-                AIState.SPEAKING ->
-                    "SPEAKING"
 
 
-                AIState.ERROR ->
-                    "ERROR"
+
+    // AI Text
+
+    paint.textAlign =
+        Paint.Align.CENTER
 
 
-                else ->
-                    "READY"
-
-            },
-
-            cx,
-
-            cy+35f,
-
-            paint
-
-        )
+    paint.typeface =
+        Typeface.DEFAULT_BOLD
 
 
-    }
+    paint.color =
+        Color.WHITE
 
+
+    paint.textSize =
+        28f
+
+
+
+    canvas.drawText(
+
+        "AI",
+
+        cx,
+
+        cy + 8f,
+
+        paint
+
+    )
+
+
+
+
+
+
+    // State Text
+
+    paint.textSize =
+        13f
+
+
+
+    paint.color =
+        when(aiState){
+
+            AIState.LISTENING ->
+                Color.GREEN
+
+
+            AIState.THINKING ->
+                Color.YELLOW
+
+
+            AIState.SPEAKING ->
+                Color.CYAN
+
+
+            AIState.ERROR ->
+                Color.RED
+
+
+            else ->
+                Color.WHITE
+
+        }
+
+
+
+    val stateText =
+
+        when(aiState){
+
+            AIState.IDLE ->
+                "آماده‌ام"
+
+
+            AIState.LISTENING ->
+                "گوش می‌کنم"
+
+
+            AIState.THINKING ->
+                "در حال پردازش"
+
+
+            AIState.SPEAKING ->
+                "در حال صحبت"
+
+
+            AIState.ERROR ->
+                "خطا"
+
+        }
+
+
+
+    canvas.drawText(
+
+        stateText,
+
+        cx,
+
+        cy + 35f,
+
+        paint
+
+    )
+
+}
 
 
 
