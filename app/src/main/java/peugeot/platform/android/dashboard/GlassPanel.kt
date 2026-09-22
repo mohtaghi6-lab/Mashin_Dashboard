@@ -1,16 +1,75 @@
 package peugeot.platform.android.dashboard
 
+
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
+import android.graphics.Typeface
+
 
 
 class GlassPanel {
 
 
-    private val paint =
-        Paint(Paint.ANTI_ALIAS_FLAG)
+
+    private val panelPaint =
+        Paint(
+            Paint.ANTI_ALIAS_FLAG
+        )
+
+
+
+    private val borderPaint =
+        Paint(
+            Paint.ANTI_ALIAS_FLAG
+        )
+
+
+
+    private val titlePaint =
+        Paint(
+            Paint.ANTI_ALIAS_FLAG
+        )
+
+
+
+    private val valuePaint =
+        Paint(
+            Paint.ANTI_ALIAS_FLAG
+        )
+
+
+
+
+
+
+    init {
+
+
+        titlePaint.textAlign =
+            Paint.Align.CENTER
+
+
+        titlePaint.typeface =
+            Typeface.DEFAULT_BOLD
+
+
+
+        valuePaint.textAlign =
+            Paint.Align.CENTER
+
+
+        valuePaint.typeface =
+            Typeface.DEFAULT_BOLD
+
+
+    }
+
+
+
+
+
 
 
 
@@ -22,89 +81,121 @@ class GlassPanel {
 
         title: String,
 
-        value: String
+        value: String,
+
+        active: Boolean = false
 
     ) {
 
 
-        // Glass background
 
-        paint.style =
+        // Glass body
+
+        panelPaint.style =
             Paint.Style.FILL
 
 
-        paint.color =
-            Color.argb(
-                80,
-                30,
-                50,
-                80
-            )
+
+        panelPaint.color =
+            if(active)
+
+                Color.argb(
+                    120,
+                    0,
+                    170,
+                    255
+                )
+
+            else
+
+                Color.argb(
+                    75,
+                    40,
+                    60,
+                    90
+                )
+
+
 
 
         canvas.drawRoundRect(
 
             rect,
 
-            25f,
+            30f,
 
-            25f,
+            30f,
 
-            paint
+            panelPaint
 
         )
 
 
 
-        // Blue edge
 
-        paint.style =
+
+
+
+        // Border
+
+        borderPaint.style =
             Paint.Style.STROKE
 
 
-        paint.strokeWidth =
-            2f
+
+        borderPaint.strokeWidth =
+            if(active) 3f else 2f
 
 
-        paint.color =
-            Color.argb(
-                180,
-                0,
-                170,
-                255
-            )
+
+        borderPaint.color =
+            if(active)
+
+                Color.argb(
+                    220,
+                    0,
+                    200,
+                    255
+                )
+
+            else
+
+                Color.argb(
+                    130,
+                    0,
+                    170,
+                    255
+                )
+
+
 
 
         canvas.drawRoundRect(
 
             rect,
 
-            25f,
+            30f,
 
-            25f,
+            30f,
 
-            paint
+            borderPaint
 
         )
 
 
 
-        paint.style =
-            Paint.Style.FILL
 
-
-        paint.textAlign =
-            Paint.Align.CENTER
 
 
 
         // Title
 
-        paint.color =
+        titlePaint.color =
             Color.LTGRAY
 
 
-        paint.textSize =
+
+        titlePaint.textSize =
             14f
 
 
@@ -115,22 +206,28 @@ class GlassPanel {
 
             rect.centerX(),
 
-            rect.centerY() - 8f,
+            rect.centerY() - 10f,
 
-            paint
+            titlePaint
 
         )
 
 
 
+
+
+
+
+
         // Value
 
-        paint.color =
+        valuePaint.color =
             Color.WHITE
 
 
-        paint.textSize =
-            20f
+
+        valuePaint.textSize =
+            24f
 
 
 
@@ -140,12 +237,13 @@ class GlassPanel {
 
             rect.centerX(),
 
-            rect.centerY() + 22f,
+            rect.centerY() + 25f,
 
-            paint
+            valuePaint
 
         )
 
     }
+
 
 }
