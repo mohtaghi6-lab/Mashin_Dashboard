@@ -344,19 +344,22 @@ class DashboardView(
             blue
 
 
+canvas.drawText(
 
-        canvas.drawText(
+    "INTELLIGENT LUXURY DASHBOARD",
 
-            "INTELLIGENT LUXURY DASHBOARD",
+    w/2f,
 
-            w/2f,
+    78f,
 
-            78f,
+    paint
 
-            paint
+)
 
-        )
-    private fun drawGlassPanel(
+}   // پایان drawHeader
+
+
+private fun drawGlassPanel(
 
         canvas: Canvas,
 
