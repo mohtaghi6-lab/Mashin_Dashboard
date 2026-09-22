@@ -1,15 +1,13 @@
 package peugeot.platform.android.dashboard
 
-
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.RectF
-import android.graphics.Typeface
+import android.content.Context
+import android.graphics.*
+import android.view.View
 
 
-
-class GlassPanel {
+class GlassPanel(
+    context: Context
+) : View(context) {
 
 
     private val paint =
@@ -17,39 +15,81 @@ class GlassPanel {
 
 
 
-    fun draw(
+    private val rect =
+        RectF()
 
-        canvas: Canvas,
 
-        rect: RectF,
 
-        title: String,
+    var cornerRadius =
+        35f
 
-        value: String
 
-    ) {
 
+    var glassAlpha =
+        90
+
+
+
+    override fun onDraw(
+        canvas: Canvas
+    ){
+
+        super.onDraw(canvas)
+
+
+
+        val w =
+            width.toFloat()
+
+
+        val h =
+            height.toFloat()
+
+
+
+        rect.set(
+
+            0f,
+
+            0f,
+
+            w,
+
+            h
+
+        )
+
+
+
+        // Glass background
 
         paint.style =
             Paint.Style.FILL
 
 
+
         paint.color =
             Color.argb(
-                80,
-                30,
-                50,
-                80
+
+                glassAlpha,
+
+                255,
+
+                255,
+
+                255
+
             )
+
 
 
         canvas.drawRoundRect(
 
             rect,
 
-            30f,
+            cornerRadius,
 
-            30f,
+            cornerRadius,
 
             paint
 
@@ -57,67 +97,95 @@ class GlassPanel {
 
 
 
+
+
+        // Glass border
+
         paint.style =
             Paint.Style.STROKE
+
 
 
         paint.strokeWidth =
             2f
 
 
+
         paint.color =
             Color.argb(
-                180,
+
+                120,
+
                 0,
+
                 170,
+
                 255
+
             )
+
 
 
         canvas.drawRoundRect(
 
             rect,
 
-            30f,
+            cornerRadius,
 
-            30f,
+            cornerRadius,
 
             paint
 
         )
 
+
+
+
+
+        // Inner glow
 
         paint.style =
             Paint.Style.FILL
 
 
-        paint.textAlign =
-            Paint.Align.CENTER
-
-
-        paint.typeface =
-            Typeface.DEFAULT_BOLD
-
 
         paint.color =
-            Color.WHITE
+            Color.argb(
+
+                35,
+
+                0,
+
+                170,
+
+                255
+
+            )
 
 
-        paint.textSize =
-            20f
 
+        canvas.drawRoundRect(
 
-        canvas.drawText(
+            RectF(
 
-            value,
+                8f,
 
-            rect.centerX(),
+                8f,
 
-            rect.centerY()+10f,
+                w-8f,
+
+                h-8f
+
+            ),
+
+            cornerRadius,
+
+            cornerRadius,
 
             paint
 
         )
+
 
     }
 
