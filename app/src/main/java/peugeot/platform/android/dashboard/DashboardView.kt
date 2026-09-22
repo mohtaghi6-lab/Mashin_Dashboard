@@ -18,20 +18,20 @@ class DashboardView(
 ) : View(context) {
 
 
-
     private val paint =
         Paint(Paint.ANTI_ALIAS_FLAG)
 
+
+    private val vehicleRenderer =
+        VehicleRenderer()
 
 
     private var data =
         VehicleData.demo()
 
 
-
     private var aiState =
         AIState.IDLE
-
 
 
     private var animation =
@@ -44,7 +44,6 @@ class DashboardView(
 
 
 
-
     private val blue =
         Color.rgb(
             0,
@@ -53,14 +52,12 @@ class DashboardView(
         )
 
 
-
     private val dark =
         Color.rgb(
             2,
             6,
             12
         )
-
 
 
 
@@ -77,7 +74,6 @@ class DashboardView(
 
 
 
-
     fun setAIState(
         value: AIState
     ) {
@@ -87,7 +83,6 @@ class DashboardView(
         invalidate()
 
     }
-
 
 
 
@@ -124,8 +119,7 @@ class DashboardView(
 
 
 
-
-        // Title
+        // Header
 
         paint.color =
             Color.WHITE
@@ -135,28 +129,69 @@ class DashboardView(
             26f
 
 
-
         canvas.drawText(
+
             "PEUGEOT VEHICLE OS",
+
             w / 2f,
+
             45f,
+
             paint
+
         )
 
 
 
+        // Vehicle center
 
-        // Speed gauge
+        vehicleRenderer.drawVehicle(
+
+            canvas,
+
+            w / 2f,
+
+            h * 0.38f,
+
+            1f
+
+        )
+
+
+
+        // Left gauge
 
         drawGauge(
 
             canvas,
 
-            w * 0.27f,
+            w * 0.25f,
 
-            h * 0.48f,
+            h * 0.45f,
 
-            130f,
+            120f,
+
+            data.rpm.toFloat(),
+
+            8000f,
+
+            "RPM"
+
+        )
+
+
+
+        // Right gauge
+
+        drawGauge(
+
+            canvas,
+
+            w * 0.75f,
+
+            h * 0.45f,
+
+            120f,
 
             data.speedKmh.toFloat(),
 
@@ -169,33 +204,7 @@ class DashboardView(
 
 
 
-
-        // RPM gauge
-
-        drawGauge(
-
-            canvas,
-
-            w * 0.73f,
-
-            h * 0.48f,
-
-            130f,
-
-            data.rpm.toFloat(),
-
-            8000f,
-
-            "RPM"
-
-        )
-
-
-
-
-
-
-        // Vehicle information
+        // Information cards
 
         drawInfo(
 
@@ -210,8 +219,7 @@ class DashboardView(
 
 
 
-
-        // AI Center
+        // AI core
 
         drawAIOrb(
 
@@ -219,10 +227,9 @@ class DashboardView(
 
             w / 2f,
 
-            h * 0.62f
+            h * 0.72f
 
         )
-
 
 
 
@@ -232,7 +239,6 @@ class DashboardView(
         postInvalidateOnAnimation()
 
     }
-
 
 
 
@@ -253,7 +259,7 @@ class DashboardView(
 
         max: Float,
 
-        title: String
+        label: String
 
     ) {
 
@@ -264,36 +270,40 @@ class DashboardView(
 
 
         paint.strokeWidth =
-            10f
+            12f
 
 
 
         paint.color =
             Color.rgb(
-                20,
-                50,
-                80
+                15,
+                45,
+                75
             )
 
 
-
         canvas.drawCircle(
+
             cx,
+
             cy,
+
             radius,
+
             paint
+
         )
+
+
+
+        val percent =
+            (value / max)
+                .coerceIn(0f,1f)
 
 
 
         paint.color =
             blue
-
-
-
-        val sweep =
-            270f *
-            (value / max)
 
 
 
@@ -318,15 +328,13 @@ class DashboardView(
 
             135f,
 
-            sweep,
+            270f * percent,
 
             false,
 
             paint
 
         )
-
-
 
 
 
@@ -339,9 +347,8 @@ class DashboardView(
             Color.WHITE
 
 
-
         paint.textSize =
-            48f
+            42f
 
 
 
@@ -351,13 +358,11 @@ class DashboardView(
 
             cx,
 
-            cy+10,
+            cy + 10,
 
             paint
 
         )
-
-
 
 
 
@@ -372,11 +377,11 @@ class DashboardView(
 
         canvas.drawText(
 
-            title,
+            label,
 
             cx,
 
-            cy+40,
+            cy + 38,
 
             paint
 
@@ -384,26 +389,25 @@ class DashboardView(
 
 
 
-
-
         // Needle
 
-
         val angle =
+
             Math.toRadians(
 
-                (135 + sweep).toDouble()
+                (135 + 270 * percent)
+                    .toDouble()
 
             )
 
 
 
+        paint.strokeWidth =
+            3f
+
+
         paint.color =
             Color.WHITE
-
-
-        paint.strokeWidth =
-            4f
 
 
 
@@ -413,17 +417,21 @@ class DashboardView(
 
             cy,
 
-            cx + cos(angle).toFloat()*radius,
+            cx +
+                    cos(angle).toFloat()
+                    *
+                    radius,
 
-            cy + sin(angle).toFloat()*radius,
+            cy +
+                    sin(angle).toFloat()
+                    *
+                    radius,
 
             paint
 
         )
 
     }
-
-
 
 
 
@@ -443,7 +451,7 @@ class DashboardView(
 
 
         paint.textSize =
-            18f
+            17f
 
 
 
@@ -454,11 +462,11 @@ class DashboardView(
 
         canvas.drawText(
 
-            "TEMP : ${data.engineTempC} °C",
+            "TEMP ${data.engineTempC}°C",
 
-            w/2,
+            w * 0.25f,
 
-            h*0.84f,
+            h * 0.93f,
 
             paint
 
@@ -468,11 +476,11 @@ class DashboardView(
 
         canvas.drawText(
 
-            "VOLT : 13.8 V",
+            "VOLT 13.8V",
 
-            w/2,
+            w * 0.5f,
 
-            h*0.88f,
+            h * 0.93f,
 
             paint
 
@@ -487,11 +495,11 @@ class DashboardView(
 
         canvas.drawText(
 
-            "CAN : OK     GPCU : OK",
+            "CAN / GPCU READY",
 
-            w/2,
+            w * 0.75f,
 
-            h*0.92f,
+            h * 0.93f,
 
             paint
 
@@ -499,8 +507,6 @@ class DashboardView(
 
 
     }
-
-
 
 
 
@@ -518,11 +524,11 @@ class DashboardView(
     ) {
 
 
+
         val pulse =
 
-            (sin(animation.toDouble())+1)
-
-                .toFloat()
+            ((sin(animation.toDouble()) + 1)
+                    .toFloat())
 
 
 
@@ -530,9 +536,8 @@ class DashboardView(
             Paint.Style.STROKE
 
 
-
         paint.strokeWidth =
-            4f
+            5f
 
 
 
@@ -557,7 +562,7 @@ class DashboardView(
 
             cy,
 
-            45+pulse*8,
+            45f + pulse * 8f,
 
             paint
 
@@ -573,24 +578,22 @@ class DashboardView(
         paint.color =
             when(aiState){
 
-
                 AIState.LISTENING ->
                     Color.CYAN
-
 
                 AIState.THINKING ->
                     Color.YELLOW
 
-
                 AIState.SPEAKING ->
                     Color.GREEN
 
+                AIState.ERROR ->
+                    Color.RED
 
                 else ->
                     blue
 
             }
-
 
 
 
@@ -600,12 +603,11 @@ class DashboardView(
 
             cy,
 
-            32f,
+            30f,
 
             paint
 
         )
-
 
 
 
@@ -624,14 +626,13 @@ class DashboardView(
 
             cx,
 
-            cy+7,
+            cy + 7,
 
             paint
 
         )
 
     }
-
 
 
 
@@ -647,26 +648,24 @@ class DashboardView(
 
 
         if(
-
             event.action ==
             MotionEvent.ACTION_UP
-
         ){
 
 
             val dx =
-                event.x-width/2f
+                event.x -
+                        width / 2f
 
 
             val dy =
-                event.y-height/2f
+                event.y -
+                        height / 2f
 
 
 
             if(
-
-                dx*dx+dy*dy < 10000
-
+                dx*dx + dy*dy < 10000
             ){
 
                 onAIOrbClick?.invoke()
@@ -676,10 +675,8 @@ class DashboardView(
         }
 
 
-
         return true
 
     }
-
 
 }
