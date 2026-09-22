@@ -415,24 +415,16 @@ class Dashboard3DView(
 
             canvas.drawLine(
 
-                cx +
-                    cos(angle).toFloat()
-                    * inner,
+                cx + cos(angle).toFloat() * inner
+
+               cy + sin(angle).toFloat() * inner
 
 
-                cy +
-                    sin(angle).toFloat()
-                    * inner,
+               cx + cos(angle).toFloat() * outer
 
 
-                cx +
-                    cos(angle).toFloat()
-                    * outer,
 
-
-                cy +
-                    sin(angle).toFloat()
-                    * outer,
+               cy + sin(angle).toFloat() * outer
 
 
                 paint
@@ -472,16 +464,9 @@ class Dashboard3DView(
             cy,
 
 
-            cx +
-                cos(needleAngle).toFloat()
-                *
-                (radius-35f),
+          cx + cos(needleAngle).toFloat() * (radius - 35f)
 
-
-            cy +
-                sin(needleAngle).toFloat()
-                *
-                (radius-35f),
+           cy + sin(needleAngle).toFloat() * (radius - 35f)
 
 
             paint
@@ -660,12 +645,8 @@ class Dashboard3DView(
 
 
         val pulse =
-            (
-                    System.currentTimeMillis()
-                    % 2000
-                    ).toFloat()
-                    /
-                    2000f
+    (System.currentTimeMillis() % 2000L)
+        .toFloat() / 2000f
 
 
 
