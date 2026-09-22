@@ -8,6 +8,7 @@ import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.widget.FrameLayout
+
 import peugeot.platform.android.ai.AIEngine
 import peugeot.platform.android.ai.AIState
 import peugeot.platform.android.ai.SpeechManager
@@ -24,7 +25,7 @@ import peugeot.platform.android.ui.ClockPageView
 import peugeot.platform.android.ui.ErrorScannerPageView
 import peugeot.platform.android.ui.HomePageView
 import peugeot.platform.android.ui.MainMenuController
-import peugeot.platform.android.ui.MainMenuPage
+import peuget.platform.android.ui.MainMenuPage
 import peugeot.platform.android.ui.MainMenuView
 import peugeot.platform.android.ui.MusicPageView
 import peugeot.platform.android.ui.NavigationPageView
@@ -41,8 +42,6 @@ class MainActivity : Activity() {
 
     private lateinit var displayBootManager: DisplayBootManager
 
-    private lateinit var swipeController: SwipeController
-
     private lateinit var root: FrameLayout
 
 
@@ -51,7 +50,6 @@ class MainActivity : Activity() {
     private lateinit var bmwMenu: BMWMenu
 
     private lateinit var homePageView: HomePageView
-
 
     private lateinit var clockPageView: ClockPageView
 
@@ -95,6 +93,7 @@ class MainActivity : Activity() {
     }
 
 
+
     override fun onCreate(
         savedInstanceState: Bundle?
     ) {
@@ -119,17 +118,35 @@ class MainActivity : Activity() {
             View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
 
 
+
         root =
             FrameLayout(this)
-                    root.addView(
+
+
+
+        /*
+         * BMW 3D DASHBOARD
+         */
+
+        dashboard =
+            Dashboard3DView(this).apply {
+
+                visibility = View.VISIBLE
+
+            }
+
+
+
+        root.addView(
             dashboard,
             fullScreenParams()
         )
 
 
 
+
         /*
-         * BMW LUXURY ROTARY MENU
+         * BMW ROTARY MENU
          */
 
         bmwMenu =
@@ -140,11 +157,12 @@ class MainActivity : Activity() {
                     View.VISIBLE
 
 
+
                 onMenuClick =
                     { item ->
 
 
-                        when(item){
+                        when(item) {
 
 
                             "CAR" ->
@@ -163,7 +181,7 @@ class MainActivity : Activity() {
 
                                 if(
                                     ::voiceManager.isInitialized
-                                ){
+                                ) {
 
                                     voiceManager
                                         .startContinuousListening()
@@ -190,11 +208,11 @@ class MainActivity : Activity() {
                                     MainMenuPage.SCAN
                                 )
 
-
                         }
 
 
                     }
+
 
             }
 
@@ -207,22 +225,17 @@ class MainActivity : Activity() {
 
 
 
-
-
         homePageView =
             HomePageView(this).apply {
 
+                visibility =
+                    View.GONE
 
                 setVehicleData(
                     VehicleData.demo()
                 )
 
-
-                visibility =
-                    View.GONE
-
             }
-
 
 
         root.addView(
@@ -232,18 +245,13 @@ class MainActivity : Activity() {
 
 
 
-
-
-
         clockPageView =
             ClockPageView(this).apply {
-
 
                 visibility =
                     View.GONE
 
             }
-
 
 
         root.addView(
@@ -253,17 +261,13 @@ class MainActivity : Activity() {
 
 
 
-
-
         carPageView =
             CarPageView(this).apply {
-
 
                 visibility =
                     View.GONE
 
             }
-
 
 
         root.addView(
@@ -273,18 +277,13 @@ class MainActivity : Activity() {
 
 
 
-
-
-
         musicPageView =
             MusicPageView(this).apply {
-
 
                 visibility =
                     View.GONE
 
             }
-
 
 
         root.addView(
@@ -294,18 +293,13 @@ class MainActivity : Activity() {
 
 
 
-
-
-
         navigationPageView =
             NavigationPageView(this).apply {
-
 
                 visibility =
                     View.GONE
 
             }
-
 
 
         root.addView(
@@ -315,18 +309,13 @@ class MainActivity : Activity() {
 
 
 
-
-
-
         callPageView =
             CallPageView(this).apply {
-
 
                 visibility =
                     View.GONE
 
             }
-
 
 
         root.addView(
@@ -336,18 +325,13 @@ class MainActivity : Activity() {
 
 
 
-
-
-
         errorScannerPageView =
             ErrorScannerPageView(this).apply {
-
 
                 visibility =
                     View.GONE
 
             }
-
 
 
         root.addView(
@@ -357,18 +341,13 @@ class MainActivity : Activity() {
 
 
 
-
-
-
         vehicleSettingsPageView =
             VehicleSettingsPageView(this).apply {
-
 
                 visibility =
                     View.GONE
 
             }
-
 
 
         root.addView(
@@ -378,22 +357,17 @@ class MainActivity : Activity() {
 
 
 
-
-
         mainMenuView =
             MainMenuView(this).apply {
 
+                visibility =
+                    View.GONE
 
                 setPage(
                     MainMenuPage.HOME
                 )
 
-
-                visibility =
-                    View.GONE
-
             }
-
 
 
         root.addView(
@@ -403,13 +377,11 @@ class MainActivity : Activity() {
 
 
 
-
         setContentView(
             root
         )
-        /*
-         * DISPLAY BOOT MANAGER
-         */
+
+
 
         displayBootManager =
             DisplayBootManager()
@@ -418,13 +390,6 @@ class MainActivity : Activity() {
         displayBootManager.onWindowReady()
 
 
-
-
-
-
-        /*
-         * ERROR SCANNER
-         */
 
         errorScannerEngine =
             ErrorScannerEngine()
@@ -436,13 +401,6 @@ class MainActivity : Activity() {
         )
 
 
-
-
-
-
-        /*
-         * VEHICLE DATA
-         */
 
         vehicleDataController =
             VehicleDataController { data ->
@@ -462,14 +420,8 @@ class MainActivity : Activity() {
             }
 
 
-
         vehicleDataController.useDemoMode()
-
-
-
-
-
-
+        
         /*
          * BMW MENU CONTROLLER
          */
@@ -494,8 +446,6 @@ class MainActivity : Activity() {
 
 
 
-
-
         /*
          * AI ENGINE
          */
@@ -506,10 +456,8 @@ class MainActivity : Activity() {
 
 
 
-
-
         /*
-         * SPEECH MANAGER
+         * SPEECH
          */
 
         speechManager =
@@ -524,28 +472,14 @@ class MainActivity : Activity() {
                     runOnUiThread {
 
 
-                        if(
-                            ::dashboard.isInitialized
-                        ){
-
-                            dashboard.setAIState(
-                                state
-                            )
-
-                        }
+                        dashboard.setAIState(
+                            state
+                        )
 
 
-
-                        if(
-                            ::homePageView.isInitialized
-                        ){
-
-                            homePageView.setAIState(
-                                state
-                            )
-
-                        }
-
+                        homePageView.setAIState(
+                            state
+                        )
 
 
                     }
@@ -559,8 +493,6 @@ class MainActivity : Activity() {
 
 
 
-
-
         /*
          * VOICE AI
          */
@@ -568,17 +500,13 @@ class MainActivity : Activity() {
         voiceManager =
             VoiceManager(
 
-
                 context = this,
-
 
 
                 onResult = { text ->
 
 
-
                     runOnUiThread {
-
 
 
                         dashboard.setAIState(
@@ -586,19 +514,15 @@ class MainActivity : Activity() {
                         )
 
 
-
                         aiEngine.process(
 
                             text = text,
 
 
-
                             onResponse = { answer ->
 
 
-
                                 runOnUiThread {
-
 
 
                                     speechManager.speak(
@@ -612,9 +536,7 @@ class MainActivity : Activity() {
                             },
 
 
-
                             onError = {
-
 
 
                                 runOnUiThread {
@@ -623,7 +545,6 @@ class MainActivity : Activity() {
                                     dashboard.setAIState(
                                         AIState.ERROR
                                     )
-
 
 
                                     speechManager.speak(
@@ -635,9 +556,7 @@ class MainActivity : Activity() {
                                         .resumeContinuousListening()
 
 
-
                                 }
-
 
 
                             }
@@ -646,9 +565,7 @@ class MainActivity : Activity() {
                         )
 
 
-
                     }
-
 
 
                 },
@@ -658,9 +575,7 @@ class MainActivity : Activity() {
                 onStateChanged = { state ->
 
 
-
                     runOnUiThread {
-
 
 
                         dashboard.setAIState(
@@ -668,15 +583,12 @@ class MainActivity : Activity() {
                         )
 
 
-
                         homePageView.setAIState(
                             state
                         )
 
 
-
                     }
-
 
 
                 }
@@ -686,17 +598,14 @@ class MainActivity : Activity() {
 
 
 
-
-
-
-
-              /*
-         * شروع خودکار Voice AI
+        /*
+         * AUTO VOICE START
          */
 
         startVoiceSystem()
 
-    }   // پایان onCreate()
+
+    }
 
 
 
@@ -730,9 +639,6 @@ class MainActivity : Activity() {
 
 
 
-
-
-
     private fun fullScreenParams():
             FrameLayout.LayoutParams {
 
@@ -751,13 +657,142 @@ class MainActivity : Activity() {
 
 
 
+    private fun startVoiceSystem() {
+
+
+        if (
+
+            checkSelfPermission(
+                Manifest.permission.RECORD_AUDIO
+            ) == PackageManager.PERMISSION_GRANTED
+
+        ) {
+
+
+            if(
+                ::voiceManager.isInitialized
+            ) {
+
+
+                voiceManager
+                    .startContinuousListening()
+
+
+            }
+
+
+        }
+        else {
+
+
+            pendingVoiceStart = true
+
+
+            requestPermissions(
+
+                arrayOf(
+                    Manifest.permission.RECORD_AUDIO
+                ),
+
+                AUDIO_PERMISSION_REQUEST
+
+            )
+
+
+        }
+
+
+    }
+
+
+
+
+
+    override fun onRequestPermissionsResult(
+
+        requestCode: Int,
+
+        permissions: Array<out String>,
+
+        grantResults: IntArray
+
+    ) {
+
+
+        super.onRequestPermissionsResult(
+
+            requestCode,
+
+            permissions,
+
+            grantResults
+
+        )
+
+
+
+        if(
+
+            requestCode ==
+            AUDIO_PERMISSION_REQUEST
+
+        ) {
+
+
+
+            if(
+
+                grantResults.isNotEmpty() &&
+
+                grantResults[0] ==
+                PackageManager.PERMISSION_GRANTED
+
+            ) {
+
+
+
+                if(
+
+                    ::voiceManager.isInitialized &&
+
+                    pendingVoiceStart
+
+                ) {
+
+
+
+                    pendingVoiceStart =
+                        false
+
+
+
+                    voiceManager
+                        .startContinuousListening()
+
+
+
+                }
+
+
+            }
+
+
+        }
+
+
+    }
+
+
 
 
 
 
     private fun showPage(
+
         page: MainMenuPage
+
     ) {
+
 
 
         dashboard.visibility =
@@ -803,12 +838,10 @@ class MainActivity : Activity() {
 
 
 
-
         when(page) {
 
 
             MainMenuPage.HOME -> {
-
 
                 dashboard.visibility =
                     View.VISIBLE
@@ -817,50 +850,38 @@ class MainActivity : Activity() {
                 bmwMenu.visibility =
                     View.VISIBLE
 
-
             }
-
 
 
 
             MainMenuPage.CLOCK -> {
 
-
                 clockPageView.visibility =
                     View.VISIBLE
 
-
             }
-
 
 
 
             MainMenuPage.CAR -> {
 
-
                 carPageView.visibility =
                     View.VISIBLE
 
-
             }
-
 
 
 
             MainMenuPage.MUSIC -> {
 
-
                 musicPageView.visibility =
                     View.VISIBLE
-
 
             }
 
 
 
-
             MainMenuPage.NAVIGATION -> {
-
 
                 navigationPageView.visibility =
                     View.VISIBLE
@@ -868,26 +889,20 @@ class MainActivity : Activity() {
 
                 navigationPageView.refresh()
 
-
             }
-
 
 
 
             MainMenuPage.CALL -> {
 
-
                 callPageView.visibility =
                     View.VISIBLE
-
 
             }
 
 
 
-
             MainMenuPage.SCAN -> {
-
 
                 errorScannerPageView.visibility =
                     View.VISIBLE
@@ -895,18 +910,14 @@ class MainActivity : Activity() {
 
                 errorScannerPageView.startScan()
 
-
             }
-
 
 
 
             MainMenuPage.SETTINGS -> {
 
-
                 vehicleSettingsPageView.visibility =
                     View.VISIBLE
-
 
             }
 
@@ -915,9 +926,6 @@ class MainActivity : Activity() {
 
 
     }
-
-
-
 
 
 
@@ -926,43 +934,12 @@ class MainActivity : Activity() {
     override fun onBackPressed() {
 
 
-        if(
-
-            clockPageView.visibility == View.VISIBLE ||
-
-            carPageView.visibility == View.VISIBLE ||
-
-            musicPageView.visibility == View.VISIBLE ||
-
-            navigationPageView.visibility == View.VISIBLE ||
-
-            callPageView.visibility == View.VISIBLE ||
-
-            errorScannerPageView.visibility == View.VISIBLE ||
-
-            vehicleSettingsPageView.visibility == View.VISIBLE
-
-        ){
-
-
-            showPage(
-                MainMenuPage.HOME
-            )
-
-
-        }
-        else {
-
-
-            super.onBackPressed()
-
-
-        }
+        showPage(
+            MainMenuPage.HOME
+        )
 
 
     }
-
-
 
 
 
@@ -974,7 +951,7 @@ class MainActivity : Activity() {
 
         if(
             ::voiceManager.isInitialized
-        ){
+        ) {
 
             voiceManager.destroy()
 
@@ -982,10 +959,9 @@ class MainActivity : Activity() {
 
 
 
-
         if(
             ::speechManager.isInitialized
-        ){
+        ) {
 
             speechManager.destroy()
 
@@ -993,10 +969,9 @@ class MainActivity : Activity() {
 
 
 
-
         if(
             ::displayBootManager.isInitialized
-        ){
+        ) {
 
             displayBootManager.destroy()
 
@@ -1004,11 +979,9 @@ class MainActivity : Activity() {
 
 
 
-
-
         if(
             CANReceiver.isConnected()
-        ){
+        ) {
 
 
             CANReceiver.stopReceiving()
