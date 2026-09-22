@@ -413,23 +413,19 @@ class Dashboard3DView(
 
 
 
-            canvas.drawLine(
+           canvas.drawLine(
 
-                cx + cos(angle).toFloat() * inner
+    cx + cos(angle).toFloat() * inner,
 
-               cy + sin(angle).toFloat() * inner
+    cy + sin(angle).toFloat() * inner,
 
+    cx + cos(angle).toFloat() * outer,
 
-               cx + cos(angle).toFloat() * outer
+    cy + sin(angle).toFloat() * outer,
 
+    paint
 
-
-               cy + sin(angle).toFloat() * outer
-
-
-                paint
-
-            )
+)
 
 
         }
@@ -457,21 +453,19 @@ class Dashboard3DView(
 
 
 
-        canvas.drawLine(
+       canvas.drawLine(
 
-            cx,
+    cx,
 
-            cy,
+    cy,
 
+    cx + cos(needleAngle).toFloat() * (radius - 35f),
 
-          cx + cos(needleAngle).toFloat() * (radius - 35f)
+    cy + sin(needleAngle).toFloat() * (radius - 35f),
 
-           cy + sin(needleAngle).toFloat() * (radius - 35f)
+    paint
 
-
-            paint
-
-        )
+)
 
 
 
