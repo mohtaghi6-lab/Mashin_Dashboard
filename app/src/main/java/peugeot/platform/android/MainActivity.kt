@@ -8,7 +8,7 @@ import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.widget.FrameLayout
-
+import peugeot.platform.android.ui.StartupView
 import peugeot.platform.android.ai.AIEngine
 import peugeot.platform.android.ai.AIState
 import peugeot.platform.android.ai.SpeechManager
@@ -40,7 +40,7 @@ class MainActivity : Activity() {
 
 
     private lateinit var displayBootManager: DisplayBootManager
-
+private lateinit var startupView: StartupView
     private lateinit var root: FrameLayout
 
 
@@ -376,10 +376,33 @@ class MainActivity : Activity() {
 
 
 
-        setContentView(
-            root
+       setContentView(root)
+startupView =
+    StartupView(this)
+
+
+root.addView(
+    startupView,
+    fullScreenParams()
+)
+
+
+
+startupView.onFinished = {
+
+    runOnUiThread {
+
+        startupView.visibility =
+            View.GONE
+
+
+        showPage(
+            MainMenuPage.HOME
         )
 
+    }
+
+}
 
 
         displayBootManager =
@@ -794,12 +817,12 @@ class MainActivity : Activity() {
 
 
 
-        dashboard.visibility =
-            View.GONE
+       dashboard.visibility =
+    View.GONE
 
 
-        homePageView.visibility =
-            View.GONE
+bmwMenu.visibility =
+    View.GONE
 
 
         bmwMenu.visibility =
