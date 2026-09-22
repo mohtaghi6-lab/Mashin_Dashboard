@@ -6,87 +6,107 @@ import kotlin.math.abs
 
 
 class SwipeController(
-    private val view: View,
     private val onSwipeRight: () -> Unit,
     private val onSwipeLeft: () -> Unit
-) {
-
-
-    private var downX = 0f
-    private var downY = 0f
-
-
-    private val threshold = 120f
+) : View.OnTouchListener {
 
 
 
-    fun attach() {
+    private var downX =
+        0f
 
 
-        view.setOnTouchListener { _, event ->
-
-
-            when(event.action) {
-
-
-                MotionEvent.ACTION_DOWN -> {
-
-                    downX = event.x
-                    downY = event.y
-
-                    true
-                }
-
-
-                MotionEvent.ACTION_UP -> {
-
-
-                    val diffX =
-                        event.x - downX
-
-
-                    val diffY =
-                        event.y - downY
+    private var downY =
+        0f
 
 
 
-                    if (
-                        abs(diffX) >
-                        abs(diffY)
-                    ) {
+    private val threshold =
+        120f
 
 
-                        if (
-                            diffX >
-                            threshold
-                        ) {
-
-                            onSwipeRight()
-
-                        }
 
 
-                        else if (
-                            diffX <
-                            -threshold
-                        ) {
 
-                            onSwipeLeft()
+    override fun onTouch(
+        v: View?,
+        event: MotionEvent
+    ): Boolean {
 
-                        }
+
+
+        when(event.action){
+
+
+
+            MotionEvent.ACTION_DOWN -> {
+
+
+                downX =
+                    event.x
+
+
+                downY =
+                    event.y
+
+
+                return true
+
+            }
+
+
+
+
+            MotionEvent.ACTION_UP -> {
+
+
+                val diffX =
+                    event.x - downX
+
+
+
+                val diffY =
+                    event.y - downY
+
+
+
+
+                if(
+                    abs(diffX) >
+                    abs(diffY)
+                ){
+
+
+                    if(
+                        diffX > threshold
+                    ){
+
+                        onSwipeRight()
+
+                    }
+                    else if(
+                        diffX < -threshold
+                    ){
+
+                        onSwipeLeft()
 
                     }
 
 
-                    true
                 }
 
 
-                else -> true
+
+                return true
+
             }
 
         }
 
+
+        return false
+
     }
+
 
 }
