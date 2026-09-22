@@ -58,7 +58,6 @@ class Dashboard3DView(
 
 
 
-
     fun setAIState(
         state: AIState
     ){
@@ -69,8 +68,6 @@ class Dashboard3DView(
         invalidate()
 
     }
-
-
 
 
 
@@ -111,7 +108,7 @@ class Dashboard3DView(
             canvas,
             w * 0.25f,
             h * 0.50f,
-            min(w,h)*0.20f,
+            min(w,h) * 0.20f,
             vehicleData.speedKmh.toFloat(),
             240f,
             "KM/H"
@@ -123,7 +120,7 @@ class Dashboard3DView(
             canvas,
             w * 0.75f,
             h * 0.50f,
-            min(w,h)*0.20f,
+            min(w,h) * 0.20f,
             vehicleData.rpm.toFloat(),
             8000f,
             "RPM"
@@ -133,85 +130,26 @@ class Dashboard3DView(
 
         drawCenterSpeed(
             canvas,
-            w/2f,
-            h*0.43f
+            w / 2f,
+            h * 0.43f
         )
 
 
 
         drawAIOrb(
             canvas,
-            w/2f,
-            h*0.70f
+            w / 2f,
+            h * 0.70f
         )
 
-private fun drawAIWave(
-    canvas: Canvas,
-    cx: Float,
-    cy: Float
-){
 
-    val time =
-        System.currentTimeMillis() % 1500L
+        drawAIWave(
+            canvas,
+            w / 2f,
+            h * 0.70f
+        )
 
 
-    val wave =
-        time.toFloat() / 1500f
-
-
-    val color =
-        when(aiState){
-
-            AIState.LISTENING ->
-                Color.GREEN
-
-            AIState.THINKING ->
-                Color.YELLOW
-
-            AIState.SPEAKING ->
-                Color.CYAN
-
-            AIState.ERROR ->
-                Color.RED
-
-            else ->
-                Color.BLUE
-
-        }
-
-
-    paint.style =
-        Paint.Style.STROKE
-
-
-    paint.strokeWidth =
-        4f
-
-
-    paint.color =
-        color
-
-
-    paint.alpha =
-        180
-
-
-    val radius =
-        90f + wave * 70f
-
-
-    canvas.drawCircle(
-        cx,
-        cy,
-        radius,
-        paint
-    )
-
-
-    paint.alpha =
-        255
-
-}
 
         drawCards(
             canvas,
@@ -225,11 +163,7 @@ private fun drawAIWave(
             40L
         )
 
-
     }
-
-
-
 
 
 
@@ -239,7 +173,6 @@ private fun drawAIWave(
         w: Float,
         h: Float
     ){
-
 
         paint.style =
             Paint.Style.FILL
@@ -297,398 +230,240 @@ private fun drawAIWave(
             )
 
 
+
         canvas.drawCircle(
 
-            w/2f,
+            w / 2f,
 
-            h/2f,
+            h / 2f,
 
-            min(w,h)*0.45f,
+            min(w,h) * 0.45f,
 
             paint
 
         )
-
 
     }
-        private fun drawHeader(
-        canvas: Canvas,
-        w: Float
-    ){
+    private fun drawHeader(
+    canvas: Canvas,
+    w: Float
+){
+
+    paint.style =
+        Paint.Style.FILL
 
 
-        paint.style =
-            Paint.Style.FILL
+    paint.color =
+        Color.argb(
+            80,
+            255,
+            255,
+            255
+        )
 
 
-        paint.color =
-            Color.argb(
-                80,
-                255,
-                255,
-                255
+
+    canvas.drawRoundRect(
+
+        RectF(
+            40f,
+            25f,
+            w - 40f,
+            95f
+        ),
+
+        35f,
+        35f,
+
+        paint
+
+    )
+
+
+
+    paint.textAlign =
+        Paint.Align.CENTER
+
+
+    paint.typeface =
+        Typeface.DEFAULT_BOLD
+
+
+    paint.textSize =
+        26f
+
+
+    paint.color =
+        Color.WHITE
+
+
+
+    canvas.drawText(
+
+        "PEUGEOT  •  VEHICLE OS",
+
+        w / 2f,
+
+        68f,
+
+        paint
+
+    )
+
+}
+
+
+
+
+private fun drawGauge(
+    canvas: Canvas,
+    cx: Float,
+    cy: Float,
+    radius: Float,
+    value: Float,
+    maxValue: Float,
+    unit: String
+){
+
+    val progress =
+        (value / maxValue)
+            .coerceIn(
+                0f,
+                1f
             )
 
 
 
-        canvas.drawRoundRect(
+    val rect =
+        RectF(
 
-            RectF(
-                40f,
-                25f,
-                w-40f,
-                95f
-            ),
+            cx - radius,
+            cy - radius,
 
-            35f,
-            35f,
-
-            paint
+            cx + radius,
+            cy + radius
 
         )
 
 
 
-        paint.textAlign =
-            Paint.Align.CENTER
+    paint.style =
+        Paint.Style.STROKE
 
 
-        paint.typeface =
-            Typeface.DEFAULT_BOLD
-
-
-        paint.textSize =
-            26f
-
-
-        paint.color =
-            Color.WHITE
+    paint.strokeCap =
+        Paint.Cap.ROUND
 
 
 
-        canvas.drawText(
+    // glass ring
 
-            "PEUGEOT  •  VEHICLE OS",
+    paint.strokeWidth =
+        25f
 
-            w/2f,
 
-            68f,
-
-            paint
-
+    paint.color =
+        Color.argb(
+            80,
+            120,
+            200,
+            255
         )
 
 
 
-    }
+    canvas.drawArc(
 
+        rect,
 
+        135f,
 
+        270f,
 
+        false,
 
+        paint
 
+    )
 
-    private fun drawGauge(
-        canvas: Canvas,
-        cx: Float,
-        cy: Float,
-        radius: Float,
-        value: Float,
-        maxValue: Float,
-        unit: String
-    ){
 
 
-        val progress =
-            (value/maxValue)
-                .coerceIn(
-                    0f,
-                    1f
-                )
 
+    // progress
 
+    paint.strokeWidth =
+        9f
 
-        val rect =
-            RectF(
 
-                cx-radius,
-                cy-radius,
+    paint.color =
+        blue
 
-                cx+radius,
-                cy+radius
 
-            )
 
+    canvas.drawArc(
 
+        rect,
 
-        paint.style =
-            Paint.Style.STROKE
+        135f,
 
+        270f * progress,
 
+        false,
 
-        paint.strokeCap =
-            Paint.Cap.ROUND
+        paint
 
+    )
 
 
-        // outer glass ring
 
-        paint.strokeWidth =
-            25f
 
 
-        paint.color =
-            Color.argb(
-                80,
-                120,
-                200,
-                255
-            )
+    // ticks
 
+    paint.strokeWidth =
+        3f
 
-        canvas.drawArc(
 
-            rect,
+    paint.color =
+        Color.WHITE
 
-            135f,
 
-            270f,
 
-            false,
+    for(i in 0..36){
 
-            paint
 
-        )
-
-
-
-
-
-        // blue progress
-
-        paint.strokeWidth =
-            9f
-
-
-        paint.color =
-            blue
-
-
-
-        canvas.drawArc(
-
-            rect,
-
-            135f,
-
-            270f*progress,
-
-            false,
-
-            paint
-
-        )
-
-
-
-
-
-
-
-        // ticks
-
-        paint.strokeWidth =
-            3f
-
-
-        paint.color =
-            Color.WHITE
-
-
-
-        for(
-            i in 0..36
-        ){
-
-
-            val angle =
-                Math.toRadians(
-
-                    135.0 +
-                    (i*7.5)
-
-                )
-
-
-
-            val r1 =
-                radius-18f
-
-
-
-            val r2 =
-                if(i%5==0)
-
-                    radius+5f
-
-                else
-
-                    radius-5f
-
-
-
-
-            canvas.drawLine(
-
-                cx + cos(angle).toFloat()*r1,
-
-                cy + sin(angle).toFloat()*r1,
-
-                cx + cos(angle).toFloat()*r2,
-
-                cy + sin(angle).toFloat()*r2,
-
-                paint
-
-            )
-
-
-        }
-
-
-
-
-
-
-        // needle
-
-        val needle =
+        val angle =
             Math.toRadians(
-
-                135.0 +
-                270.0*progress
-
+                135.0 + i * 7.5
             )
 
 
 
-        paint.strokeWidth =
-            5f
+        val r1 =
+            radius - 18f
 
 
-        paint.color =
-            Color.WHITE
+        val r2 =
+            if(i % 5 == 0)
+                radius + 5f
+            else
+                radius - 5f
 
 
 
         canvas.drawLine(
 
-            cx,
+            cx + cos(angle).toFloat() * r1,
 
-            cy,
+            cy + sin(angle).toFloat() * r1,
 
-            cx + cos(needle).toFloat() *
-                    (radius-35f),
+            cx + cos(angle).toFloat() * r2,
 
-
-            cy + sin(needle).toFloat() *
-                    (radius-35f),
-
+            cy + sin(angle).toFloat() * r2,
 
             paint
 
         )
-
-
-
-
-
-
-        // center
-
-        paint.style =
-            Paint.Style.FILL
-
-
-        paint.color =
-            blue
-
-
-
-        canvas.drawCircle(
-
-            cx,
-
-            cy,
-
-            12f,
-
-            paint
-
-        )
-
-
-
-
-
-
-        // value
-
-        paint.textAlign =
-            Paint.Align.CENTER
-
-
-        paint.typeface =
-            Typeface.DEFAULT_BOLD
-
-
-        paint.textSize =
-            radius*0.25f
-
-
-
-        paint.color =
-            Color.WHITE
-
-
-
-        canvas.drawText(
-
-            value.toInt().toString(),
-
-            cx,
-
-            cy+25f,
-
-            paint
-
-        )
-
-
-
-
-        paint.textSize =
-            18f
-
-
-
-        paint.color =
-            Color.CYAN
-
-
-
-        canvas.drawText(
-
-            unit,
-
-            cx,
-
-            cy+radius*0.55f,
-
-            paint
-
-        )
-
 
     }
 
@@ -696,72 +471,191 @@ private fun drawAIWave(
 
 
 
+    // needle
 
-
-    private fun drawCenterSpeed(
-        canvas: Canvas,
-        cx: Float,
-        cy: Float
-    ){
-
-
-        paint.textAlign =
-            Paint.Align.CENTER
-
-
-        paint.typeface =
-            Typeface.DEFAULT_BOLD
-
-
-        paint.color =
-            Color.WHITE
-
-
-
-        paint.textSize =
-            72f
-
-
-
-        canvas.drawText(
-
-            vehicleData.speedKmh.toString(),
-
-            cx,
-
-            cy,
-
-            paint
-
+    val needle =
+        Math.toRadians(
+            135.0 + 270.0 * progress
         )
 
 
 
-        paint.textSize =
-            18f
+    paint.strokeWidth =
+        5f
+
+
+    paint.color =
+        Color.WHITE
 
 
 
-        paint.color =
-            blue
+    canvas.drawLine(
+
+        cx,
+
+        cy,
+
+        cx + cos(needle).toFloat()
+                * (radius - 35f),
+
+        cy + sin(needle).toFloat()
+                * (radius - 35f),
+
+        paint
+
+    )
 
 
 
-        canvas.drawText(
-
-            "CURRENT SPEED",
-
-            cx,
-
-            cy+35f,
-
-            paint
-
-        )
 
 
-    }
-        private fun drawAIOrb(
+    // center
+
+    paint.style =
+        Paint.Style.FILL
+
+
+    paint.color =
+        blue
+
+
+
+    canvas.drawCircle(
+
+        cx,
+
+        cy,
+
+        12f,
+
+        paint
+
+    )
+
+
+
+
+
+    // value
+
+    paint.textAlign =
+        Paint.Align.CENTER
+
+
+    paint.typeface =
+        Typeface.DEFAULT_BOLD
+
+
+    paint.textSize =
+        radius * 0.25f
+
+
+    paint.color =
+        Color.WHITE
+
+
+
+    canvas.drawText(
+
+        value.toInt().toString(),
+
+        cx,
+
+        cy + 25f,
+
+        paint
+
+    )
+
+
+
+    paint.textSize =
+        18f
+
+
+    paint.color =
+        Color.CYAN
+
+
+
+    canvas.drawText(
+
+        unit,
+
+        cx,
+
+        cy + radius * 0.55f,
+
+        paint
+
+    )
+
+}
+private fun drawCenterSpeed(
+    canvas: Canvas,
+    cx: Float,
+    cy: Float
+){
+
+    paint.textAlign =
+        Paint.Align.CENTER
+
+
+    paint.typeface =
+        Typeface.DEFAULT_BOLD
+
+
+    paint.color =
+        Color.WHITE
+
+
+    paint.textSize =
+        72f
+
+
+
+    canvas.drawText(
+
+        vehicleData.speedKmh.toString(),
+
+        cx,
+
+        cy,
+
+        paint
+
+    )
+
+
+
+    paint.textSize =
+        18f
+
+
+    paint.color =
+        blue
+
+
+
+    canvas.drawText(
+
+        "CURRENT SPEED",
+
+        cx,
+
+        cy + 35f,
+
+        paint
+
+    )
+
+}
+
+
+
+
+
+private fun drawAIOrb(
     canvas: Canvas,
     cx: Float,
     cy: Float
@@ -772,12 +666,12 @@ private fun drawAIWave(
             .toFloat() / 2000f
 
 
+
     val size =
         60f + pulse * 15f
 
 
 
-    // Energy Ring
 
     paint.style =
         Paint.Style.STROKE
@@ -829,7 +723,7 @@ private fun drawAIWave(
 
 
 
-    // Glow outer
+    // Glow
 
     paint.style =
         Paint.Style.FILL
@@ -849,6 +743,7 @@ private fun drawAIWave(
         )
 
 
+
     canvas.drawCircle(
 
         cx,
@@ -865,7 +760,7 @@ private fun drawAIWave(
 
 
 
-    // Main Orb
+    // Orb
 
     paint.color =
         Color.rgb(
@@ -877,6 +772,7 @@ private fun drawAIWave(
             255
 
         )
+
 
 
     canvas.drawCircle(
@@ -894,8 +790,6 @@ private fun drawAIWave(
 
 
 
-
-    // AI Text
 
     paint.textAlign =
         Paint.Align.CENTER
@@ -930,11 +824,71 @@ private fun drawAIWave(
 
 
 
-
-    // State Text
-
     paint.textSize =
         13f
+
+
+
+    canvas.drawText(
+
+        when(aiState){
+
+            AIState.IDLE ->
+                "آماده‌ام"
+
+
+            AIState.LISTENING ->
+                "گوش می‌کنم"
+
+
+            AIState.THINKING ->
+                "در حال پردازش"
+
+
+            AIState.SPEAKING ->
+                "در حال صحبت"
+
+
+            AIState.ERROR ->
+                "خطا"
+
+        },
+
+        cx,
+
+        cy + 35f,
+
+        paint
+
+    )
+
+}
+
+
+
+
+
+private fun drawAIWave(
+    canvas: Canvas,
+    cx: Float,
+    cy: Float
+){
+
+    val time =
+        System.currentTimeMillis() % 1500L
+
+
+    val wave =
+        time.toFloat() / 1500f
+
+
+
+    paint.style =
+        Paint.Style.STROKE
+
+
+    paint.strokeWidth =
+        4f
 
 
 
@@ -958,50 +912,33 @@ private fun drawAIWave(
 
 
             else ->
-                Color.WHITE
+                Color.BLUE
 
         }
 
 
 
-    val stateText =
-
-        when(aiState){
-
-            AIState.IDLE ->
-                "آماده‌ام"
-
-
-            AIState.LISTENING ->
-                "گوش می‌کنم"
-
-
-            AIState.THINKING ->
-                "در حال پردازش"
-
-
-            AIState.SPEAKING ->
-                "در حال صحبت"
-
-
-            AIState.ERROR ->
-                "خطا"
-
-        }
+    paint.alpha =
+        180
 
 
 
-    canvas.drawText(
-
-        stateText,
+    canvas.drawCircle(
 
         cx,
 
-        cy + 35f,
+        cy,
+
+        90f + wave * 70f,
 
         paint
 
     )
+
+
+
+    paint.alpha =
+        255
 
 }
 
@@ -1009,204 +946,181 @@ private fun drawAIWave(
 
 
 
+private fun drawCards(
+    canvas: Canvas,
+    w: Float,
+    h: Float
+){
 
+    val items =
+        arrayOf(
 
-    private fun drawCards(
-        canvas: Canvas,
-        w: Float,
-        h: Float
-    ){
+            "CAR",
+            "MUSIC",
+            "NAVI",
+            "PHONE",
+            "SCAN"
 
-
-        val items =
-            arrayOf(
-
-                "CAR",
-
-                "MUSIC",
-
-                "NAVI",
-
-                "PHONE",
-
-                "SCAN"
-
-            )
+        )
 
 
 
-        val width =
-            120f
+    val width =
+        120f
 
 
 
-        val start =
-            (w -
-                    items.size*width
-                    )/2f
+    val start =
+        (w - items.size * width) / 2f
 
 
 
 
-
-        for(
-            i in items.indices
-        ){
+    for(i in items.indices){
 
 
-            val x =
-                start+i*width
+        val x =
+            start + i * width
 
 
 
-            paint.style =
-                Paint.Style.FILL
+        paint.style =
+            Paint.Style.FILL
 
 
 
-            paint.color =
-                Color.argb(
-                    90,
-                    255,
-                    255,
-                    255
-                )
+        paint.color =
+            Color.argb(
 
+                90,
 
+                255,
 
-            canvas.drawRoundRect(
+                255,
 
-                RectF(
-
-                    x+5f,
-
-                    h-90f,
-
-                    x+width-5f,
-
-                    h-30f
-
-                ),
-
-                25f,
-
-                25f,
-
-                paint
+                255
 
             )
 
 
 
-            paint.textAlign =
-                Paint.Align.CENTER
+        canvas.drawRoundRect(
+
+            RectF(
+
+                x + 5f,
+
+                h - 90f,
+
+                x + width - 5f,
+
+                h - 30f
+
+            ),
+
+            25f,
+
+            25f,
+
+            paint
+
+        )
 
 
-            paint.textSize =
-                16f
+
+        paint.textAlign =
+            Paint.Align.CENTER
+
+
+        paint.textSize =
+            16f
+
+
+        paint.typeface =
+            Typeface.DEFAULT_BOLD
+
+
+        paint.color =
+            Color.WHITE
 
 
 
-            paint.typeface =
-                Typeface.DEFAULT_BOLD
+        canvas.drawText(
 
+            items[i],
 
+            x + width / 2f,
 
-            paint.color =
-                Color.WHITE
+            h - 52f,
 
+            paint
 
-
-            canvas.drawText(
-
-                items[i],
-
-                x+width/2f,
-
-                h-52f,
-
-                paint
-
-            )
-
-
-        }
-
+        )
 
     }
 
+}
 
 
 
 
 
+override fun onTouchEvent(
+    event: MotionEvent
+): Boolean {
 
 
-    override fun onTouchEvent(
-        event: MotionEvent
-    ): Boolean {
+    if(event.action ==
+        MotionEvent.ACTION_UP){
 
 
-        if(
-            event.action ==
-            MotionEvent.ACTION_UP
-        ){
+        val dx =
+            event.x - width / 2f
 
 
-           val dx =
-    event.x - width / 2f
-
-
-val dy =
-    event.y - height * 0.70f
+        val dy =
+            event.y - height * 0.70f
 
 
 
-            val distance =
-                kotlin.math.sqrt(
-                    dx*dx+dy*dy
-                )
+        val distance =
+            kotlin.math.sqrt(
+                dx * dx + dy * dy
+            )
 
 
 
-            if(
-                distance < 130f
-            ){
+        if(distance < 130f){
 
-                onAIOrbClick?.invoke()
-
-            }
-
-
-
-            performClick()
-
-
-            return true
+            onAIOrbClick?.invoke()
 
         }
 
 
+
+        performClick()
 
         return true
 
     }
 
 
+    return true
+
+}
 
 
 
 
-    override fun performClick():
-            Boolean {
 
+override fun performClick():
+        Boolean {
 
-        super.performClick()
+    super.performClick()
 
+    return true
 
-        return true
-
-    }
+}
 
 
 }
