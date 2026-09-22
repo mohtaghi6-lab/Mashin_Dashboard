@@ -728,17 +728,83 @@ class Dashboard3DView(
 
 
 
-        canvas.drawCircle(
+        // Outer AI Energy Ring
 
-            cx,
+paint.style =
+    Paint.Style.STROKE
 
-            cy,
 
-            size+35f,
+paint.strokeWidth =
+    8f
 
-            paint
 
-        )
+paint.color =
+    when(aiState){
+
+        AIState.LISTENING ->
+            Color.GREEN
+
+
+        AIState.THINKING ->
+            Color.YELLOW
+
+
+        AIState.SPEAKING ->
+            Color.CYAN
+
+
+        AIState.ERROR ->
+            Color.RED
+
+
+        else ->
+            Color.BLUE
+    }
+
+
+
+canvas.drawCircle(
+
+    cx,
+
+    cy,
+
+    size + 35f,
+
+    paint
+
+)
+
+
+
+
+
+// Main AI Orb
+
+paint.style =
+    Paint.Style.FILL
+
+
+paint.color =
+    Color.rgb(
+        0,
+        140,
+        255
+    )
+
+
+
+canvas.drawCircle(
+
+    cx,
+
+    cy,
+
+    size,
+
+    paint
+
+)
 
 
 
