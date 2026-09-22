@@ -203,26 +203,11 @@ class BMWMenu(
 
 
             val x =
-
-                cx +
-
-                cos(angle).toFloat()
-
-                *
-
-                120f
+    cx + cos(angle).toFloat() * 120f
 
 
-
-            val y =
-
-                cy +
-
-                sin(angle).toFloat()
-
-                *
-
-                120f
+val y =
+    cy + sin(angle).toFloat() * 120f
 
 
 
