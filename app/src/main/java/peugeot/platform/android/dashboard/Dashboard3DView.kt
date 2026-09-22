@@ -145,7 +145,73 @@ class Dashboard3DView(
             h*0.70f
         )
 
+private fun drawAIWave(
+    canvas: Canvas,
+    cx: Float,
+    cy: Float
+){
 
+    val time =
+        System.currentTimeMillis() % 1500L
+
+
+    val wave =
+        time.toFloat() / 1500f
+
+
+    val color =
+        when(aiState){
+
+            AIState.LISTENING ->
+                Color.GREEN
+
+            AIState.THINKING ->
+                Color.YELLOW
+
+            AIState.SPEAKING ->
+                Color.CYAN
+
+            AIState.ERROR ->
+                Color.RED
+
+            else ->
+                Color.BLUE
+
+        }
+
+
+    paint.style =
+        Paint.Style.STROKE
+
+
+    paint.strokeWidth =
+        4f
+
+
+    paint.color =
+        color
+
+
+    paint.alpha =
+        180
+
+
+    val radius =
+        90f + wave * 70f
+
+
+    canvas.drawCircle(
+        cx,
+        cy,
+        radius,
+        paint
+    )
+
+
+    paint.alpha =
+        255
+
+}
 
         drawCards(
             canvas,
