@@ -839,27 +839,30 @@ class MainActivity : Activity() {
 
         when(page) {
 
+MainMenuPage.HOME -> {
 
-            MainMenuPage.HOME -> {
+    animateToPage(
+        clockPageView,
+        dashboard,
+        -1
+    )
 
-                dashboard.visibility =
-                    View.VISIBLE
+    bmwMenu.visibility =
+        View.VISIBLE
 
-
-                bmwMenu.visibility =
-                    View.VISIBLE
-
-            }
+}
 
 
 
-            MainMenuPage.CLOCK -> {
+          MainMenuPage.CLOCK -> {
 
-                clockPageView.visibility =
-                    View.VISIBLE
+    animateToPage(
+        dashboard,
+        clockPageView,
+        1
+    )
 
-            }
-
+}
 
 
             MainMenuPage.CAR -> {
@@ -928,7 +931,68 @@ class MainActivity : Activity() {
 
 
 
+private fun animateToPage(
+    from: View,
+    to: View,
+    direction: Int
+) {
 
+    to.visibility = View.VISIBLE
+
+    val width =
+        root.width.toFloat()
+
+
+    to.translationX =
+        if(direction > 0)
+            width
+        else
+            -width
+
+
+    to.alpha = 0f
+
+
+
+    from.animate()
+
+        .translationX(
+            if(direction > 0)
+                -width
+            else
+                width
+        )
+
+        .alpha(0f)
+
+        .setDuration(450)
+
+        .start()
+
+
+
+    to.animate()
+
+        .translationX(0f)
+
+        .alpha(1f)
+
+        .setDuration(450)
+
+        .withEndAction {
+
+            from.visibility =
+                View.GONE
+
+
+            from.translationX =
+                0f
+
+        }
+
+        .start()
+
+}
 
     override fun onBackPressed() {
 
