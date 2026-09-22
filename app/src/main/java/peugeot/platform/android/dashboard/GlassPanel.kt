@@ -1,67 +1,246 @@
 package peugeot.platform.android.dashboard
 
 
+import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.RectF
-import android.graphics.Typeface
+import android.view.MotionEvent
+import android.view.View
+
+import kotlin.math.cos
+import kotlin.math.sin
 
 
 
-class GlassPanel {
+class BMWMenu(
+    context: Context
+) : View(context) {
 
 
 
-    private val panelPaint =
+    private val paint =
         Paint(
             Paint.ANTI_ALIAS_FLAG
         )
 
 
 
-    private val borderPaint =
-        Paint(
-            Paint.ANTI_ALIAS_FLAG
+    private val blue =
+        Color.rgb(
+            0,
+            170,
+            255
         )
 
 
 
-    private val titlePaint =
-        Paint(
-            Paint.ANTI_ALIAS_FLAG
+    private val items =
+        arrayOf(
+
+            "CAR",
+
+            "MUSIC",
+
+            "AI",
+
+            "PHONE",
+
+            "NAVI",
+
+            "SCAN"
+
         )
 
 
 
-    private val valuePaint =
-        Paint(
-            Paint.ANTI_ALIAS_FLAG
-        )
+    private var selected =
+        2
+
+
+
+    var onMenuClick:
+            ((String) -> Unit)? = null
 
 
 
 
 
 
-    init {
+
+    override fun onDraw(
+
+        canvas: Canvas
+
+    ){
+
+        super.onDraw(canvas)
 
 
-        titlePaint.textAlign =
+
+        val w =
+            width.toFloat()
+
+
+
+        val h =
+            height.toFloat()
+
+
+
+        paint.textAlign =
             Paint.Align.CENTER
 
 
-        titlePaint.typeface =
-            Typeface.DEFAULT_BOLD
 
 
 
-        valuePaint.textAlign =
-            Paint.Align.CENTER
+        for(i in items.indices){
 
 
-        valuePaint.typeface =
-            Typeface.DEFAULT_BOLD
+
+            val angle =
+                Math.toRadians(
+
+                    (
+                        i * 60 - 90
+
+                    ).toDouble()
+
+                )
+
+
+
+            val radius =
+                150f
+
+
+
+            val x =
+                w / 2f +
+                cos(angle).toFloat() * radius
+
+
+
+            val y =
+                h / 2f +
+                sin(angle).toFloat() * radius
+
+
+
+
+
+            // Glass circle
+
+            paint.style =
+                Paint.Style.FILL
+
+
+
+            paint.color =
+                if(i == selected)
+
+                    Color.argb(
+                        180,
+                        0,
+                        170,
+                        255
+                    )
+
+                else
+
+                    Color.argb(
+                        90,
+                        255,
+                        255,
+                        255
+                    )
+
+
+
+            canvas.drawCircle(
+
+                x,
+
+                y,
+
+                55f,
+
+                paint
+
+            )
+
+
+
+
+
+
+
+            // Border
+
+            paint.style =
+                Paint.Style.STROKE
+
+
+
+            paint.strokeWidth =
+                2f
+
+
+
+            paint.color =
+                blue
+
+
+
+            canvas.drawCircle(
+
+                x,
+
+                y,
+
+                55f,
+
+                paint
+
+            )
+
+
+
+
+
+
+
+            // Text
+
+            paint.style =
+                Paint.Style.FILL
+
+
+
+            paint.color =
+                Color.WHITE
+
+
+
+            paint.textSize =
+                16f
+
+
+
+            canvas.drawText(
+
+                items[i],
+
+                x,
+
+                y + 6f,
+
+                paint
+
+            )
+
+        }
 
 
     }
@@ -73,175 +252,121 @@ class GlassPanel {
 
 
 
-    fun draw(
 
-        canvas: Canvas,
+    override fun onTouchEvent(
 
-        rect: RectF,
+        event: MotionEvent
 
-        title: String,
+    ): Boolean {
 
-        value: String,
 
-        active: Boolean = false
 
-    ) {
+        if(
 
+            event.action ==
+            MotionEvent.ACTION_UP
 
+        ){
 
-        // Glass body
 
-        panelPaint.style =
-            Paint.Style.FILL
 
+            val w =
+                width.toFloat()
 
 
-        panelPaint.color =
-            if(active)
 
-                Color.argb(
-                    120,
-                    0,
-                    170,
-                    255
-                )
+            val h =
+                height.toFloat()
 
-            else
 
-                Color.argb(
-                    75,
-                    40,
-                    60,
-                    90
-                )
 
 
 
+            for(i in items.indices){
 
-        canvas.drawRoundRect(
 
-            rect,
 
-            30f,
+                val angle =
+                    Math.toRadians(
 
-            30f,
+                        (
+                            i * 60 - 90
 
-            panelPaint
+                        ).toDouble()
 
-        )
+                    )
 
 
 
 
 
+                val x =
+                    w / 2f +
+                    cos(angle).toFloat() * 150f
 
 
-        // Border
 
-        borderPaint.style =
-            Paint.Style.STROKE
 
 
+                val y =
+                    h / 2f +
+                    sin(angle).toFloat() * 150f
 
-        borderPaint.strokeWidth =
-            if(active) 3f else 2f
 
 
 
-        borderPaint.color =
-            if(active)
 
-                Color.argb(
-                    220,
-                    0,
-                    200,
-                    255
-                )
 
-            else
+                val dx =
+                    event.x - x
 
-                Color.argb(
-                    130,
-                    0,
-                    170,
-                    255
-                )
 
 
+                val dy =
+                    event.y - y
 
 
-        canvas.drawRoundRect(
 
-            rect,
 
-            30f,
 
-            30f,
+                if(
 
-            borderPaint
+                    dx * dx +
+                    dy * dy <
+                    6000
 
-        )
+                ){
 
 
 
+                    selected =
+                        i
 
 
 
+                    invalidate()
 
-        // Title
 
-        titlePaint.color =
-            Color.LTGRAY
 
+                    onMenuClick?.invoke(
 
+                        items[i]
 
-        titlePaint.textSize =
-            14f
+                    )
 
 
+                    break
 
-        canvas.drawText(
+                }
 
-            title,
 
-            rect.centerX(),
+            }
 
-            rect.centerY() - 10f,
+        }
 
-            titlePaint
 
-        )
 
-
-
-
-
-
-
-
-        // Value
-
-        valuePaint.color =
-            Color.WHITE
-
-
-
-        valuePaint.textSize =
-            24f
-
-
-
-        canvas.drawText(
-
-            value,
-
-            rect.centerX(),
-
-            rect.centerY() + 25f,
-
-            valuePaint
-
-        )
+        return true
 
     }
 
