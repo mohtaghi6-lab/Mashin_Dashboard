@@ -1087,12 +1087,12 @@ class Dashboard3DView(
         ){
 
 
-            val dx =
-                event.x-width/2f
+           val dx =
+    event.x - width / 2f
 
 
-            val dy =
-                event.y-height*0.70f
+val dy =
+    event.y - height * 0.70f
 
 
 
