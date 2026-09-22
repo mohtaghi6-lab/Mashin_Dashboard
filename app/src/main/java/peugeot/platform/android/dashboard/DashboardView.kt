@@ -67,6 +67,7 @@ class DashboardView(
 
 
 
+
     private val blue =
         Color.rgb(
             0,
@@ -87,6 +88,8 @@ class DashboardView(
 
 
 
+
+
     fun setVehicleData(
         value: VehicleData
     ){
@@ -101,6 +104,8 @@ class DashboardView(
 
 
 
+
+
     fun setAIState(
         value: AIState
     ){
@@ -110,6 +115,8 @@ class DashboardView(
         invalidate()
 
     }
+
+
 
 
 
@@ -134,9 +141,13 @@ class DashboardView(
 
 
 
+
+
         canvas.drawColor(
             background
         )
+
+
 
 
 
@@ -148,6 +159,8 @@ class DashboardView(
 
 
 
+
+
         drawHeader(
             canvas,
             w
@@ -155,13 +168,17 @@ class DashboardView(
 
 
 
+
+
         drawGlassPanel(
             canvas,
             35f,
             95f,
-            w-35f,
-            h-55f
+            w - 35f,
+            h - 55f
         )
+
+
 
 
 
@@ -169,9 +186,9 @@ class DashboardView(
 
             canvas,
 
-            w/2f,
+            w / 2f,
 
-            h*0.38f,
+            h * 0.38f,
 
             1.15f
 
@@ -185,9 +202,9 @@ class DashboardView(
 
             canvas,
 
-            w*0.25f,
+            w * 0.25f,
 
-            h*0.46f,
+            h * 0.46f,
 
             135f,
 
@@ -207,9 +224,9 @@ class DashboardView(
 
             canvas,
 
-            w*0.75f,
+            w * 0.75f,
 
-            h*0.46f,
+            h * 0.46f,
 
             135f,
 
@@ -229,9 +246,9 @@ class DashboardView(
 
             canvas,
 
-            w/2f-150f,
+            w / 2f - 150f,
 
-            h*0.79f
+            h * 0.79f
 
         )
 
@@ -254,12 +271,13 @@ class DashboardView(
 
 
         aiX =
-            w/2f
+            w / 2f
 
 
 
         aiY =
-            h*0.68f
+            h * 0.68f
+
 
 
 
@@ -278,7 +296,7 @@ class DashboardView(
 
 
 
-        animation +=0.04f
+        animation += 0.04f
 
 
         postInvalidateOnAnimation()
@@ -290,11 +308,13 @@ class DashboardView(
 
 
 
+
+
     private fun drawHeader(
 
-        canvas:Canvas,
+        canvas: Canvas,
 
-        w:Float
+        w: Float
 
     ){
 
@@ -320,17 +340,19 @@ class DashboardView(
 
 
 
+
         canvas.drawText(
 
             "PEUGEOT VEHICLE OS",
 
-            w/2f,
+            w / 2f,
 
             55f,
 
             paint
 
         )
+
 
 
 
@@ -344,22 +366,24 @@ class DashboardView(
             blue
 
 
-canvas.drawText(
-
-    "INTELLIGENT LUXURY DASHBOARD",
-
-    w/2f,
-
-    78f,
-
-    paint
-
-)
-
-}   // پایان drawHeader
 
 
-private fun drawGlassPanel(
+
+        canvas.drawText(
+
+            "INTELLIGENT LUXURY DASHBOARD",
+
+            w / 2f,
+
+            78f,
+
+            paint
+
+        )
+
+
+    }
+        private fun drawGlassPanel(
 
         canvas: Canvas,
 
@@ -387,6 +411,7 @@ private fun drawGlassPanel(
             )
 
 
+
         canvas.drawRoundRect(
 
             left,
@@ -409,6 +434,7 @@ private fun drawGlassPanel(
 
         paint.style =
             Paint.Style.STROKE
+
 
 
         paint.strokeWidth =
@@ -445,6 +471,7 @@ private fun drawGlassPanel(
         )
 
 
+
         paint.style =
             Paint.Style.FILL
 
@@ -457,15 +484,17 @@ private fun drawGlassPanel(
 
 
 
+
     private fun drawBackgroundGlow(
 
-        canvas:Canvas,
+        canvas: Canvas,
 
-        w:Float,
+        w: Float,
 
-        h:Float
+        h: Float
 
     ){
+
 
 
         val glow =
@@ -474,17 +503,18 @@ private fun drawGlassPanel(
             )
 
 
+
         glow.shader =
             RadialGradient(
 
-                w/2f,
+                w / 2f,
 
-                h/2f,
+                h / 2f,
 
                 600f,
 
                 Color.argb(
-                    100,
+                    110,
                     0,
                     170,
                     255
@@ -500,9 +530,9 @@ private fun drawGlassPanel(
 
         canvas.drawCircle(
 
-            w/2f,
+            w / 2f,
 
-            h/2f,
+            h / 2f,
 
             600f,
 
@@ -519,28 +549,29 @@ private fun drawGlassPanel(
 
 
 
+
     private fun drawGauge(
 
-        canvas:Canvas,
+        canvas: Canvas,
 
-        cx:Float,
+        cx: Float,
 
-        cy:Float,
+        cy: Float,
 
-        radius:Float,
+        radius: Float,
 
-        value:Float,
+        value: Float,
 
-        max:Float,
+        max: Float,
 
-        label:String
+        label: String
 
     ){
 
 
 
         val percent =
-            (value/max)
+            (value / max)
                 .coerceIn(
                     0f,
                     1f
@@ -548,13 +579,32 @@ private fun drawGlassPanel(
 
 
 
+        val rect =
+            RectF(
+
+                cx - radius,
+
+                cy - radius,
+
+                cx + radius,
+
+                cy + radius
+
+            )
+
+
+
+
+
+        // حلقه تیره BMW
+
         paint.style =
             Paint.Style.STROKE
 
 
 
         paint.strokeWidth =
-            14f
+            16f
 
 
 
@@ -563,27 +613,11 @@ private fun drawGlassPanel(
 
 
 
-
         paint.color =
             Color.rgb(
                 25,
-                55,
-                90
-            )
-
-
-
-        val rect =
-            RectF(
-
-                cx-radius,
-
-                cy-radius,
-
-                cx+radius,
-
-                cy+radius
-
+                45,
+                70
             )
 
 
@@ -604,6 +638,10 @@ private fun drawGlassPanel(
 
 
 
+
+
+        // نور آبی مقدار
+
         paint.color =
             blue
 
@@ -615,7 +653,7 @@ private fun drawGlassPanel(
 
             135f,
 
-            270f*percent,
+            270f * percent,
 
             false,
 
@@ -625,13 +663,14 @@ private fun drawGlassPanel(
 
 
 
-        paint.style =
-            Paint.Style.FILL
 
 
 
-        paint.textAlign =
-            Paint.Align.CENTER
+
+        // خطوط دور گیج
+
+        paint.strokeWidth =
+            2f
 
 
 
@@ -640,8 +679,177 @@ private fun drawGlassPanel(
 
 
 
+        for(i in 0..12){
+
+
+            val angle =
+                Math.toRadians(
+
+                    (
+                        135 +
+                        i * 22.5
+
+                    ).toDouble()
+
+                )
+
+
+
+            canvas.drawLine(
+
+                cx +
+                        cos(angle).toFloat()
+                        *
+                        (radius - 18),
+
+
+                cy +
+                        sin(angle).toFloat()
+                        *
+                        (radius - 18),
+
+
+                cx +
+                        cos(angle).toFloat()
+                        *
+                        (radius - 5),
+
+
+                cy +
+                        sin(angle).toFloat()
+                        *
+                        (radius - 5),
+
+
+                paint
+
+            )
+
+        }
+
+
+
+
+
+
+
+        // عقرب
+
+        val angle =
+            Math.toRadians(
+
+                (
+                    135f +
+                    270f * percent
+
+                ).toDouble()
+
+            )
+
+
+
+        paint.strokeWidth =
+            4f
+
+
+
+        paint.color =
+            Color.WHITE
+
+
+
+        canvas.drawLine(
+
+            cx,
+
+            cy,
+
+
+            cx +
+                    cos(angle).toFloat()
+                    *
+                    (radius - 20),
+
+
+            cy +
+                    sin(angle).toFloat()
+                    *
+                    (radius - 20),
+
+
+            paint
+
+        )
+
+
+
+
+
+
+
+        // مرکز عقربه
+
+        paint.style =
+            Paint.Style.FILL
+
+
+
+        paint.color =
+            Color.WHITE
+
+
+
+        canvas.drawCircle(
+
+            cx,
+
+            cy,
+
+            9f,
+
+            paint
+
+        )
+
+
+
+        paint.color =
+            blue
+
+
+
+        canvas.drawCircle(
+
+            cx,
+
+            cy,
+
+            4f,
+
+            paint
+
+        )
+
+
+
+
+
+
+
+        // عدد اصلی
+
+        paint.color =
+            Color.WHITE
+
+
+
+        paint.textAlign =
+            Paint.Align.CENTER
+
+
+
         paint.textSize =
-            46f
+            42f
 
 
 
@@ -651,11 +859,14 @@ private fun drawGlassPanel(
 
             cx,
 
-            cy+12,
+            cy + 15,
 
             paint
 
         )
+
+
+
 
 
 
@@ -676,72 +887,20 @@ private fun drawGlassPanel(
 
             cx,
 
-            cy+42,
-
-            paint
-
-        )
-
-
-
-        // عقرب
-
-        val angle =
-            Math.toRadians(
-                (
-                    135f+
-                    270f*percent
-                ).toDouble()
-            )
-
-
-
-        paint.strokeWidth =
-            3f
-
-
-
-        paint.color =
-            Color.WHITE
-
-
-
-        canvas.drawLine(
-
-            cx,
-
-            cy,
-
-            cx+
-                    cos(angle).toFloat()
-                    *
-                    radius,
-
-            cy+
-                    sin(angle).toFloat()
-                    *
-                    radius,
+            cy + 45,
 
             paint
 
         )
 
     }
+        private fun drawInfo(
 
+        canvas: Canvas,
 
+        w: Float,
 
-
-
-
-
-
-    private fun drawInfo(
-
-        canvas:Canvas,
-
-        w:Float,
-
-        h:Float
+        h: Float
 
     ){
 
@@ -765,9 +924,9 @@ private fun drawGlassPanel(
 
             "ENGINE ${data.engineTempC}°C",
 
-            w*0.25f,
+            w * 0.25f,
 
-            h*0.94f,
+            h * 0.94f,
 
             paint
 
@@ -779,9 +938,9 @@ private fun drawGlassPanel(
 
             "VOLT 13.8V",
 
-            w*0.5f,
+            w * 0.50f,
 
-            h*0.94f,
+            h * 0.94f,
 
             paint
 
@@ -798,9 +957,9 @@ private fun drawGlassPanel(
 
             "CAN READY",
 
-            w*0.75f,
+            w * 0.75f,
 
-            h*0.94f,
+            h * 0.94f,
 
             paint
 
@@ -815,24 +974,32 @@ private fun drawGlassPanel(
 
 
 
+
     private fun drawAIOrb(
 
-        canvas:Canvas,
+        canvas: Canvas,
 
-        cx:Float,
+        cx: Float,
 
-        cy:Float
+        cy: Float
 
     ){
 
 
 
         val pulse =
+
             (
-                    sin(animation.toDouble())+1
-                    ).toFloat()
+                    sin(animation.toDouble())
+                    + 1
+
+            ).toFloat()
 
 
+
+
+
+        // حلقه بیرونی نور
 
         paint.style =
             Paint.Style.STROKE
@@ -865,13 +1032,19 @@ private fun drawGlassPanel(
 
             cy,
 
-            55f + pulse*12f,
+            55f + pulse * 12f,
 
             paint
 
         )
 
 
+
+
+
+
+
+        // هسته AI
 
         paint.style =
             Paint.Style.FILL
@@ -886,22 +1059,28 @@ private fun drawGlassPanel(
                     Color.CYAN
 
 
+
                 AIState.THINKING ->
                     Color.YELLOW
+
 
 
                 AIState.SPEAKING ->
                     Color.GREEN
 
 
+
                 AIState.ERROR ->
                     Color.RED
+
 
 
                 else ->
                     blue
 
             }
+
+
 
 
 
@@ -919,18 +1098,22 @@ private fun drawGlassPanel(
 
 
 
+
+
+
+
         paint.color =
             Color.WHITE
 
 
 
-        paint.textSize =
-            20f
-
-
-
         paint.textAlign =
             Paint.Align.CENTER
+
+
+
+        paint.textSize =
+            20f
 
 
 
@@ -940,7 +1123,7 @@ private fun drawGlassPanel(
 
             cx,
 
-            cy+7,
+            cy + 7,
 
             paint
 
@@ -955,33 +1138,40 @@ private fun drawGlassPanel(
 
 
 
+
     override fun onTouchEvent(
 
-        event:MotionEvent
+        event: MotionEvent
 
-    ):Boolean{
+    ): Boolean {
 
 
-        if(event.action ==
-            MotionEvent.ACTION_UP){
+
+        if(
+
+            event.action ==
+            MotionEvent.ACTION_UP
+
+        ){
 
 
 
             val dx =
-                event.x-aiX
+                event.x - aiX
 
 
 
             val dy =
-                event.y-aiY
+                event.y - aiY
+
+
 
 
 
             if(
 
-                dx*dx+
-                dy*dy
-                <
+                dx * dx +
+                dy * dy <
                 9000
 
             ){
@@ -993,11 +1183,10 @@ private fun drawGlassPanel(
         }
 
 
+
         return true
 
     }
 
 
-
-
-    }
+}
