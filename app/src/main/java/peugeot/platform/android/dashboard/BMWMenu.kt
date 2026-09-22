@@ -2,9 +2,14 @@ package peugeot.platform.android.dashboard
 
 
 import android.content.Context
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.view.MotionEvent
 import android.view.View
+
+import kotlin.math.cos
+import kotlin.math.sin
 
 
 
@@ -15,7 +20,9 @@ class BMWMenu(
 
 
     private val paint =
-        Paint(Paint.ANTI_ALIAS_FLAG)
+        Paint(
+            Paint.ANTI_ALIAS_FLAG
+        )
 
 
 
@@ -30,19 +37,12 @@ class BMWMenu(
 
     private val items =
         arrayOf(
-
             "CAR",
-
             "MUSIC",
-
             "AI",
-
             "PHONE",
-
             "NAVI",
-
             "SCAN"
-
         )
 
 
@@ -53,7 +53,7 @@ class BMWMenu(
 
 
     var onMenuClick:
-            ((String)->Unit)? = null
+            ((String) -> Unit)? = null
 
 
 
@@ -61,8 +61,10 @@ class BMWMenu(
 
 
     override fun onDraw(
+
         canvas: Canvas
-    ){
+
+    ) {
 
         super.onDraw(canvas)
 
@@ -83,9 +85,7 @@ class BMWMenu(
 
 
 
-        for(
-            i in items.indices
-        ){
+        for (i in items.indices) {
 
 
 
@@ -93,9 +93,7 @@ class BMWMenu(
                 Math.toRadians(
                     (
                         i * 60 - 90
-
                     ).toDouble()
-
                 )
 
 
@@ -106,24 +104,21 @@ class BMWMenu(
 
 
             val x =
-                w/2f +
-                kotlin.math.cos(angle).toFloat()
-                *
-                radius
+                w / 2f +
+                cos(angle).toFloat() * radius
 
 
 
             val y =
-                h/2f +
-                kotlin.math.sin(angle).toFloat()
-                *
-                radius
+                h / 2f +
+                sin(angle).toFloat() * radius
 
 
 
 
 
-            // شیشه منو
+
+            // Glass circle
 
             paint.style =
                 Paint.Style.FILL
@@ -131,10 +126,10 @@ class BMWMenu(
 
 
             paint.color =
-                if(i == selected)
+                if (i == selected)
 
                     Color.argb(
-                        170,
+                        180,
                         0,
                         170,
                         255
@@ -143,13 +138,11 @@ class BMWMenu(
                 else
 
                     Color.argb(
-                        80,
+                        90,
                         255,
                         255,
                         255
                     )
-
-
 
 
 
@@ -170,7 +163,47 @@ class BMWMenu(
 
 
 
-            // متن
+            // Border
+
+            paint.style =
+                Paint.Style.STROKE
+
+
+
+            paint.strokeWidth =
+                2f
+
+
+
+            paint.color =
+                blue
+
+
+
+            canvas.drawCircle(
+
+                x,
+
+                y,
+
+                55f,
+
+                paint
+
+            )
+
+
+
+
+
+
+
+            // Text
+
+            paint.style =
+                Paint.Style.FILL
+
+
 
             paint.color =
                 Color.WHITE
@@ -188,7 +221,7 @@ class BMWMenu(
 
                 x,
 
-                y+6,
+                y + 6f,
 
                 paint
 
@@ -214,12 +247,13 @@ class BMWMenu(
 
 
 
-        if(
+        if (
 
             event.action ==
             MotionEvent.ACTION_UP
 
-        ){
+        ) {
+
 
 
             val w =
@@ -232,54 +266,65 @@ class BMWMenu(
 
 
 
-            for(
-                i in items.indices
-            ){
+
+
+            for (i in items.indices) {
+
 
 
                 val angle =
                     Math.toRadians(
                         (
-                            i*60-90
-
+                            i * 60 - 90
                         ).toDouble()
                     )
 
 
 
                 val x =
-                    w/2f +
-                    kotlin.math.cos(angle).toFloat()
-                    *
-                    150f
+                    w / 2f +
+                    cos(angle).toFloat() * 150f
 
 
 
                 val y =
-                    h/2f +
-                    kotlin.math.sin(angle).toFloat()
-                    *
-                    150f
+                    h / 2f +
+                    sin(angle).toFloat() * 150f
+
+
+
 
 
 
                 val dx =
-                    event.x-x
+                    event.x - x
 
 
 
                 val dy =
-                    event.y-y
+                    event.y - y
 
 
 
-                if(
-                    dx*dx+dy*dy < 6000
-                ){
 
-                    selected = i
+
+                if (
+
+                    dx * dx +
+                    dy * dy <
+                    6000
+
+                ) {
+
+
+
+                    selected =
+                        i
+
+
 
                     invalidate()
+
 
 
                     onMenuClick?.invoke(
@@ -287,12 +332,15 @@ class BMWMenu(
                     )
 
 
-                }
 
+                    break
+
+                }
 
             }
 
         }
+
 
 
         return true
