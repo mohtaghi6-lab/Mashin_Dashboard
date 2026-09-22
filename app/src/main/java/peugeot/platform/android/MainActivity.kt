@@ -690,11 +690,16 @@ class MainActivity : Activity() {
 
 
 
-        /*
+              /*
          * شروع خودکار Voice AI
          */
 
         startVoiceSystem()
+
+    }   // پایان onCreate()
+
+
+
     private fun updateVehicleViews(
         data: VehicleData
     ) {
