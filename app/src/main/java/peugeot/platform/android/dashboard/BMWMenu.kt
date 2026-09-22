@@ -1,16 +1,12 @@
 package peugeot.platform.android.dashboard
 
-
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
+import android.graphics.*
 import android.view.MotionEvent
 import android.view.View
-
+import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
-
 
 
 class BMWMenu(
@@ -18,65 +14,144 @@ class BMWMenu(
 ) : View(context) {
 
 
-
     private val paint =
-        Paint(
-            Paint.ANTI_ALIAS_FLAG
-        )
-
-
-
-    private val blue =
-        Color.rgb(
-            0,
-            170,
-            255
-        )
+        Paint(Paint.ANTI_ALIAS_FLAG)
 
 
 
     private val items =
         arrayOf(
+
             "CAR",
             "MUSIC",
-            "AI",
-            "PHONE",
             "NAVI",
-            "SCAN"
+            "PHONE",
+            "SCAN",
+            "AI"
+
         )
 
 
 
     private var selected =
-        2
+        0
 
 
 
     var onMenuClick:
-            ((String) -> Unit)? = null
-
+            ((String)->Unit)? = null
 
 
 
 
 
     override fun onDraw(
-
         canvas: Canvas
-
     ) {
+
 
         super.onDraw(canvas)
 
 
 
-        val w =
-            width.toFloat()
+        val cx =
+            width/2f
+
+
+        val cy =
+            height/2f
 
 
 
-        val h =
-            height.toFloat()
+        val radius =
+            170f
+
+
+
+        // background glass circle
+
+
+        paint.style =
+            Paint.Style.FILL
+
+
+        paint.color =
+            Color.argb(
+                80,
+                255,
+                255,
+                255
+            )
+
+
+        canvas.drawCircle(
+
+            cx,
+
+            cy,
+
+            radius,
+
+            paint
+
+        )
+
+
+
+        paint.style =
+            Paint.Style.STROKE
+
+
+        paint.strokeWidth =
+            3f
+
+
+        paint.color =
+            Color.CYAN
+
+
+
+        canvas.drawCircle(
+
+            cx,
+
+            cy,
+
+            radius,
+
+            paint
+
+        )
+
+
+
+
+        // center AI
+
+
+        paint.style =
+            Paint.Style.FILL
+
+
+        paint.color =
+            Color.rgb(
+                0,
+                140,
+                255
+            )
+
+
+        canvas.drawCircle(
+
+            cx,
+
+            cy,
+
+            55f,
+
+            paint
+
+        )
 
 
 
@@ -84,134 +159,90 @@ class BMWMenu(
             Paint.Align.CENTER
 
 
+        paint.textSize =
+            24f
 
-        for (i in items.indices) {
 
+        paint.color =
+            Color.WHITE
+
+
+
+        canvas.drawText(
+
+            "AI",
+
+            cx,
+
+            cy+8f,
+
+            paint
+
+        )
+
+
+
+
+
+        // menu items
+
+
+        for(
+            i in items.indices
+        ){
 
 
             val angle =
+
                 Math.toRadians(
-                    (
-                        i * 60 - 90
-                    ).toDouble()
+
+                    (-90 + i*60).toDouble()
+
                 )
 
 
 
-            val radius =
-                150f
-
-
-
             val x =
-                w / 2f +
-                cos(angle).toFloat() * radius
+
+                cx +
+
+                cos(angle).toFloat()
+
+                *
+
+                120f
 
 
 
             val y =
-                h / 2f +
-                sin(angle).toFloat() * radius
+
+                cy +
+
+                sin(angle).toFloat()
+
+                *
+
+                120f
 
 
-
-
-
-
-            // Glass circle
-
-            paint.style =
-                Paint.Style.FILL
 
 
 
             paint.color =
-                if (i == selected)
 
-                    Color.argb(
-                        180,
-                        0,
-                        170,
-                        255
-                    )
+                if(i == selected)
+
+                    Color.CYAN
 
                 else
 
-                    Color.argb(
-                        90,
-                        255,
-                        255,
-                        255
-                    )
+                    Color.WHITE
 
-
-
-            canvas.drawCircle(
-
-                x,
-
-                y,
-
-                55f,
-
-                paint
-
-            )
-
-
-
-
-
-
-            // Border
-
-            paint.style =
-                Paint.Style.STROKE
-
-
-
-            paint.strokeWidth =
-                2f
-
-
-
-            paint.color =
-                blue
-
-
-
-            canvas.drawCircle(
-
-                x,
-
-                y,
-
-                55f,
-
-                paint
-
-            )
-
-
-
-
-
-
-
-            // Text
-
-            paint.style =
-                Paint.Style.FILL
-
-
-
-            paint.color =
-                Color.WHITE
 
 
 
             paint.textSize =
-                16f
+                20f
 
 
 
@@ -221,13 +252,15 @@ class BMWMenu(
 
                 x,
 
-                y + 6f,
+                y,
 
                 paint
 
             )
 
+
         }
+
 
     }
 
@@ -238,110 +271,95 @@ class BMWMenu(
 
 
 
-
     override fun onTouchEvent(
-
         event: MotionEvent
-
     ): Boolean {
 
 
-
-        if (
-
+        if(
             event.action ==
             MotionEvent.ACTION_UP
-
-        ) {
-
+        ){
 
 
-            val w =
-                width.toFloat()
+            val cx =
+                width/2f
 
 
-
-            val h =
-                height.toFloat()
+            val cy =
+                height/2f
 
 
 
+            val angle =
 
+                Math.toDegrees(
 
-            for (i in items.indices) {
+                    atan2(
 
+                        event.y-cy,
 
+                        event.x-cx
 
-                val angle =
-                    Math.toRadians(
-                        (
-                            i * 60 - 90
-                        ).toDouble()
-                    )
+                    ).toDouble()
 
-
-
-                val x =
-                    w / 2f +
-                    cos(angle).toFloat() * 150f
+                )
 
 
 
-                val y =
-                    h / 2f +
-                    sin(angle).toFloat() * 150f
+            var index =
+
+                (((angle+90+360)%360)/60)
+
+                    .toInt()
 
 
 
+            if(index >= items.size)
+
+                index = items.size-1
 
 
 
-                val dx =
-                    event.x - x
+            selected =
+                index
 
 
 
-                val dy =
-                    event.y - y
+            invalidate()
 
 
 
+            onMenuClick?.invoke(
 
+                items[selected]
 
-                if (
-
-                    dx * dx +
-                    dy * dy <
-                    6000
-
-                ) {
+            )
 
 
 
-                    selected =
-                        i
+            performClick()
 
 
 
-                    invalidate()
-
-
-
-                    onMenuClick?.invoke(
-                        items[i]
-                    )
-
-
-
-                    break
-
-                }
-
-            }
+            return true
 
         }
 
 
+
+        return true
+
+    }
+
+
+
+
+
+    override fun performClick():
+            Boolean {
+
+        super.performClick()
 
         return true
 
