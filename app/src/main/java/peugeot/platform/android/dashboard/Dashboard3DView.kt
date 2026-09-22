@@ -4,8 +4,10 @@ import android.content.Context
 import android.graphics.*
 import android.view.MotionEvent
 import android.view.View
+
 import peugeot.platform.android.ai.AIState
 import peugeot.platform.android.vehicle.VehicleData
+
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
@@ -33,14 +35,22 @@ class Dashboard3DView(
 
 
 
+    private val blue =
+        Color.rgb(
+            0,
+            170,
+            255
+        )
+
+
     fun setVehicleData(
         data: VehicleData
     ) {
 
-        vehicleData =
-            data
+        vehicleData = data
 
         invalidate()
+
     }
 
 
@@ -49,12 +59,12 @@ class Dashboard3DView(
         state: AIState
     ) {
 
-        aiState =
-            state
+        aiState = state
 
         invalidate()
 
     }
+
 
 
 
@@ -68,12 +78,13 @@ class Dashboard3DView(
         val w =
             width.toFloat()
 
+
         val h =
             height.toFloat()
 
 
 
-        drawBackground(
+        drawLuxuryBackground(
             canvas,
             w,
             h
@@ -81,23 +92,30 @@ class Dashboard3DView(
 
 
 
-        drawGauge(
+        drawTopBar(
             canvas,
-            w * 0.25f,
-            h * 0.50f,
-            min(w,h) * 0.20f,
-            vehicleData.speedKmh.toFloat(),
-            240f,
-            "SPEED"
+            w
         )
 
 
 
         drawGauge(
             canvas,
-            w * 0.75f,
-            h * 0.50f,
-            min(w,h) * 0.20f,
+            w * 0.27f,
+            h * 0.52f,
+            min(w,h) * 0.19f,
+            vehicleData.speedKmh.toFloat(),
+            240f,
+            "km/h"
+        )
+
+
+
+        drawGauge(
+            canvas,
+            w * 0.73f,
+            h * 0.52f,
+            min(w,h) * 0.19f,
             vehicleData.rpm.toFloat(),
             8000f,
             "RPM"
@@ -105,38 +123,73 @@ class Dashboard3DView(
 
 
 
-        drawCenterAI(
+        drawDigitalCenter(
             canvas,
-            w/2f,
-            h*0.50f
+            w / 2f,
+            h * 0.48f
+        )
+
+
+
+        drawAIOrb(
+            canvas,
+            w / 2f,
+            h * 0.72f
+        )
+
+
+
+        drawBottomCards(
+            canvas,
+            w,
+            h
         )
 
 
 
         postInvalidateDelayed(
-            40L
+            40
         )
+
 
     }
 
 
 
-    private fun drawBackground(
+
+    private fun drawLuxuryBackground(
         canvas: Canvas,
         w: Float,
         h: Float
-    ) {
-
+    ){
 
         paint.style =
             Paint.Style.FILL
 
 
-        paint.color =
-            Color.rgb(
-                1,
-                7,
-                15
+        paint.shader =
+            LinearGradient(
+
+                0f,
+                0f,
+
+                0f,
+                h,
+
+                Color.rgb(
+                    2,
+                    5,
+                    12
+                ),
+
+                Color.rgb(
+                    10,
+                    25,
+                    40
+                ),
+
+                Shader.TileMode.CLAMP
+
             )
 
 
@@ -149,11 +202,15 @@ class Dashboard3DView(
         )
 
 
+        paint.shader = null
+
+
+
         paint.color =
             Color.argb(
                 45,
                 0,
-                150,
+                170,
                 255
             )
 
@@ -165,6 +222,77 @@ class Dashboard3DView(
             paint
         )
 
+
+    }
+
+
+
+
+
+    private fun drawTopBar(
+        canvas: Canvas,
+        w: Float
+    ){
+
+        paint.style =
+            Paint.Style.FILL
+
+
+        paint.color =
+            Color.argb(
+                80,
+                255,
+                255,
+                255
+            )
+
+
+        canvas.drawRoundRect(
+
+            RectF(
+                40f,
+                25f,
+                w-40f,
+                90f
+            ),
+
+            30f,
+            30f,
+
+            paint
+
+        )
+
+
+        paint.textAlign =
+            Paint.Align.CENTER
+
+
+        paint.color =
+            Color.WHITE
+
+
+        paint.textSize =
+            28f
+
+
+        paint.typeface =
+            Typeface.DEFAULT_BOLD
+
+
+        canvas.drawText(
+
+            "PEUGEOT VEHICLE OS  •  BMW MODE",
+
+            w/2f,
+
+            68f,
+
+            paint
+
+        )
+
+
     }
         private fun drawGauge(
         canvas: Canvas,
@@ -173,7 +301,7 @@ class Dashboard3DView(
         radius: Float,
         value: Float,
         maxValue: Float,
-        title: String
+        unit: String
     ) {
 
 
@@ -185,23 +313,24 @@ class Dashboard3DView(
                 )
 
 
-
         val rect =
             RectF(
-                cx - radius,
-                cy - radius,
-                cx + radius,
-                cy + radius
+                cx-radius,
+                cy-radius,
+                cx+radius,
+                cy+radius
             )
 
 
+
+        // Outer glass ring
 
         paint.style =
             Paint.Style.STROKE
 
 
         paint.strokeWidth =
-            22f
+            26f
 
 
         paint.strokeCap =
@@ -211,8 +340,8 @@ class Dashboard3DView(
         paint.color =
             Color.argb(
                 50,
-                100,
-                200,
+                180,
+                220,
                 255
             )
 
@@ -227,13 +356,14 @@ class Dashboard3DView(
 
 
 
+        // Active blue ring
+
         paint.strokeWidth =
-            8f
+            10f
 
 
         paint.color =
-            Color.CYAN
-
+            blue
 
 
         canvas.drawArc(
@@ -246,41 +376,40 @@ class Dashboard3DView(
 
 
 
+
         // Tick marks
 
         paint.strokeWidth =
-            2f
+            3f
 
 
         paint.color =
-            Color.argb(
-                150,
-                200,
-                240,
-                255
-            )
+            Color.WHITE
+
 
 
         for(
-            i in 0..30
+            i in 0..36
         ){
 
             val angle =
                 Math.toRadians(
                     135.0 +
-                    i * 9.0
+                    (i * 7.5)
                 )
 
 
-            val r1 =
-                radius - 15f
+            val outer =
+                radius + 5f
 
 
-            val r2 =
-                if(i % 5 == 0)
-                    radius + 5f
+            val inner =
+                if(
+                    i % 5 == 0
+                )
+                    radius - 22f
                 else
-                    radius - 5f
+                    radius - 10f
 
 
 
@@ -288,44 +417,51 @@ class Dashboard3DView(
 
                 cx +
                     cos(angle).toFloat()
-                    * r1,
+                    * inner,
+
 
                 cy +
                     sin(angle).toFloat()
-                    * r1,
+                    * inner,
 
 
                 cx +
                     cos(angle).toFloat()
-                    * r2,
+                    * outer,
+
 
                 cy +
                     sin(angle).toFloat()
-                    * r2,
+                    * outer,
 
 
                 paint
+
             )
+
 
         }
 
 
 
+
         // Needle
 
-        val needle =
+        val needleAngle =
             Math.toRadians(
+
                 135.0 +
-                270.0 * progress
+                (270.0 * progress)
+
             )
-
-
-        paint.strokeWidth =
-            5f
 
 
         paint.color =
             Color.WHITE
+
+
+        paint.strokeWidth =
+            6f
 
 
 
@@ -337,15 +473,15 @@ class Dashboard3DView(
 
 
             cx +
-                cos(needle).toFloat()
+                cos(needleAngle).toFloat()
                 *
-                (radius - 30f),
+                (radius-35f),
 
 
             cy +
-                sin(needle).toFloat()
+                sin(needleAngle).toFloat()
                 *
-                (radius - 30f),
+                (radius-35f),
 
 
             paint
@@ -353,86 +489,97 @@ class Dashboard3DView(
         )
 
 
+
+
+        // Center
 
         paint.style =
             Paint.Style.FILL
 
 
         paint.color =
-            Color.CYAN
+            blue
 
 
         canvas.drawCircle(
             cx,
             cy,
-            10f,
+            12f,
             paint
         )
 
 
 
+
+        // Number
+
         paint.textAlign =
             Paint.Align.CENTER
-
-
-        paint.typeface =
-            Typeface.DEFAULT_BOLD
 
 
         paint.color =
             Color.WHITE
 
 
+        paint.typeface =
+            Typeface.DEFAULT_BOLD
+
+
         paint.textSize =
-            radius * 0.25f
+            radius * 0.28f
 
 
 
         canvas.drawText(
-            value.toInt().toString(),
+
+            value.toInt()
+                .toString(),
+
             cx,
-            cy + 20f,
+
+            cy + 25f,
+
             paint
+
         )
 
 
 
+
         paint.textSize =
-            18f
+            20f
 
 
         paint.color =
-            Color.CYAN
+            blue
 
 
 
         canvas.drawText(
-            title,
+
+            unit,
+
             cx,
-            cy + radius * 0.45f,
+
+            cy + radius*0.55f,
+
             paint
+
         )
 
     }
 
 
 
-    private fun drawCenterAI(
+
+
+
+
+    private fun drawDigitalCenter(
         canvas: Canvas,
         cx: Float,
         cy: Float
-    ) {
-
-
-        val pulse =
-    (System.currentTimeMillis() % 2000L)
-        .toFloat() / 2000f
-
-
-
-        val radius =
-            65f +
-            pulse * 10f
+    ){
 
 
 
@@ -440,102 +587,186 @@ class Dashboard3DView(
             Paint.Style.FILL
 
 
-        paint.color =
-            Color.argb(
-                80,
-                0,
-                180,
-                255
-            )
-
-
-        canvas.drawCircle(
-            cx,
-            cy,
-            radius + 25f,
-            paint
-        )
-
-
-        paint.color =
-            Color.rgb(
-                20,
-                120,
-                200
-            )
-
-
-        canvas.drawCircle(
-            cx,
-            cy,
-            radius,
-            paint
-        )
-
-
 
         paint.textAlign =
             Paint.Align.CENTER
 
-
-        paint.color =
-            Color.WHITE
 
 
         paint.typeface =
             Typeface.DEFAULT_BOLD
 
 
+
+        paint.color =
+            Color.WHITE
+
+
+
         paint.textSize =
-            28f
+            70f
 
 
 
         canvas.drawText(
-            "MRT",
+
+            vehicleData.speedKmh
+                .toString(),
+
             cx,
-            cy + 10f,
+
+            cy,
+
             paint
+
         )
-                paint.textSize =
-            12f
 
 
-        paint.typeface =
-            Typeface.DEFAULT
+
+        paint.textSize =
+            20f
+
 
 
         paint.color =
-            when(aiState) {
-
-                AIState.LISTENING ->
-                    Color.GREEN
-
-
-                AIState.THINKING ->
-                    Color.YELLOW
-
-
-                AIState.SPEAKING ->
-                    Color.CYAN
-
-
-                AIState.ERROR ->
-                    Color.RED
-
-
-                else ->
-                    Color.WHITE
-            }
+            Color.CYAN
 
 
 
-        val stateText =
-            when(aiState) {
+        canvas.drawText(
 
-                AIState.IDLE ->
-                    "READY"
+            "CURRENT SPEED",
 
+            cx,
+
+            cy+35f,
+
+            paint
+
+        )
+
+    }
+
+
+
+
+
+
+    private fun drawAIOrb(
+        canvas: Canvas,
+        cx: Float,
+        cy: Float
+    ){
+
+
+        val pulse =
+            (
+                    System.currentTimeMillis()
+                    % 2000
+                    ).toFloat()
+                    /
+                    2000f
+
+
+
+        val size =
+            65f +
+            pulse*15f
+
+
+
+        paint.style =
+            Paint.Style.FILL
+
+
+
+        paint.color =
+            Color.argb(
+                70,
+                0,
+                180,
+                255
+            )
+
+
+
+        canvas.drawCircle(
+
+            cx,
+
+            cy,
+
+            size+35f,
+
+            paint
+
+        )
+
+
+
+        paint.color =
+            Color.rgb(
+                0,
+                150,
+                255
+            )
+
+
+
+        canvas.drawCircle(
+
+            cx,
+
+            cy,
+
+            size,
+
+            paint
+
+        )
+
+
+
+        paint.color =
+            Color.WHITE
+
+
+        paint.textAlign =
+            Paint.Align.CENTER
+
+
+
+        paint.textSize =
+            24f
+
+
+        paint.typeface =
+            Typeface.DEFAULT_BOLD
+
+
+
+        canvas.drawText(
+
+            "AI",
+
+            cx,
+
+            cy+8f,
+
+            paint
+
+        )
+
+
+
+        paint.textSize =
+            13f
+
+
+
+        canvas.drawText(
+
+            when(aiState){
 
                 AIState.LISTENING ->
                     "LISTENING"
@@ -551,18 +782,138 @@ class Dashboard3DView(
 
                 AIState.ERROR ->
                     "ERROR"
-            }
 
 
+                else ->
+                    "READY"
 
-        canvas.drawText(
-            stateText,
+            },
+
             cx,
-            cy + 45f,
+
+            cy+35f,
+
             paint
+
         )
 
     }
+        private fun drawBottomCards(
+        canvas: Canvas,
+        w: Float,
+        h: Float
+    ) {
+
+
+        val names =
+            arrayOf(
+                "CAR",
+                "MUSIC",
+                "NAVI",
+                "PHONE",
+                "SCAN"
+            )
+
+
+
+        val cardWidth =
+            150f
+
+
+        val startX =
+            (w -
+                    (names.size * cardWidth)
+                    ) / 2f
+
+
+
+        for(
+            i in names.indices
+        ){
+
+
+            val left =
+                startX +
+                (i * cardWidth)
+
+
+
+            paint.style =
+                Paint.Style.FILL
+
+
+
+            paint.color =
+                Color.argb(
+                    90,
+                    255,
+                    255,
+                    255
+                )
+
+
+
+            canvas.drawRoundRect(
+
+                RectF(
+
+                    left,
+                    h-110f,
+
+                    left+120f,
+                    h-45f
+
+                ),
+
+                25f,
+
+                25f,
+
+                paint
+
+            )
+
+
+
+            paint.textAlign =
+                Paint.Align.CENTER
+
+
+
+            paint.color =
+                Color.WHITE
+
+
+
+            paint.textSize =
+                18f
+
+
+
+            paint.typeface =
+                Typeface.DEFAULT_BOLD
+
+
+
+            canvas.drawText(
+
+                names[i],
+
+                left+60f,
+
+                h-70f,
+
+                paint
+
+            )
+
+
+        }
+
+
+    }
+
+
 
 
 
@@ -577,18 +928,63 @@ class Dashboard3DView(
             MotionEvent.ACTION_UP
         ){
 
-            onAIOrbClick?.invoke()
+
+            val x =
+                event.x
+
+
+            val y =
+                event.y
+
+
+
+            val cx =
+                width/2f
+
+
+
+            val cy =
+                height*0.72f
+
+
+
+            val distance =
+
+                kotlin.math.sqrt(
+
+                    (x-cx)*(x-cx) +
+
+                    (y-cy)*(y-cy)
+
+                )
+
+
+
+            if(
+                distance < 120f
+            ){
+
+                onAIOrbClick?.invoke()
+
+            }
+
+
 
             performClick()
 
+
             return true
+
 
         }
 
 
         return true
 
+
     }
+
+
 
 
 
@@ -596,7 +992,9 @@ class Dashboard3DView(
     override fun performClick():
             Boolean {
 
+
         super.performClick()
+
 
         return true
 
