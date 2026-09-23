@@ -5,7 +5,8 @@ import android.graphics.*
 import android.view.MotionEvent
 import android.view.View
 import kotlin.math.min
-
+import peugeot.platform.android.vehicle.VehicleData
+import kotlin.math.min
 class MusicPageView(
     context: Context
 ) : View(context) {
@@ -23,9 +24,12 @@ class MusicPageView(
     private var widthPx = 0f
     private var heightPx = 0f
 
-    private var isPlaying = false
-    private var progress = 0.42f
+   private var isPlaying = false
+private var progress = 0.42f
 
+private var vehicleData =
+    VehicleData.demo()
+private var progress = 0.42f
     private val albumRect = RectF()
     private val playRect = RectF()
     private val previousRect = RectF()
@@ -33,21 +37,30 @@ class MusicPageView(
     private val backRect = RectF()
 
     init {
-        isClickable = true
-        isFocusable = true
+    isClickable = true
+    isFocusable = true
 
-        backgroundPaint.shader = LinearGradient(
-            0f, 0f, 0f, 1400f,
-            Color.rgb(3, 7, 15),
-            Color.rgb(8, 19, 34),
-            Shader.TileMode.CLAMP
-        )
+    backgroundPaint.shader = LinearGradient(
+        0f, 0f, 0f, 1400f,
+        Color.rgb(3, 7, 15),
+        Color.rgb(8, 19, 34),
+        Shader.TileMode.CLAMP
+    )
 
-        panelPaint.color = Color.argb(125, 15, 27, 43)
+    panelPaint.color = Color.argb(125, 15, 27, 43)
 
-        strokePaint.style = Paint.Style.STROKE
-        strokePaint.strokeCap = Paint.Cap.ROUND
-    }
+    strokePaint.style = Paint.Style.STROKE
+    strokePaint.strokeCap = Paint.Cap.ROUND
+}
+
+
+// اینجا اضافه کن
+fun setVehicleData(
+    data: VehicleData
+) {
+    vehicleData = data
+    invalidate()
+}
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
