@@ -43,8 +43,11 @@ var onSwipeRight:
 
 var onSwipeLeft:
         (() -> Unit)? = null
-    private var downX = 0f
-    private var downY = 0f
+   private var downX = 0f
+
+private var downY = 0f
+
+private val swipeLimit = 120f
 
 
     private val swipeLimit =
