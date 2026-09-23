@@ -9,7 +9,6 @@ import android.view.Window
 import android.view.WindowManager
 import android.widget.FrameLayout
 
-import peugeot.platform.android.ui.StartupView
 import peugeot.platform.android.ai.AIEngine
 import peugeot.platform.android.ai.AIState
 import peugeot.platform.android.ai.SpeechManager
@@ -26,11 +25,13 @@ import peugeot.platform.android.ui.ClockPageView
 import peugeot.platform.android.ui.ErrorScannerPageView
 import peugeot.platform.android.ui.HomePageView
 import peugeot.platform.android.ui.MainMenuController
+import peugeot.platform.android.ui.MainMenuPage
 import peugeot.platform.android.ui.MainMenuView
 import peugeot.platform.android.ui.MusicPageView
-import peugeot.platform.android.ui.VehicleSettingsPageView
-import peugeot.platform.android.ui.MainMenuPage
 import peugeot.platform.android.ui.NavigationPageView
+import peugeot.platform.android.ui.StartupView
+import peugeot.platform.android.ui.VehicleSettingsPageView
+
 import peugeot.platform.android.vehicle.ErrorScannerEngine
 import peugeot.platform.android.vehicle.VehicleData
 import peugeot.platform.android.vehicle.VehicleDataController
@@ -71,9 +72,7 @@ class MainActivity : Activity() {
     }
 
 
-    override fun onCreate(
-        savedInstanceState: Bundle?
-    ) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         requestWindowFeature(
@@ -98,10 +97,36 @@ class MainActivity : Activity() {
          * BMW 3D DASHBOARD
          */
 
-        dashboard =
-            Dashboard3DView(this).apply {
-                visibility = View.VISIBLE
+        dashboard = Dashboard3DView(this).apply {
+
+            visibility = View.VISIBLE
+
+            onAIOrbClick = {
+                if (::voiceManager.isInitialized) {
+                    voiceManager.startContinuousListening()
+                }
             }
+
+            onCarClick = {
+                showPage(MainMenuPage.CAR)
+            }
+
+            onMusicClick = {
+                showPage(MainMenuPage.MUSIC)
+            }
+
+            onNavigationClick = {
+                showPage(MainMenuPage.NAVIGATION)
+            }
+
+            onPhoneClick = {
+                showPage(MainMenuPage.CALL)
+            }
+
+            onScanClick = {
+                showPage(MainMenuPage.SCAN)
+            }
+        }
 
         root.addView(
             dashboard,
@@ -113,122 +138,93 @@ class MainActivity : Activity() {
          * BMW ROTARY MENU
          */
 
-        bmwMenu =
-    BMWMenu(this).apply {
-        onSwipeRight = {
-    showPage(MainMenuPage.CLOCK)
-}
+        bmwMenu = BMWMenu(this).apply {
 
-onSwipeLeft = {
-    showPage(MainMenuPage.HOME)
-}
+            visibility = View.VISIBLE
 
-        visibility =
-            View.VISIBLE
-onSwipeRight = {
-
-    runOnUiThread {
-
-        showPage(
-            MainMenuPage.CLOCK
-        )
-
-    }
-
-}
+            isClickable = true
+            isFocusable = true
 
 
-onSwipeLeft = {
+            /*
+             * SWIPE RIGHT
+             * HOME -> CLOCK
+             */
 
-    runOnUiThread {
+            onSwipeRight = {
 
-        showPage(
-            MainMenuPage.HOME
-        )
-
-    }
-
-}
-        isClickable =
-            false
-
-        isFocusable =
-            false
-
-
-        onMenuClick = { item ->
-
-            when (item) {
-
-
-                "CAR" -> {
-
-                    showPage(
-                        MainMenuPage.CAR
-                    )
-
+                runOnUiThread {
+                    showPage(MainMenuPage.CLOCK)
                 }
-
-
-                "MUSIC" -> {
-
-                    showPage(
-                        MainMenuPage.MUSIC
-                    )
-
-                }
-
-
-                "NAVI" -> {
-
-                    showPage(
-                        MainMenuPage.NAVIGATION
-                    )
-
-                }
-
-
-                "PHONE" -> {
-
-                    showPage(
-                        MainMenuPage.CALL
-                    )
-
-                }
-
-
-                "SCAN" -> {
-
-                    showPage(
-                        MainMenuPage.SCAN
-                    )
-
-                }
-
-
-                "AI" -> {
-
-                    if (
-                        ::voiceManager.isInitialized
-                    ) {
-
-                        voiceManager
-                            .startContinuousListening()
-
-                    }
-
-                }
-
             }
 
+
+            /*
+             * SWIPE LEFT
+             * CLOCK -> HOME
+             */
+
+            onSwipeLeft = {
+
+                runOnUiThread {
+                    showPage(MainMenuPage.HOME)
+                }
+            }
+
+
+            /*
+             * BMW MENU ITEMS
+             */
+
+            onMenuClick = { item ->
+
+                runOnUiThread {
+
+                    when (item) {
+
+                        "CAR" -> {
+                            showPage(
+                                MainMenuPage.CAR
+                            )
+                        }
+
+                        "MUSIC" -> {
+                            showPage(
+                                MainMenuPage.MUSIC
+                            )
+                        }
+
+                        "NAVI" -> {
+                            showPage(
+                                MainMenuPage.NAVIGATION
+                            )
+                        }
+
+                        "PHONE" -> {
+                            showPage(
+                                MainMenuPage.CALL
+                            )
+                        }
+
+                        "SCAN" -> {
+                            showPage(
+                                MainMenuPage.SCAN
+                            )
+                        }
+
+                        "AI" -> {
+
+                            if (
+                                ::voiceManager.isInitialized
+                            ) {
+                                voiceManager
+                                    .startContinuousListening()
+                            }
+                        }
+                    }
+                }
+            }
         }
-
-    }
-
-
-        /*
-         * BMW MENU ABOVE DASHBOARD
-         */
 
         root.addView(
             bmwMenu,
@@ -243,8 +239,7 @@ onSwipeLeft = {
         homePageView =
             HomePageView(this).apply {
 
-                visibility =
-                    View.GONE
+                visibility = View.GONE
 
                 setVehicleData(
                     VehicleData.demo()
@@ -263,8 +258,8 @@ onSwipeLeft = {
 
         clockPageView =
             ClockPageView(this).apply {
-                visibility =
-                    View.GONE
+
+                visibility = View.GONE
             }
 
         root.addView(
@@ -279,8 +274,8 @@ onSwipeLeft = {
 
         carPageView =
             CarPageView(this).apply {
-                visibility =
-                    View.GONE
+
+                visibility = View.GONE
             }
 
         root.addView(
@@ -295,8 +290,8 @@ onSwipeLeft = {
 
         musicPageView =
             MusicPageView(this).apply {
-                visibility =
-                    View.GONE
+
+                visibility = View.GONE
             }
 
         root.addView(
@@ -311,8 +306,8 @@ onSwipeLeft = {
 
         navigationPageView =
             NavigationPageView(this).apply {
-                visibility =
-                    View.GONE
+
+                visibility = View.GONE
             }
 
         root.addView(
@@ -327,8 +322,8 @@ onSwipeLeft = {
 
         callPageView =
             CallPageView(this).apply {
-                visibility =
-                    View.GONE
+
+                visibility = View.GONE
             }
 
         root.addView(
@@ -343,8 +338,8 @@ onSwipeLeft = {
 
         errorScannerPageView =
             ErrorScannerPageView(this).apply {
-                visibility =
-                    View.GONE
+
+                visibility = View.GONE
             }
 
         root.addView(
@@ -359,8 +354,8 @@ onSwipeLeft = {
 
         vehicleSettingsPageView =
             VehicleSettingsPageView(this).apply {
-                visibility =
-                    View.GONE
+
+                visibility = View.GONE
             }
 
         root.addView(
@@ -376,8 +371,7 @@ onSwipeLeft = {
         mainMenuView =
             MainMenuView(this).apply {
 
-                visibility =
-                    View.GONE
+                visibility = View.GONE
 
                 setPage(
                     MainMenuPage.HOME
@@ -391,51 +385,11 @@ onSwipeLeft = {
 
 
         /*
-         * SET CONTENT
+         * CONTENT
          */
 
-startupView.onFinished = {
+        setContentView(root)
 
-    runOnUiThread {
-
-        startupView.visibility =
-            View.GONE
-
-        showPage(
-            MainMenuPage.HOME
-        )
-    }
-}
-
-
-root.setOnTouchListener(
-    swipeController
-)
-
-swipeController.onSwipeRight = {
-
-    runOnUiThread {
-
-        showPage(
-            MainMenuPage.CLOCK
-        )
-
-    }
-
-}
-
-
-swipeController.onSwipeLeft = {
-
-    runOnUiThread {
-
-        showPage(
-            MainMenuPage.HOME
-        )
-
-    }
-
-}
 
         /*
          * STARTUP SCREEN
@@ -448,7 +402,6 @@ swipeController.onSwipeLeft = {
             startupView,
             fullScreenParams()
         )
-
 
         startupView.onFinished = {
 
@@ -513,9 +466,7 @@ swipeController.onSwipeLeft = {
 
                 runOnUiThread {
 
-                    showPage(
-                        page
-                    )
+                    showPage(page)
                 }
             }
 
@@ -529,7 +480,7 @@ swipeController.onSwipeLeft = {
 
 
         /*
-         * SPEECH
+         * SPEECH MANAGER
          */
 
         speechManager =
@@ -554,7 +505,7 @@ swipeController.onSwipeLeft = {
 
 
         /*
-         * VOICE AI
+         * VOICE MANAGER
          */
 
         voiceManager =
@@ -577,6 +528,10 @@ swipeController.onSwipeLeft = {
                             onResponse = { answer ->
 
                                 runOnUiThread {
+
+                                    dashboard.setAIState(
+                                        AIState.SPEAKING
+                                    )
 
                                     speechManager.speak(
                                         answer
@@ -628,6 +583,10 @@ swipeController.onSwipeLeft = {
     }
 
 
+    /*
+     * VEHICLE DATA UPDATE
+     */
+
     private fun updateVehicleViews(
         data: VehicleData
     ) {
@@ -650,6 +609,10 @@ swipeController.onSwipeLeft = {
     }
 
 
+    /*
+     * FULL SCREEN PARAMETERS
+     */
+
     private fun fullScreenParams():
             FrameLayout.LayoutParams {
 
@@ -659,6 +622,10 @@ swipeController.onSwipeLeft = {
         )
     }
 
+
+    /*
+     * VOICE SYSTEM
+     */
 
     private fun startVoiceSystem() {
 
@@ -678,8 +645,7 @@ swipeController.onSwipeLeft = {
 
         } else {
 
-            pendingVoiceStart =
-                true
+            pendingVoiceStart = true
 
             requestPermissions(
                 arrayOf(
@@ -719,8 +685,7 @@ swipeController.onSwipeLeft = {
                     pendingVoiceStart
                 ) {
 
-                    pendingVoiceStart =
-                        false
+                    pendingVoiceStart = false
 
                     voiceManager
                         .startContinuousListening()
@@ -751,6 +716,9 @@ swipeController.onSwipeLeft = {
                 bmwMenu.visibility =
                     View.VISIBLE
 
+                dashboard.visibility =
+                    View.VISIBLE
+
                 animateToPage(
                     clockPageView,
                     dashboard,
@@ -769,6 +737,9 @@ swipeController.onSwipeLeft = {
 
                 bmwMenu.visibility =
                     View.GONE
+
+                dashboard.visibility =
+                    View.VISIBLE
 
                 animateToPage(
                     dashboard,
@@ -820,7 +791,7 @@ swipeController.onSwipeLeft = {
 
 
             /*
-             * PHONE
+             * CALL
              */
 
             MainMenuPage.CALL -> {
@@ -895,7 +866,7 @@ swipeController.onSwipeLeft = {
 
 
     /*
-     * HIDE EVERYTHING EXCEPT ANIMATED PAGES
+     * HIDE ALL MAIN LAYERS
      */
 
     private fun hideAllMainLayers() {
@@ -936,7 +907,7 @@ swipeController.onSwipeLeft = {
 
 
     /*
-     * PAGE SLIDE ANIMATION
+     * PAGE ANIMATION
      */
 
     private fun animateToPage(
@@ -947,14 +918,19 @@ swipeController.onSwipeLeft = {
 
         val screenWidth =
             if (root.width > 0) {
+
                 root.width.toFloat()
+
             } else {
-                resources.displayMetrics.widthPixels.toFloat()
+
+                resources.displayMetrics
+                    .widthPixels
+                    .toFloat()
             }
 
 
         /*
-         * TARGET PAGE
+         * TARGET
          */
 
         to.visibility =
@@ -965,14 +941,17 @@ swipeController.onSwipeLeft = {
 
         to.translationX =
             if (direction > 0) {
+
                 screenWidth
+
             } else {
+
                 -screenWidth
             }
 
 
         /*
-         * SOURCE PAGE
+         * SOURCE
          */
 
         if (
@@ -983,8 +962,11 @@ swipeController.onSwipeLeft = {
             from.animate()
                 .translationX(
                     if (direction > 0) {
+
                         -screenWidth
+
                     } else {
+
                         screenWidth
                     }
                 )
@@ -1029,6 +1011,10 @@ swipeController.onSwipeLeft = {
     }
 
 
+    /*
+     * BACK BUTTON
+     */
+
     override fun onBackPressed() {
 
         showPage(
@@ -1036,6 +1022,10 @@ swipeController.onSwipeLeft = {
         )
     }
 
+
+    /*
+     * DESTROY
+     */
 
     override fun onDestroy() {
 
@@ -1046,7 +1036,6 @@ swipeController.onSwipeLeft = {
             voiceManager.destroy()
         }
 
-
         if (
             ::speechManager.isInitialized
         ) {
@@ -1054,14 +1043,12 @@ swipeController.onSwipeLeft = {
             speechManager.destroy()
         }
 
-
         if (
             ::displayBootManager.isInitialized
         ) {
 
             displayBootManager.destroy()
         }
-
 
         if (
             CANReceiver.isConnected()
@@ -1071,7 +1058,6 @@ swipeController.onSwipeLeft = {
 
             CANReceiver.disconnect()
         }
-
 
         super.onDestroy()
     }
