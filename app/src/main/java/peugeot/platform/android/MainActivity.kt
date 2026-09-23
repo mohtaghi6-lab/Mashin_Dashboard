@@ -114,56 +114,86 @@ class MainActivity : Activity() {
          */
 
         bmwMenu =
-            BMWMenu(this).apply {
+    BMWMenu(this).apply {
 
-                visibility = View.VISIBLE
+        visibility =
+            View.VISIBLE
 
-                onMenuClick = { item ->
+        isClickable =
+            false
 
-                    when (item) {
+        isFocusable =
+            false
 
-                        "CAR" -> {
-                            showPage(
-                                MainMenuPage.CAR
-                            )
-                        }
 
-                        "MUSIC" -> {
-                            showPage(
-                                MainMenuPage.MUSIC
-                            )
-                        }
+        onMenuClick = { item ->
 
-                        "NAVI" -> {
-                            showPage(
-                                MainMenuPage.NAVIGATION
-                            )
-                        }
+            when (item) {
 
-                        "PHONE" -> {
-                            showPage(
-                                MainMenuPage.CALL
-                            )
-                        }
 
-                        "SCAN" -> {
-                            showPage(
-                                MainMenuPage.SCAN
-                            )
-                        }
+                "CAR" -> {
 
-                        "AI" -> {
+                    showPage(
+                        MainMenuPage.CAR
+                    )
 
-                            if (
-                                ::voiceManager.isInitialized
-                            ) {
-                                voiceManager
-                                    .startContinuousListening()
-                            }
-                        }
-                    }
                 }
+
+
+                "MUSIC" -> {
+
+                    showPage(
+                        MainMenuPage.MUSIC
+                    )
+
+                }
+
+
+                "NAVI" -> {
+
+                    showPage(
+                        MainMenuPage.NAVIGATION
+                    )
+
+                }
+
+
+                "PHONE" -> {
+
+                    showPage(
+                        MainMenuPage.CALL
+                    )
+
+                }
+
+
+                "SCAN" -> {
+
+                    showPage(
+                        MainMenuPage.SCAN
+                    )
+
+                }
+
+
+                "AI" -> {
+
+                    if (
+                        ::voiceManager.isInitialized
+                    ) {
+
+                        voiceManager
+                            .startContinuousListening()
+
+                    }
+
+                }
+
             }
+
+        }
+
+    }
 
 
         /*
