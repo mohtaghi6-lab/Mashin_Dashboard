@@ -37,7 +37,12 @@ class BMWMenu(
     var onMenuClick:
             ((String) -> Unit)? = null
 
+var onSwipeRight:
+        (() -> Unit)? = null
 
+
+var onSwipeLeft:
+        (() -> Unit)? = null
     private var downX = 0f
     private var downY = 0f
 
@@ -262,138 +267,192 @@ class BMWMenu(
 
 
     override fun onTouchEvent(
-        event: MotionEvent
-    ): Boolean {
+    event: MotionEvent
+): Boolean {
 
 
-        when(event.action){
+    when(event.action){
 
 
-            MotionEvent.ACTION_DOWN -> {
+        MotionEvent.ACTION_DOWN -> {
 
-                downX =
-                    event.x
+            downX =
+                event.x
 
-                downY =
-                    event.y
+            downY =
+                event.y
+
+            return true
+        }
+
+
+
+        MotionEvent.ACTION_UP -> {
+
+
+            val diffX =
+                event.x - downX
+
+
+            val diffY =
+                event.y - downY
+
+
+
+            // -------------------------
+            // SWIPE CONTROL
+            // -------------------------
+
+            if(
+                kotlin.math.abs(diffX) >
+                kotlin.math.abs(diffY)
+                &&
+                kotlin.math.abs(diffX) >
+                swipeLimit
+            ){
+
+
+                if(diffX > 0){
+
+                    onSwipeRight?.invoke()
+
+                }
+                else{
+
+                    onSwipeLeft?.invoke()
+
+                }
+
+
+                performClick()
 
                 return true
             }
 
 
 
-            MotionEvent.ACTION_UP -> {
+
+            // -------------------------
+            // MENU CLICK
+            // -------------------------
+
+            val cx =
+                width / 2f
 
 
-                val diffX =
-                    event.x - downX
-
-
-                val diffY =
-                    event.y - downY
-
-
-
-                // swipe handling
-
-                if(
-                    kotlin.math.abs(diffX) >
-                    kotlin.math.abs(diffY)
-                    &&
-                    kotlin.math.abs(diffX) >
-                    swipeLimit
-                ){
-
-                    performClick()
-
-                    return true
-                }
+            val cy =
+                height / 2f
 
 
 
-
-                val cx =
-                    width / 2f
-
-
-                val cy =
-                    height / 2f
+            val dx =
+                event.x - cx
 
 
-
-                val dx =
-                    event.x - cx
-
-
-                val dy =
-                    event.y - cy
+            val dy =
+                event.y - cy
 
 
 
-                val distance =
-                    sqrt(
-                        dx * dx +
-                                dy * dy
-                    )
+            val distance =
+                sqrt(
+                    dx * dx +
+                    dy * dy
+                )
 
 
 
-                // AI button
+            // AI CENTER BUTTON
 
-                if(distance < 70f){
+            if(
+                distance < 70f
+            ){
 
-                    selected = 5
-
-                    invalidate()
-
-                    onMenuClick?.invoke(
-                        "AI"
-                    )
-
-                    performClick()
-
-                    return true
-                }
-
-
-
-
-                val angle =
-                    Math.toDegrees(
-                        atan2(
-                            dy,
-                            dx
-                        ).toDouble()
-                    )
-
-
-
-                var index =
-                    (((angle + 90 + 360) % 360) / 60)
-                        .toInt()
-
-
-
-                if(index >= items.size){
-
-                    index =
-                        items.size - 1
-                }
-
-
-
-                selected =
-                    index
-
+                selected = 5
 
                 invalidate()
 
 
-
                 onMenuClick?.invoke(
-                    items[selected]
+                    "AI"
                 )
 
+
+                performClick()
+
+                return true
+            }
+
+
+
+
+            // خارج از محدوده منو
+
+            if(
+                distance < 70f
+            ){
+
+                performClick()
+
+                return true
+            }
+
+
+
+
+            val angle =
+                Math.toDegrees(
+                    atan2(
+                        dy,
+                        dx
+                    ).toDouble()
+                )
+
+
+
+            var index =
+                (
+                    ((angle + 90 + 360) % 360)
+                    / 60
+                ).toInt()
+
+
+
+            if(
+                index >= items.size
+            ){
+
+                index =
+                    items.size - 1
+            }
+
+
+
+            selected =
+                index
+
+
+
+            invalidate()
+
+
+
+            onMenuClick?.invoke(
+                items[selected]
+            )
+
+
+
+            performClick()
+
+            return true
+        }
+
+    }
+
+
+    return true
+}
 
 
                 performClick()
