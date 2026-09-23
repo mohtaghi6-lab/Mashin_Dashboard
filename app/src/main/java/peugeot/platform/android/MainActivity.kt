@@ -125,7 +125,30 @@ onSwipeLeft = {
 
         visibility =
             View.VISIBLE
+onSwipeRight = {
 
+    runOnUiThread {
+
+        showPage(
+            MainMenuPage.CLOCK
+        )
+
+    }
+
+}
+
+
+onSwipeLeft = {
+
+    runOnUiThread {
+
+        showPage(
+            MainMenuPage.HOME
+        )
+
+    }
+
+}
         isClickable =
             false
 
