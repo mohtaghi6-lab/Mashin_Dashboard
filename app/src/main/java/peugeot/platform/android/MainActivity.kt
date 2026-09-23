@@ -397,6 +397,23 @@ val swipeController =
 root.setOnTouchListener(
     swipeController
 )
+startupView.onFinished = {
+
+    runOnUiThread {
+
+        startupView.visibility =
+            View.GONE
+
+        showPage(
+            MainMenuPage.HOME
+        )
+    }
+}
+
+
+root.setOnTouchListener(
+    swipeController
+)
 
 swipeController.onSwipeRight = {
 
