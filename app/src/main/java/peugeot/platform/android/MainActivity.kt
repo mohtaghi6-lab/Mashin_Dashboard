@@ -28,10 +28,9 @@ import peugeot.platform.android.ui.HomePageView
 import peugeot.platform.android.ui.MainMenuController
 import peugeot.platform.android.ui.MainMenuView
 import peugeot.platform.android.ui.MusicPageView
-import peugeot.platform.android.ui.NavigationPageView
 import peugeot.platform.android.ui.VehicleSettingsPageView
 import peugeot.platform.android.ui.MainMenuPage
-
+import peugeot.platform.android.ui.NavigationPageView
 import peugeot.platform.android.vehicle.ErrorScannerEngine
 import peugeot.platform.android.vehicle.VehicleData
 import peugeot.platform.android.vehicle.VehicleDataController
