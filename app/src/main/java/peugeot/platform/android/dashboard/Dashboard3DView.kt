@@ -11,152 +11,74 @@ import peugeot.platform.android.vehicle.VehicleData
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
-import kotlin.math.min
 
+class Dashboard3DView(context: Context) : View(context) {
 
-class Dashboard3DView(
-    context: Context
-) : View(context) {
+    private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
 
+    private var vehicleData = VehicleData.demo()
+    private var aiState = AIState.IDLE
 
-    private val paint =
-        Paint(Paint.ANTI_ALIAS_FLAG)
+    var onAIOrbClick: (() -> Unit)? = null
 
+    var onCarClick: (() -> Unit)? = null
+    var onMusicClick: (() -> Unit)? = null
+    var onNavigationClick: (() -> Unit)? = null
+    var onPhoneClick: (() -> Unit)? = null
+    var onScanClick: (() -> Unit)? = null
 
-    private var vehicleData =
-        VehicleData.demo()
+    private val blue = Color.rgb(0, 170, 255)
 
-
-    private var aiState =
-        AIState.IDLE
-
-
-    var onAIOrbClick:
-            (() -> Unit)? = null
-
-
-
-    private val blue =
-        Color.rgb(
-            0,
-            170,
-            255
-        )
-
-
-    private val dark =
-        Color.rgb(
-            2,
-            8,
-            18
-        )
-
-
-    private val glass =
-        Color.argb(
-            90,
-            255,
-            255,
-            255
-        )
-
-
-
-    fun setVehicleData(
-        data: VehicleData
-    ) {
-
-        vehicleData =
-            data
-
-        invalidate()
-    }
-
-
-
-    fun setAIState(
-        state: AIState
-    ) {
-
-        aiState =
-            state
-
-        invalidate()
-    }
-
-
-
-    override fun onDraw(
-        canvas: Canvas
-    ) {
-
+    override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
+        val w = width.toFloat()
+        val h = height.toFloat()
 
-        val w =
-            width.toFloat()
+        if (w <= 0f || h <= 0f) {
+            return
+        }
 
-
-        val h =
-            height.toFloat()
-
-
-
-        drawBackground(
-            canvas,
-            w,
-            h
-        )
-
-
-        drawHeader(
-            canvas,
-            w
-        )
-
+        drawBackground(canvas, w, h)
+        drawHeader(canvas, w)
 
         drawGauge(
             canvas,
             w * 0.25f,
             h * 0.48f,
-            min(w,h) * 0.20f,
+            minOf(w, h) * 0.20f,
             vehicleData.speedKmh.toFloat(),
             240f,
             "KM/H"
         )
 
-
         drawGauge(
             canvas,
             w * 0.75f,
             h * 0.48f,
-            min(w,h) * 0.20f,
+            minOf(w, h) * 0.20f,
             vehicleData.rpm.toFloat(),
             8000f,
             "RPM"
         )
 
-
         drawCenterSpeed(
             canvas,
-            w/2f,
-            h*0.42f
+            w / 2f,
+            h * 0.42f
         )
-
 
         drawAIWave(
             canvas,
-            w/2f,
-            h*0.70f
+            w / 2f,
+            h * 0.70f
         )
-
 
         drawAIOrb(
             canvas,
-            w/2f,
-            h*0.70f
+            w / 2f,
+            h * 0.70f
         )
-
 
         drawCards(
             canvas,
@@ -164,34 +86,35 @@ class Dashboard3DView(
             h
         )
 
-
-        postInvalidateDelayed(
-            40L
-        )
-
+        postInvalidateDelayed(40L)
     }
-        private fun drawBackground(
+
+    fun setVehicleData(data: VehicleData) {
+        vehicleData = data
+        invalidate()
+    }
+
+    fun setAIState(state: AIState) {
+        aiState = state
+        invalidate()
+    }
+
+    private fun drawBackground(
         canvas: Canvas,
         w: Float,
         h: Float
     ) {
+        paint.style = Paint.Style.FILL
 
-
-        paint.style =
-            Paint.Style.FILL
-
-
-        paint.shader =
-            LinearGradient(
-                0f,
-                0f,
-                0f,
-                h,
-                Color.rgb(1,5,12),
-                Color.rgb(8,28,48),
-                Shader.TileMode.CLAMP
-            )
-
+        paint.shader = LinearGradient(
+            0f,
+            0f,
+            0f,
+            h,
+            Color.rgb(1, 5, 12),
+            Color.rgb(8, 28, 48),
+            Shader.TileMode.CLAMP
+        )
 
         canvas.drawRect(
             0f,
@@ -201,77 +124,55 @@ class Dashboard3DView(
             paint
         )
 
+        paint.shader = null
 
-        paint.shader =
-            null
-
-
-
-        // BMW ambient light
-
-        paint.color =
-            Color.argb(
-                40,
-                0,
-                160,
-                255
-            )
-
+        paint.color = Color.argb(
+            40,
+            0,
+            160,
+            255
+        )
 
         canvas.drawCircle(
-            w/2f,
-            h*0.45f,
-            min(w,h)*0.45f,
+            w / 2f,
+            h * 0.45f,
+            minOf(w, h) * 0.45f,
             paint
         )
 
-
-
-        // top glow
-
-        paint.color =
-            Color.argb(
-                30,
-                0,
-                220,
-                255
-            )
-
+        paint.color = Color.argb(
+            30,
+            0,
+            220,
+            255
+        )
 
         canvas.drawCircle(
-            w/2f,
+            w / 2f,
             0f,
-            w*0.40f,
+            w * 0.40f,
             paint
         )
-
     }
-
-
-
-
 
     private fun drawHeader(
         canvas: Canvas,
         w: Float
-    ){
+    ) {
+        val rect = RectF(
+            35f,
+            20f,
+            w - 35f,
+            90f
+        )
 
-        val rect =
-            RectF(
-                35f,
-                20f,
-                w-35f,
-                90f
-            )
-
-
-        paint.style =
-            Paint.Style.FILL
-
-
-        paint.color =
-            glass
-
+        paint.style = Paint.Style.FILL
+        paint.color = Color.argb(
+            90,
+            255,
+            255,
+            255
+        )
 
         canvas.drawRoundRect(
             rect,
@@ -280,24 +181,14 @@ class Dashboard3DView(
             paint
         )
 
-
-
-        paint.style =
-            Paint.Style.STROKE
-
-
-        paint.strokeWidth =
-            2f
-
-
-        paint.color =
-            Color.argb(
-                180,
-                0,
-                180,
-                255
-            )
-
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = 2f
+        paint.color = Color.argb(
+            180,
+            0,
+            180,
+            255
+        )
 
         canvas.drawRoundRect(
             rect,
@@ -306,57 +197,29 @@ class Dashboard3DView(
             paint
         )
 
-
-
-        paint.style =
-            Paint.Style.FILL
-
-
-        paint.textAlign =
-            Paint.Align.CENTER
-
-
-        paint.typeface =
-            Typeface.DEFAULT_BOLD
-
-
-        paint.textSize =
-            24f
-
-
-        paint.color =
-            Color.WHITE
-
+        paint.style = Paint.Style.FILL
+        paint.textAlign = Paint.Align.CENTER
+        paint.typeface = Typeface.DEFAULT_BOLD
+        paint.textSize = 24f
+        paint.color = Color.WHITE
 
         canvas.drawText(
             "PEUGEOT  •  VEHICLE OS",
-            w/2f,
+            w / 2f,
             62f,
             paint
         )
 
-
-
-        paint.textSize =
-            11f
-
-
-        paint.color =
-            Color.CYAN
-
+        paint.textSize = 11f
+        paint.color = Color.CYAN
 
         canvas.drawText(
             "BMW LUXURY INTERFACE",
-            w/2f,
+            w / 2f,
             82f,
             paint
         )
-
     }
-
-
-
-
 
     private fun drawGauge(
         canvas: Canvas,
@@ -366,49 +229,27 @@ class Dashboard3DView(
         value: Float,
         maxValue: Float,
         unit: String
-    ){
-
-
+    ) {
         val progress =
-            (value/maxValue)
-                .coerceIn(
-                    0f,
-                    1f
-                )
+            (value / maxValue)
+                .coerceIn(0f, 1f)
 
+        val rect = RectF(
+            cx - radius,
+            cy - radius,
+            cx + radius,
+            cy + radius
+        )
 
-        val rect =
-            RectF(
-                cx-radius,
-                cy-radius,
-                cx+radius,
-                cy+radius
-            )
-
-
-
-        // outer glow
-
-        paint.style =
-            Paint.Style.STROKE
-
-
-        paint.strokeCap =
-            Paint.Cap.ROUND
-
-
-        paint.strokeWidth =
-            28f
-
-
-        paint.color =
-            Color.argb(
-                45,
-                0,
-                170,
-                255
-            )
-
+        paint.style = Paint.Style.STROKE
+        paint.strokeCap = Paint.Cap.ROUND
+        paint.strokeWidth = 28f
+        paint.color = Color.argb(
+            45,
+            0,
+            170,
+            255
+        )
 
         canvas.drawArc(
             rect,
@@ -418,17 +259,8 @@ class Dashboard3DView(
             paint
         )
 
-
-
-        // main ring
-
-        paint.strokeWidth =
-            4f
-
-
-        paint.color =
-            Color.CYAN
-
+        paint.strokeWidth = 4f
+        paint.color = Color.CYAN
 
         canvas.drawArc(
             rect,
@@ -438,118 +270,79 @@ class Dashboard3DView(
             paint
         )
 
-
-
-        // progress
-
-        paint.strokeWidth =
-            10f
-
-
-        paint.color =
-            blue
-
+        paint.strokeWidth = 10f
+        paint.color = blue
 
         canvas.drawArc(
             rect,
             135f,
-            270f*progress,
+            270f * progress,
             false,
             paint
         )
 
+        paint.strokeWidth = 2f
+        paint.color = Color.WHITE
 
-
-        // ticks
-
-        paint.strokeWidth =
-            2f
-
-
-        paint.color =
-            Color.WHITE
-
-
-        for(
-            i in 0..36
-        ){
+        for (i in 0..36) {
 
             val angle =
                 Math.toRadians(
-                    135.0+i*7.5
+                    135.0 + i * 7.5
                 )
 
-
             val inner =
-                radius-18f
-
+                radius - 18f
 
             val outer =
-                radius+5f
-
-
+                radius + 5f
 
             canvas.drawLine(
+                cx +
+                    cos(angle).toFloat() *
+                    inner,
 
-                cx+
-                        cos(angle).toFloat()*inner,
+                cy +
+                    sin(angle).toFloat() *
+                    inner,
 
-                cy+
-                        sin(angle).toFloat()*inner,
+                cx +
+                    cos(angle).toFloat() *
+                    outer,
 
-                cx+
-                        cos(angle).toFloat()*outer,
-
-                cy+
-                        sin(angle).toFloat()*outer,
+                cy +
+                    sin(angle).toFloat() *
+                    outer,
 
                 paint
             )
-
         }
-                // needle
 
         val needleAngle =
             Math.toRadians(
-                135.0 + 270.0 * progress
+                135.0 +
+                    270.0 * progress
             )
 
-
-        paint.strokeWidth =
-            5f
-
-
-        paint.color =
-            Color.WHITE
-
+        paint.strokeWidth = 5f
+        paint.color = Color.WHITE
 
         canvas.drawLine(
             cx,
             cy,
             cx +
-                    cos(needleAngle).toFloat()
-                    *
-                    (radius-35f),
+                cos(needleAngle).toFloat() *
+                (radius - 35f),
 
             cy +
-                    sin(needleAngle).toFloat()
-                    *
-                    (radius-35f),
+                sin(needleAngle).toFloat() *
+                (radius - 35f),
 
             paint
         )
 
-
-
-        // center hub
-
-        paint.style =
-            Paint.Style.FILL
-
-
-        paint.color =
-            blue
-
+        paint.style = Paint.Style.FILL
+        paint.color = blue
 
         canvas.drawCircle(
             cx,
@@ -558,10 +351,7 @@ class Dashboard3DView(
             paint
         )
 
-
-        paint.color =
-            Color.WHITE
-
+        paint.color = Color.WHITE
 
         canvas.drawCircle(
             cx,
@@ -570,80 +360,39 @@ class Dashboard3DView(
             paint
         )
 
-
-
-        // value
-
-        paint.textAlign =
-            Paint.Align.CENTER
-
-
-        paint.typeface =
-            Typeface.DEFAULT_BOLD
-
-
-        paint.textSize =
-            radius*0.25f
-
-
-        paint.color =
-            Color.WHITE
-
+        paint.textAlign = Paint.Align.CENTER
+        paint.typeface = Typeface.DEFAULT_BOLD
+        paint.textSize = radius * 0.25f
+        paint.color = Color.WHITE
 
         canvas.drawText(
             value.toInt().toString(),
             cx,
-            cy+25f,
+            cy + 25f,
             paint
         )
 
-
-        paint.textSize =
-            16f
-
-
-        paint.color =
-            Color.CYAN
-
+        paint.textSize = 16f
+        paint.color = Color.CYAN
 
         canvas.drawText(
             unit,
             cx,
-            cy+radius*0.55f,
+            cy + radius * 0.55f,
             paint
         )
-
     }
-
-
-
-
 
     private fun drawCenterSpeed(
         canvas: Canvas,
         cx: Float,
         cy: Float
-    ){
-
-        paint.style =
-            Paint.Style.FILL
-
-
-        paint.textAlign =
-            Paint.Align.CENTER
-
-
-        paint.typeface =
-            Typeface.DEFAULT_BOLD
-
-
-        paint.textSize =
-            70f
-
-
-        paint.color =
-            Color.WHITE
-
+    ) {
+        paint.style = Paint.Style.FILL
+        paint.textAlign = Paint.Align.CENTER
+        paint.typeface = Typeface.DEFAULT_BOLD
+        paint.textSize = 70f
+        paint.color = Color.WHITE
 
         canvas.drawText(
             vehicleData.speedKmh.toString(),
@@ -652,37 +401,24 @@ class Dashboard3DView(
             paint
         )
 
-
-        paint.textSize =
-            15f
-
-
-        paint.color =
-            Color.CYAN
-
+        paint.textSize = 15f
+        paint.color = Color.CYAN
 
         canvas.drawText(
             "CURRENT SPEED",
             cx,
-            cy+35f,
+            cy + 35f,
             paint
         )
-
     }
-
-
-
-
 
     private fun drawAIOrb(
         canvas: Canvas,
         cx: Float,
         cy: Float
-    ){
-
+    ) {
         val time =
             System.currentTimeMillis()
-
 
         val pulse =
             sin(
@@ -690,85 +426,53 @@ class Dashboard3DView(
                     .toDouble()
             ).toFloat()
 
-
         val size =
-            60f + pulse*8f
-
-
+            60f +
+                pulse * 8f
 
         val stateColor =
-            when(aiState){
-
+            when (aiState) {
                 AIState.LISTENING ->
                     Color.GREEN
-
 
                 AIState.THINKING ->
                     Color.YELLOW
 
-
                 AIState.SPEAKING ->
                     Color.CYAN
 
-
                 AIState.ERROR ->
                     Color.RED
-
 
                 else ->
                     blue
             }
 
-
-
-        // outer ring
-
-        paint.style =
-            Paint.Style.STROKE
-
-
-        paint.strokeWidth =
-            7f
-
-
-        paint.color =
-            stateColor
-
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = 7f
+        paint.color = stateColor
 
         canvas.drawCircle(
             cx,
             cy,
-            size+35f,
+            size + 35f,
             paint
         )
 
-
-
-        // glow
-
-        paint.style =
-            Paint.Style.FILL
-
-
-        paint.color =
-            Color.argb(
-                80,
-                0,
-                160,
-                255
-            )
-
+        paint.style = Paint.Style.FILL
+        paint.color = Color.argb(
+            80,
+            0,
+            160,
+            255
+        )
 
         canvas.drawCircle(
             cx,
             cy,
-            size+20f,
+            size + 20f,
             paint
         )
-
-
-
-        // orb
 
         paint.color =
             Color.rgb(
@@ -777,7 +481,6 @@ class Dashboard3DView(
                 240
             )
 
-
         canvas.drawCircle(
             cx,
             cy,
@@ -785,116 +488,76 @@ class Dashboard3DView(
             paint
         )
 
-
-
-        // reflection
-
-        paint.color =
-            Color.argb(
-                120,
-                180,
-                240,
-                255
-            )
-
+        paint.color = Color.argb(
+            120,
+            180,
+            240,
+            255
+        )
 
         canvas.drawCircle(
-            cx-18f,
-            cy-22f,
-            size*0.30f,
+            cx - 18f,
+            cy - 22f,
+            size * 0.30f,
             paint
         )
 
-
-
-        paint.textAlign =
-            Paint.Align.CENTER
-
-
-        paint.typeface =
-            Typeface.DEFAULT_BOLD
-
-
-        paint.textSize =
-            28f
-
-
-        paint.color =
-            Color.WHITE
-
+        paint.textAlign = Paint.Align.CENTER
+        paint.typeface = Typeface.DEFAULT_BOLD
+        paint.textSize = 28f
+        paint.color = Color.WHITE
 
         canvas.drawText(
             "AI",
             cx,
-            cy+10f,
+            cy + 10f,
             paint
         )
 
-
-
-        paint.textSize =
-            12f
-
-
-        paint.color =
-            stateColor
-
+        paint.textSize = 12f
+        paint.color = stateColor
 
         canvas.drawText(
             aiText(),
             cx,
-            cy+38f,
+            cy + 38f,
             paint
         )
-
     }
 
-
-
-
-
-    private fun aiText():
-            String {
-
-        return when(aiState){
+    private fun aiText(): String {
+        return when (aiState) {
 
             AIState.IDLE ->
                 "آماده‌ام"
 
-
             AIState.LISTENING ->
                 "گوش می‌کنم"
-
 
             AIState.THINKING ->
                 "پردازش"
 
-
             AIState.SPEAKING ->
                 "صحبت"
-
 
             AIState.ERROR ->
                 "خطا"
         }
-
     }
-                private fun drawAIWave(
+
+    private fun drawAIWave(
         canvas: Canvas,
         cx: Float,
         cy: Float
-    ){
-
+    ) {
         val progress =
             (
-                System.currentTimeMillis()
-                    % 1600L
-            ).toFloat() / 1600f
-
-
+                System.currentTimeMillis() %
+                    1600L
+                ).toFloat() / 1600f
 
         val color =
-            when(aiState){
+            when (aiState) {
 
                 AIState.LISTENING ->
                     Color.GREEN
@@ -912,48 +575,26 @@ class Dashboard3DView(
                     blue
             }
 
-
-
-        paint.style =
-            Paint.Style.STROKE
-
-
-        paint.strokeWidth =
-            3f
-
-
-        paint.color =
-            color
-
-
-        paint.alpha =
-            160
-
-
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = 3f
+        paint.color = color
+        paint.alpha = 160
 
         canvas.drawCircle(
             cx,
             cy,
-            95f + progress*55f,
+            95f + progress * 55f,
             paint
         )
 
-
-        paint.alpha =
-            255
-
+        paint.alpha = 255
     }
-
-
-
-
 
     private fun drawCards(
         canvas: Canvas,
         w: Float,
         h: Float
-    ){
-
+    ) {
         val cards =
             arrayOf(
                 "CAR",
@@ -963,60 +604,38 @@ class Dashboard3DView(
                 "SCAN"
             )
 
-
-        val cardWidth =
-            120f
-
-
-        val cardHeight =
-            60f
-
-
-        val gap =
-            10f
-
+        val cardWidth = 120f
+        val cardHeight = 60f
+        val gap = 10f
 
         val totalWidth =
             cards.size * cardWidth +
-                    (cards.size-1)*gap
-
+                (cards.size - 1) * gap
 
         val start =
-            (w-totalWidth)/2f
+            (w - totalWidth) / 2f
 
-
-
-        for(
-            i in cards.indices
-        ){
+        for (i in cards.indices) {
 
             val x =
                 start +
-                        i*(cardWidth+gap)
-
-
+                    i * (cardWidth + gap)
 
             val rect =
                 RectF(
                     x,
-                    h-90f,
-                    x+cardWidth,
-                    h-30f
+                    h - 90f,
+                    x + cardWidth,
+                    h - 30f
                 )
 
-
-            paint.style =
-                Paint.Style.FILL
-
-
-            paint.color =
-                Color.argb(
-                    80,
-                    255,
-                    255,
-                    255
-                )
-
+            paint.style = Paint.Style.FILL
+            paint.color = Color.argb(
+                80,
+                255,
+                255,
+                255
+            )
 
             canvas.drawRoundRect(
                 rect,
@@ -1025,19 +644,9 @@ class Dashboard3DView(
                 paint
             )
 
-
-
-            paint.style =
-                Paint.Style.STROKE
-
-
-            paint.strokeWidth =
-                2f
-
-
-            paint.color =
-                Color.CYAN
-
+            paint.style = Paint.Style.STROKE
+            paint.strokeWidth = 2f
+            paint.color = Color.CYAN
 
             canvas.drawRoundRect(
                 rect,
@@ -1046,99 +655,130 @@ class Dashboard3DView(
                 paint
             )
 
-
-
-            paint.style =
-                Paint.Style.FILL
-
-
-            paint.textAlign =
-                Paint.Align.CENTER
-
-
-            paint.typeface =
-                Typeface.DEFAULT_BOLD
-
-
-            paint.textSize =
-                14f
-
-
-            paint.color =
-                Color.WHITE
-
-
+            paint.style = Paint.Style.FILL
+            paint.textAlign = Paint.Align.CENTER
+            paint.typeface = Typeface.DEFAULT_BOLD
+            paint.textSize = 14f
+            paint.color = Color.WHITE
 
             canvas.drawText(
                 cards[i],
-                x+cardWidth/2f,
-                h-55f,
+                x + cardWidth / 2f,
+                h - 55f,
                 paint
             )
-
         }
-
     }
-
-
-
-
 
     override fun onTouchEvent(
         event: MotionEvent
     ): Boolean {
 
-
-        if(
-            event.action ==
+        if (event.actionMasked ==
             MotionEvent.ACTION_UP
-        ){
+        ) {
+
+            val w = width.toFloat()
+            val h = height.toFloat()
+
+            val orbX = w / 2f
+            val orbY = h * 0.70f
 
             val dx =
-                event.x - width/2f
-
+                event.x - orbX
 
             val dy =
-                event.y - height*0.70f
-
-
+                event.y - orbY
 
             val distance =
                 sqrt(
-                    dx*dx +
-                            dy*dy
+                    dx * dx +
+                        dy * dy
                 )
 
-
-
-            if(
-                distance < 150f
-            ){
+            if (distance < 150f) {
 
                 onAIOrbClick?.invoke()
 
+                performClick()
+
+                return true
             }
 
+            val cardWidth = 120f
+            val gap = 10f
+            val cardTop = h - 90f
+            val cardBottom = h - 30f
+
+            val cards =
+                arrayOf(
+                    "CAR",
+                    "MUSIC",
+                    "NAVI",
+                    "PHONE",
+                    "SCAN"
+                )
+
+            val totalWidth =
+                cards.size * cardWidth +
+                    (cards.size - 1) * gap
+
+            val start =
+                (w - totalWidth) / 2f
+
+            if (
+                event.y >= cardTop &&
+                event.y <= cardBottom
+            ) {
+
+                for (i in cards.indices) {
+
+                    val left =
+                        start +
+                            i * (cardWidth + gap)
+
+                    val right =
+                        left + cardWidth
+
+                    if (
+                        event.x >= left &&
+                        event.x <= right
+                    ) {
+
+                        when (cards[i]) {
+
+                            "CAR" ->
+                                onCarClick?.invoke()
+
+                            "MUSIC" ->
+                                onMusicClick?.invoke()
+
+                            "NAVI" ->
+                                onNavigationClick?.invoke()
+
+                            "PHONE" ->
+                                onPhoneClick?.invoke()
+
+                            "SCAN" ->
+                                onScanClick?.invoke()
+                        }
+
+                        performClick()
+
+                        return true
+                    }
+                }
+            }
 
             performClick()
-
             return true
         }
 
-
         return true
     }
 
-
-
-
-
-    override fun performClick():
-            Boolean {
-
+    override fun performClick(): Boolean {
         super.performClick()
-
         return true
     }
-
 }
