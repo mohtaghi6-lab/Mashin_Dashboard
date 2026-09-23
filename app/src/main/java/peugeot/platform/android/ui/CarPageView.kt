@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.*
 import android.view.MotionEvent
 import android.view.View
+import peugeot.platform.android.vehicle.VehicleData
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
@@ -21,6 +22,8 @@ class CarPageView(
 
     private var widthPx = 0f
     private var heightPx = 0f
+
+    private var vehicleData: VehicleData? = null
 
     private var speed = 0f
     private var rpm = 0f
@@ -44,11 +47,27 @@ class CarPageView(
 
         strokePaint.style = Paint.Style.STROKE
         strokePaint.strokeCap = Paint.Cap.ROUND
+    }
 
-        textPaint.typeface = Typeface.create(
-            Typeface.SANS_SERIF,
-            Typeface.NORMAL
-        )
+    /**
+     * دریافت اطلاعات خودرو از VehicleDataController
+     */
+    fun setVehicleData(data: VehicleData) {
+        vehicleData = data
+
+        speed = data.speed.toFloat()
+        rpm = data.rpm.toFloat()
+
+        /*
+         * این مقادیر در صورت وجود در VehicleData
+         * از مدل خودرو گرفته می‌شوند.
+         *
+         * برای جلوگیری از وابستگی به نام فیلدهای
+         * احتمالی مختلف، مقادیر فعلی دمو برای
+         * temperature / fuel / voltage حفظ شده‌اند.
+         */
+
+        invalidate()
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -197,7 +216,10 @@ class CarPageView(
     }
 
     private fun drawMainGauges(canvas: Canvas) {
-        val gaugeRadius = min(widthPx * 0.27f, heightPx * 0.27f)
+        val gaugeRadius = min(
+            widthPx * 0.27f,
+            heightPx * 0.27f
+        )
 
         val leftX = widthPx * 0.27f
         val rightX = widthPx * 0.73f
@@ -240,10 +262,16 @@ class CarPageView(
         title: String
     ) {
         val outer = Paint(Paint.ANTI_ALIAS_FLAG)
+
         outer.style = Paint.Style.STROKE
         outer.strokeWidth = 10f
         outer.strokeCap = Paint.Cap.ROUND
-        outer.color = Color.argb(55, 150, 190, 230)
+        outer.color = Color.argb(
+            55,
+            150,
+            190,
+            230
+        )
 
         canvas.drawArc(
             cx - radius,
@@ -256,24 +284,36 @@ class CarPageView(
             outer
         )
 
-        val progress = ((value - minValue) / (maxValue - minValue))
-            .coerceIn(0f, 1f)
+        val progress =
+            ((value - minValue) /
+                    (maxValue - minValue))
+                .coerceIn(0f, 1f)
 
-        val progressPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-        progressPaint.style = Paint.Style.STROKE
+        val progressPaint =
+            Paint(Paint.ANTI_ALIAS_FLAG)
+
+        progressPaint.style =
+            Paint.Style.STROKE
+
         progressPaint.strokeWidth = 10f
-        progressPaint.strokeCap = Paint.Cap.ROUND
+        progressPaint.strokeCap =
+            Paint.Cap.ROUND
 
-        progressPaint.shader = SweepGradient(
-            cx,
-            cy,
-            intArrayOf(
-                Color.rgb(45, 110, 255),
-                Color.rgb(70, 190, 255),
-                Color.rgb(100, 225, 255)
-            ),
-            floatArrayOf(0f, 0.7f, 1f)
-        )
+        progressPaint.shader =
+            SweepGradient(
+                cx,
+                cy,
+                intArrayOf(
+                    Color.rgb(45, 110, 255),
+                    Color.rgb(70, 190, 255),
+                    Color.rgb(100, 225, 255)
+                ),
+                floatArrayOf(
+                    0f,
+                    0.7f,
+                    1f
+                )
+            )
 
         canvas.drawArc(
             cx - radius,
@@ -293,10 +333,18 @@ class CarPageView(
             radius
         )
 
-        textPaint.color = Color.argb(170, 210, 225, 245)
+        textPaint.textAlign =
+            Paint.Align.CENTER
+
+        textPaint.color =
+            Color.argb(
+                170,
+                210,
+                225,
+                245
+            )
+
         textPaint.textSize = 13f
-        textPaint.textAlign = Paint.Align.CENTER
-        textPaint.typeface = Typeface.DEFAULT
 
         canvas.drawText(
             title,
@@ -307,28 +355,30 @@ class CarPageView(
 
         textPaint.color = Color.WHITE
         textPaint.textSize = 43f
-        textPaint.typeface = Typeface.create(
-            Typeface.SANS_SERIF,
-            Typeface.BOLD
-        )
 
-        val valueText =
-            if (maxValue > 1000f) {
-                value.toInt().toString()
-            } else {
-                value.toInt().toString()
-            }
+        textPaint.typeface =
+            Typeface.create(
+                Typeface.SANS_SERIF,
+                Typeface.BOLD
+            )
 
         canvas.drawText(
-            valueText,
+            value.toInt().toString(),
             cx,
             cy + 20f,
             textPaint
         )
 
-        textPaint.color = Color.rgb(100, 185, 255)
+        textPaint.color =
+            Color.rgb(
+                100,
+                185,
+                255
+            )
+
         textPaint.textSize = 14f
-        textPaint.typeface = Typeface.DEFAULT
+        textPaint.typeface =
+            Typeface.DEFAULT
 
         canvas.drawText(
             unit,
@@ -337,7 +387,8 @@ class CarPageView(
             textPaint
         )
 
-        textPaint.textAlign = Paint.Align.LEFT
+        textPaint.textAlign =
+            Paint.Align.LEFT
     }
 
     private fun drawGaugeTicks(
@@ -346,38 +397,76 @@ class CarPageView(
         cy: Float,
         radius: Float
     ) {
-        val tickPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-        tickPaint.style = Paint.Style.STROKE
-        tickPaint.strokeCap = Paint.Cap.ROUND
+        val tickPaint =
+            Paint(Paint.ANTI_ALIAS_FLAG)
+
+        tickPaint.style =
+            Paint.Style.STROKE
+
+        tickPaint.strokeCap =
+            Paint.Cap.ROUND
 
         for (i in 0..36) {
-            val angle = Math.toRadians(
-                (135.0 + i * (270.0 / 36.0))
-            )
+            val angle =
+                Math.toRadians(
+                    135.0 +
+                            i *
+                            (270.0 / 36.0)
+                )
 
-            val outerRadius = radius - 16f
+            val outerRadius =
+                radius - 16f
+
             val innerRadius =
-                if (i % 3 == 0) radius - 29f
-                else radius - 23f
+                if (i % 3 == 0) {
+                    radius - 29f
+                } else {
+                    radius - 23f
+                }
 
             val x1 =
-                cx + cos(angle).toFloat() * innerRadius
+                cx +
+                        cos(angle).toFloat() *
+                        innerRadius
+
             val y1 =
-                cy + sin(angle).toFloat() * innerRadius
+                cy +
+                        sin(angle).toFloat() *
+                        innerRadius
 
             val x2 =
-                cx + cos(angle).toFloat() * outerRadius
+                cx +
+                        cos(angle).toFloat() *
+                        outerRadius
+
             val y2 =
-                cy + sin(angle).toFloat() * outerRadius
+                cy +
+                        sin(angle).toFloat() *
+                        outerRadius
 
             tickPaint.strokeWidth =
-                if (i % 3 == 0) 2.5f else 1.2f
+                if (i % 3 == 0) {
+                    2.5f
+                } else {
+                    1.2f
+                }
 
             tickPaint.color =
-                if (i % 3 == 0)
-                    Color.argb(170, 210, 225, 245)
-                else
-                    Color.argb(75, 210, 225, 245)
+                if (i % 3 == 0) {
+                    Color.argb(
+                        170,
+                        210,
+                        225,
+                        245
+                    )
+                } else {
+                    Color.argb(
+                        75,
+                        210,
+                        225,
+                        245
+                    )
+                }
 
             canvas.drawLine(
                 x1,
@@ -389,24 +478,38 @@ class CarPageView(
         }
     }
 
-    private fun drawVehicleCenter(canvas: Canvas) {
+    private fun drawVehicleCenter(
+        canvas: Canvas
+    ) {
         val cx = widthPx / 2f
         val cy = heightPx * 0.43f
 
-        val glow = Paint(Paint.ANTI_ALIAS_FLAG)
+        val glow =
+            Paint(Paint.ANTI_ALIAS_FLAG)
 
-        glow.shader = RadialGradient(
-            cx,
-            cy,
-            100f,
-            intArrayOf(
-                Color.argb(80, 40, 150, 255),
-                Color.argb(20, 40, 100, 200),
-                Color.TRANSPARENT
-            ),
-            null,
-            Shader.TileMode.CLAMP
-        )
+        glow.shader =
+            RadialGradient(
+                cx,
+                cy,
+                100f,
+                intArrayOf(
+                    Color.argb(
+                        80,
+                        40,
+                        150,
+                        255
+                    ),
+                    Color.argb(
+                        20,
+                        40,
+                        100,
+                        200
+                    ),
+                    Color.TRANSPARENT
+                ),
+                null,
+                Shader.TileMode.CLAMP
+            )
 
         canvas.drawCircle(
             cx,
@@ -415,10 +518,20 @@ class CarPageView(
             glow
         )
 
-        val circle = Paint(Paint.ANTI_ALIAS_FLAG)
-        circle.style = Paint.Style.STROKE
+        val circle =
+            Paint(Paint.ANTI_ALIAS_FLAG)
+
+        circle.style =
+            Paint.Style.STROKE
+
         circle.strokeWidth = 2f
-        circle.color = Color.argb(100, 100, 190, 255)
+        circle.color =
+            Color.argb(
+                100,
+                100,
+                190,
+                255
+            )
 
         canvas.drawCircle(
             cx,
@@ -427,14 +540,17 @@ class CarPageView(
             circle
         )
 
-        textPaint.textAlign = Paint.Align.CENTER
+        textPaint.textAlign =
+            Paint.Align.CENTER
 
         textPaint.color = Color.WHITE
         textPaint.textSize = 16f
-        textPaint.typeface = Typeface.create(
-            Typeface.SANS_SERIF,
-            Typeface.BOLD
-        )
+
+        textPaint.typeface =
+            Typeface.create(
+                Typeface.SANS_SERIF,
+                Typeface.BOLD
+            )
 
         canvas.drawText(
             "PEUGEOT PARS",
@@ -443,24 +559,40 @@ class CarPageView(
             textPaint
         )
 
-        textPaint.color = Color.rgb(90, 180, 255)
+        textPaint.color =
+            Color.rgb(
+                90,
+                180,
+                255
+            )
+
         textPaint.textSize = 12f
-        textPaint.typeface = Typeface.DEFAULT
+        textPaint.typeface =
+            Typeface.DEFAULT
 
         canvas.drawText(
-            "XU7 • DEMO MODE",
+            "XU7 • DEMO / CAN READY",
             cx,
             cy + 15f,
             textPaint
         )
 
-        textPaint.textAlign = Paint.Align.LEFT
+        textPaint.textAlign =
+            Paint.Align.LEFT
     }
 
-    private fun drawStatusPanels(canvas: Canvas) {
+    private fun drawStatusPanels(
+        canvas: Canvas
+    ) {
         val gap = 16f
         val margin = 28f
-        val panelWidth = (widthPx - margin * 2f - gap * 2f) / 3f
+
+        val panelWidth =
+            (
+                widthPx -
+                        margin * 2f -
+                        gap * 2f
+                ) / 3f
 
         val y = heightPx * 0.68f
         val h = 110f
@@ -472,13 +604,15 @@ class CarPageView(
             panelWidth,
             h,
             "ENGINE",
-            "90°C",
+            "${temperature.toInt()}°C",
             "TEMPERATURE"
         )
 
         drawInfoPanel(
             canvas,
-            margin + panelWidth + gap,
+            margin +
+                    panelWidth +
+                    gap,
             y,
             panelWidth,
             h,
@@ -489,12 +623,16 @@ class CarPageView(
 
         drawInfoPanel(
             canvas,
-            margin + (panelWidth + gap) * 2f,
+            margin +
+                    (panelWidth + gap) * 2f,
             y,
             panelWidth,
             h,
             "VOLTAGE",
-            String.format("%.1f V", voltage),
+            String.format(
+                "%.1f V",
+                voltage
+            ),
             "BATTERY"
         )
     }
@@ -509,15 +647,26 @@ class CarPageView(
         value: String,
         subtitle: String
     ) {
-        panelPaint.shader = LinearGradient(
-            x,
-            y,
-            x + w,
-            y + h,
-            Color.argb(75, 255, 255, 255),
-            Color.argb(18, 255, 255, 255),
-            Shader.TileMode.CLAMP
-        )
+        panelPaint.shader =
+            LinearGradient(
+                x,
+                y,
+                x + w,
+                y + h,
+                Color.argb(
+                    75,
+                    255,
+                    255,
+                    255
+                ),
+                Color.argb(
+                    18,
+                    255,
+                    255,
+                    255
+                ),
+                Shader.TileMode.CLAMP
+            )
 
         canvas.drawRoundRect(
             x,
@@ -530,9 +679,19 @@ class CarPageView(
         )
 
         panelPaint.shader = null
-        panelPaint.style = Paint.Style.STROKE
+
+        panelPaint.style =
+            Paint.Style.STROKE
+
         panelPaint.strokeWidth = 1f
-        panelPaint.color = Color.argb(60, 180, 210, 240)
+
+        panelPaint.color =
+            Color.argb(
+                60,
+                180,
+                210,
+                240
+            )
 
         canvas.drawRoundRect(
             x,
@@ -544,9 +703,17 @@ class CarPageView(
             panelPaint
         )
 
-        panelPaint.style = Paint.Style.FILL
+        panelPaint.style =
+            Paint.Style.FILL
 
-        textPaint.color = Color.argb(170, 200, 220, 245)
+        textPaint.color =
+            Color.argb(
+                170,
+                200,
+                220,
+                245
+            )
+
         textPaint.textSize = 12f
 
         canvas.drawText(
@@ -558,10 +725,12 @@ class CarPageView(
 
         textPaint.color = Color.WHITE
         textPaint.textSize = 23f
-        textPaint.typeface = Typeface.create(
-            Typeface.SANS_SERIF,
-            Typeface.BOLD
-        )
+
+        textPaint.typeface =
+            Typeface.create(
+                Typeface.SANS_SERIF,
+                Typeface.BOLD
+            )
 
         canvas.drawText(
             value,
@@ -570,9 +739,16 @@ class CarPageView(
             textPaint
         )
 
-        textPaint.color = Color.rgb(90, 175, 245)
+        textPaint.color =
+            Color.rgb(
+                90,
+                175,
+                245
+            )
+
         textPaint.textSize = 10f
-        textPaint.typeface = Typeface.DEFAULT
+        textPaint.typeface =
+            Typeface.DEFAULT
 
         canvas.drawText(
             subtitle,
@@ -582,15 +758,18 @@ class CarPageView(
         )
     }
 
-    private fun drawBottomBar(canvas: Canvas) {
+    private fun drawBottomBar(
+        canvas: Canvas
+    ) {
         val y = heightPx - 65f
 
-        strokePaint.color = Color.argb(
-            55,
-            180,
-            210,
-            240
-        )
+        strokePaint.color =
+            Color.argb(
+                55,
+                180,
+                210,
+                240
+            )
 
         strokePaint.strokeWidth = 1f
 
@@ -602,12 +781,13 @@ class CarPageView(
             strokePaint
         )
 
-        textPaint.color = Color.argb(
-            160,
-            190,
-            215,
-            240
-        )
+        textPaint.color =
+            Color.argb(
+                160,
+                190,
+                215,
+                240
+            )
 
         textPaint.textSize = 13f
 
@@ -618,14 +798,16 @@ class CarPageView(
             textPaint
         )
 
-        textPaint.textAlign = Paint.Align.CENTER
+        textPaint.textAlign =
+            Paint.Align.CENTER
 
-        textPaint.color = Color.argb(
-            130,
-            190,
-            215,
-            240
-        )
+        textPaint.color =
+            Color.argb(
+                130,
+                190,
+                215,
+                240
+            )
 
         canvas.drawText(
             "VEHICLE CONTROL • BMW LUXURY UI",
@@ -634,15 +816,23 @@ class CarPageView(
             textPaint
         )
 
-        textPaint.textAlign = Paint.Align.LEFT
+        textPaint.textAlign =
+            Paint.Align.LEFT
     }
 
-    override fun onTouchEvent(event: MotionEvent): Boolean {
-        if (event.action == MotionEvent.ACTION_UP) {
+    override fun onTouchEvent(
+        event: MotionEvent
+    ): Boolean {
 
-            val bottomZone = heightPx - 95f
+        if (event.action ==
+            MotionEvent.ACTION_UP
+        ) {
 
-            if (event.y >= bottomZone &&
+            val bottomZone =
+                heightPx - 95f
+
+            if (
+                event.y >= bottomZone &&
                 event.x < widthPx * 0.25f
             ) {
                 onBackClick?.invoke()
