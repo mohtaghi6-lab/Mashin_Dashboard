@@ -976,10 +976,3 @@ class MainActivity : Activity() {
         super.onDestroy()
     }
 }
-
-
-**نکته مهم:** در نسخه‌ای که فرستادی، در `showPage()` ابتدا `dashboard` و `bmwMenu` را `GONE` می‌کردی و بعد می‌خواستی همان `dashboard` را با `animateToPage()` وارد انیمیشن کنی. در نتیجه انیمیشن HOME/CLOCK عملاً درست عمل نمی‌کرد. این نسخه آن قسمت را اصلاح کرده است.
-
-همچنین `bmwMenu` فقط روی **HOME** نمایش داده می‌شود و وقتی وارد CAR/MUSIC/NAVI/PHONE/SCAN یا CLOCK می‌شوی، از روی صفحه کنار می‌رود.
-
-الان این فایل را Commit کن و **Actions را اجرا کن**. اگر سبز شد، مرحله بعدی می‌تواند **Swipe واقعی HOME ↔ CLOCK** باشد و بعد از آن سراغ کامل‌کردن ظاهر صفحات CAR/MUSIC/NAVI/PHONE می‌رویم.
