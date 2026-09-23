@@ -7,6 +7,7 @@ import android.view.View
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlin.math.sqrt
 
 
 class BMWMenu(
@@ -29,26 +30,20 @@ class BMWMenu(
         )
 
 
-    private var selected = 0
-
-
-    private var downX = 0f
-    private var downY = 0f
-
-
-    private val swipeThreshold = 120f
+    private var selected =
+        0
 
 
     var onMenuClick:
             ((String) -> Unit)? = null
 
 
-    var onSwipeRight:
-            (() -> Unit)? = null
+    private var downX = 0f
+    private var downY = 0f
 
 
-    var onSwipeLeft:
-            (() -> Unit)? = null
+    private val swipeLimit =
+        120f
 
 
 
@@ -59,78 +54,26 @@ class BMWMenu(
         super.onDraw(canvas)
 
 
-        val w =
-            width.toFloat()
-
-        val h =
-            height.toFloat()
-
-
         val cx =
-            w / 2f
-
+            width / 2f
 
         val cy =
-            h / 2f
+            height / 2f
 
 
         val radius =
-            minOf(w, h) * 0.30f
+            minOf(width, height) * 0.28f
 
 
 
-        paint.style =
-            Paint.Style.FILL
-
-
-        paint.color =
-            Color.argb(
-                45,
-                0,
-                25,
-                45
-            )
-
-
-        canvas.drawCircle(
-            cx,
-            cy,
-            radius + 35f,
-            paint
-        )
-
-
-
-        paint.style =
-            Paint.Style.STROKE
-
-        paint.strokeWidth =
-            10f
-
-        paint.color =
-            Color.argb(
-                35,
-                0,
-                170,
-                255
-            )
-
-
-        canvas.drawCircle(
-            cx,
-            cy,
-            radius + 18f,
-            paint
-        )
-
-
+        // background glass
 
         paint.style =
             Paint.Style.FILL
 
         paint.color =
             Color.argb(
-                90,
+                70,
                 255,
                 255,
                 255
@@ -146,19 +89,16 @@ class BMWMenu(
 
 
 
+        // outer ring
+
         paint.style =
             Paint.Style.STROKE
 
         paint.strokeWidth =
-            2.5f
+            5f
 
         paint.color =
-            Color.argb(
-                180,
-                0,
-                190,
-                255
-            )
+            Color.CYAN
 
 
         canvas.drawCircle(
@@ -169,15 +109,15 @@ class BMWMenu(
         )
 
 
+
+        // menu items
 
         val itemRadius =
-            radius - 55f
+            radius - 60f
 
 
+        for (i in items.indices) {
 
-        for(
-            i in items.indices
-        ){
 
             val angle =
                 Math.toRadians(
@@ -185,67 +125,36 @@ class BMWMenu(
                 )
 
 
-           val x =
-    cx + cos(angle).toFloat() * itemRadius
+            val x =
+                cx + cos(angle).toFloat() * itemRadius
+
 
             val y =
-    cy + sin(angle).toFloat() * itemRadius
+                cy + sin(angle).toFloat() * itemRadius
 
 
 
-            val isSelected =
-                i == selected
-
-
-
-            if(isSelected){
+            if (i == selected) {
 
                 paint.style =
                     Paint.Style.FILL
 
-
                 paint.color =
                     Color.argb(
-                        70,
+                        100,
                         0,
-                        190,
+                        170,
                         255
                     )
 
-
                 canvas.drawCircle(
                     x,
-                    y - 5f,
+                    y,
                     38f,
-                    paint
-                )
-
-
-
-                paint.style =
-                    Paint.Style.STROKE
-
-
-                paint.strokeWidth =
-                    3f
-
-
-                paint.color =
-                    Color.CYAN
-
-
-                canvas.drawCircle(
-                    x,
-                    y - 5f,
-                    34f,
                     paint
                 )
             }
 
-
-
-            paint.style =
-                Paint.Style.FILL
 
 
             paint.textAlign =
@@ -257,15 +166,15 @@ class BMWMenu(
 
 
             paint.textSize =
-                if(isSelected)
-                    19f
+                if(i == selected)
+                    20f
                 else
                     16f
 
 
 
             paint.color =
-                if(isSelected)
+                if(i == selected)
                     Color.CYAN
                 else
                     Color.WHITE
@@ -275,41 +184,25 @@ class BMWMenu(
             canvas.drawText(
                 items[i],
                 x,
-                y + 5f,
+                y + 6f,
                 paint
             )
         }
 
 
 
+        // AI center
+
 
         paint.style =
             Paint.Style.FILL
-
-
-        paint.color =
-            Color.argb(
-                55,
-                0,
-                170,
-                255
-            )
-
-
-        canvas.drawCircle(
-            cx,
-            cy,
-            72f,
-            paint
-        )
-
 
 
         paint.color =
             Color.rgb(
                 0,
-                125,
-                235
+                130,
+                240
             )
 
 
@@ -320,75 +213,45 @@ class BMWMenu(
             paint
         )
 
-
-
-        paint.style =
-            Paint.Style.STROKE
-
-
-        paint.strokeWidth =
-            3f
-
-
-        paint.color =
-            Color.CYAN
-
-
-        canvas.drawCircle(
-            cx,
-            cy,
-            55f,
-            paint
-        )
-
-
-
-        paint.style =
-            Paint.Style.FILL
 
 
         paint.textAlign =
             Paint.Align.CENTER
 
 
-        paint.typeface =
-            Typeface.DEFAULT_BOLD
-
-
         paint.textSize =
-            25f
+            26f
 
 
         paint.color =
             Color.WHITE
 
 
+        paint.typeface =
+            Typeface.DEFAULT_BOLD
+
+
         canvas.drawText(
             "AI",
             cx,
-            cy + 8f,
+            cy + 9f,
             paint
         )
 
 
 
         paint.textSize =
-            11f
+            12f
 
 
         paint.color =
-            Color.argb(
-                190,
-                180,
-                230,
-                255
-            )
+            Color.CYAN
 
 
         canvas.drawText(
             items[selected],
             cx,
-            cy + 88f,
+            cy + 85f,
             paint
         )
 
@@ -414,7 +277,6 @@ class BMWMenu(
                 downY =
                     event.y
 
-
                 return true
             }
 
@@ -432,26 +294,15 @@ class BMWMenu(
 
 
 
-                // SWIPE
+                // swipe handling
 
                 if(
                     kotlin.math.abs(diffX) >
                     kotlin.math.abs(diffY)
                     &&
                     kotlin.math.abs(diffX) >
-                    swipeThreshold
+                    swipeLimit
                 ){
-
-                    if(diffX > 0){
-
-                        onSwipeRight?.invoke()
-
-                    }else{
-
-                        onSwipeLeft?.invoke()
-
-                    }
-
 
                     performClick()
 
@@ -461,15 +312,13 @@ class BMWMenu(
 
 
 
-                // CLICK MENU
-
-
                 val cx =
                     width / 2f
 
 
                 val cy =
                     height / 2f
+
 
 
                 val dx =
@@ -482,14 +331,16 @@ class BMWMenu(
 
 
                 val distance =
-                    kotlin.math.sqrt(
+                    sqrt(
                         dx * dx +
                                 dy * dy
                     )
 
 
 
-                if(distance < 65f){
+                // AI button
+
+                if(distance < 70f){
 
                     selected = 5
 
@@ -506,18 +357,6 @@ class BMWMenu(
 
 
 
-                if(
-                    distance < 70f ||
-                    distance >
-                    minOf(width,height)*0.45f
-                ){
-
-                    performClick()
-
-                    return true
-                }
-
-
 
                 val angle =
                     Math.toDegrees(
@@ -528,26 +367,23 @@ class BMWMenu(
                     )
 
 
-                var normalized =
-                    angle + 90.0
 
-
-                if(normalized < 0)
-                    normalized += 360.0
+                var index =
+                    (((angle + 90 + 360) % 360) / 60)
+                        .toInt()
 
 
 
-                val index =
-                    (
-                            (normalized + 30.0) /
-                                    60.0
-                            ).toInt() % items.size
+                if(index >= items.size){
+
+                    index =
+                        items.size - 1
+                }
 
 
 
                 selected =
                     index
-
 
 
                 invalidate()
@@ -564,7 +400,6 @@ class BMWMenu(
 
                 return true
             }
-
         }
 
 
@@ -574,8 +409,8 @@ class BMWMenu(
 
 
 
-    override fun performClick():
-            Boolean {
+
+    override fun performClick(): Boolean {
 
         super.performClick()
 
