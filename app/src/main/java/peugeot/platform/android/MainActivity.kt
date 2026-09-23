@@ -115,6 +115,13 @@ class MainActivity : Activity() {
 
         bmwMenu =
     BMWMenu(this).apply {
+        onSwipeRight = {
+    showPage(MainMenuPage.CLOCK)
+}
+
+onSwipeLeft = {
+    showPage(MainMenuPage.HOME)
+}
 
         visibility =
             View.VISIBLE
