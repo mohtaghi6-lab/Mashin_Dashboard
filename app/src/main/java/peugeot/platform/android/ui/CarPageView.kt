@@ -55,7 +55,7 @@ class CarPageView(
     fun setVehicleData(data: VehicleData) {
         vehicleData = data
 
-        speed = data.speed.toFloat()
+        speed = data.speedKmh.toFloat()
         rpm = data.rpm.toFloat()
 
         /*
