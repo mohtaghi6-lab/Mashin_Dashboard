@@ -13,8 +13,10 @@ class BMWMenu(
     context: Context
 ) : View(context) {
 
+
     private val paint =
         Paint(Paint.ANTI_ALIAS_FLAG)
+
 
     private val items =
         arrayOf(
@@ -26,17 +28,36 @@ class BMWMenu(
             "AI"
         )
 
-    private var selected =
-        0
+
+    private var selected = 0
+
+
+    private var downX = 0f
+    private var downY = 0f
+
+
+    private val swipeThreshold = 120f
+
 
     var onMenuClick:
             ((String) -> Unit)? = null
 
 
+    var onSwipeRight:
+            (() -> Unit)? = null
+
+
+    var onSwipeLeft:
+            (() -> Unit)? = null
+
+
+
     override fun onDraw(
         canvas: Canvas
     ) {
+
         super.onDraw(canvas)
+
 
         val w =
             width.toFloat()
@@ -44,22 +65,23 @@ class BMWMenu(
         val h =
             height.toFloat()
 
+
         val cx =
             w / 2f
 
+
         val cy =
             h / 2f
+
 
         val radius =
             minOf(w, h) * 0.30f
 
 
-        // --------------------------------------------------
-        // DARK GLASS BACKGROUND
-        // --------------------------------------------------
 
         paint.style =
             Paint.Style.FILL
+
 
         paint.color =
             Color.argb(
@@ -69,6 +91,7 @@ class BMWMenu(
                 45
             )
 
+
         canvas.drawCircle(
             cx,
             cy,
@@ -77,9 +100,6 @@ class BMWMenu(
         )
 
 
-        // --------------------------------------------------
-        // OUTER BLUE GLOW
-        // --------------------------------------------------
 
         paint.style =
             Paint.Style.STROKE
@@ -95,6 +115,7 @@ class BMWMenu(
                 255
             )
 
+
         canvas.drawCircle(
             cx,
             cy,
@@ -103,9 +124,6 @@ class BMWMenu(
         )
 
 
-        // --------------------------------------------------
-        // MAIN GLASS CIRCLE
-        // --------------------------------------------------
 
         paint.style =
             Paint.Style.FILL
@@ -118,6 +136,7 @@ class BMWMenu(
                 255
             )
 
+
         canvas.drawCircle(
             cx,
             cy,
@@ -126,9 +145,6 @@ class BMWMenu(
         )
 
 
-        // --------------------------------------------------
-        // GLASS BORDER
-        // --------------------------------------------------
 
         paint.style =
             Paint.Style.STROKE
@@ -144,6 +160,7 @@ class BMWMenu(
                 255
             )
 
+
         canvas.drawCircle(
             cx,
             cy,
@@ -152,66 +169,47 @@ class BMWMenu(
         )
 
 
-        // --------------------------------------------------
-        // INNER RING
-        // --------------------------------------------------
-
-        paint.strokeWidth =
-            1.5f
-
-        paint.color =
-            Color.argb(
-                100,
-                150,
-                220,
-                255
-            )
-
-        canvas.drawCircle(
-            cx,
-            cy,
-            radius - 18f,
-            paint
-        )
-
-
-        // --------------------------------------------------
-        // MENU ITEMS
-        // --------------------------------------------------
 
         val itemRadius =
             radius - 55f
 
-        for (
+
+
+        for(
             i in items.indices
-        ) {
+        ){
 
             val angle =
                 Math.toRadians(
                     (-90 + i * 60).toDouble()
                 )
 
+
             val x =
                 cx +
-                        cos(angle).toFloat() *
+                        cos(angle).toFloat()
+                        *
                         itemRadius
+
 
             val y =
                 cy +
-                        sin(angle).toFloat() *
+                        sin(angle).toFloat()
+                        *
                         itemRadius
+
 
 
             val isSelected =
                 i == selected
 
 
-            // Selection glow
 
-            if (isSelected) {
+            if(isSelected){
 
                 paint.style =
                     Paint.Style.FILL
+
 
                 paint.color =
                     Color.argb(
@@ -221,6 +219,7 @@ class BMWMenu(
                         255
                     )
 
+
                 canvas.drawCircle(
                     x,
                     y - 5f,
@@ -229,14 +228,18 @@ class BMWMenu(
                 )
 
 
+
                 paint.style =
                     Paint.Style.STROKE
+
 
                 paint.strokeWidth =
                     3f
 
+
                 paint.color =
                     Color.CYAN
+
 
                 canvas.drawCircle(
                     x,
@@ -247,30 +250,33 @@ class BMWMenu(
             }
 
 
-            // Item text
 
             paint.style =
                 Paint.Style.FILL
 
+
             paint.textAlign =
                 Paint.Align.CENTER
+
 
             paint.typeface =
                 Typeface.DEFAULT_BOLD
 
+
             paint.textSize =
-                if (isSelected) {
+                if(isSelected)
                     19f
-                } else {
+                else
                     16f
-                }
+
+
 
             paint.color =
-                if (isSelected) {
+                if(isSelected)
                     Color.CYAN
-                } else {
+                else
                     Color.WHITE
-                }
+
 
 
             canvas.drawText(
@@ -282,12 +288,11 @@ class BMWMenu(
         }
 
 
-        // --------------------------------------------------
-        // CENTER AI GLOW
-        // --------------------------------------------------
+
 
         paint.style =
             Paint.Style.FILL
+
 
         paint.color =
             Color.argb(
@@ -297,6 +302,7 @@ class BMWMenu(
                 255
             )
 
+
         canvas.drawCircle(
             cx,
             cy,
@@ -305,9 +311,6 @@ class BMWMenu(
         )
 
 
-        // --------------------------------------------------
-        // CENTER AI CIRCLE
-        // --------------------------------------------------
 
         paint.color =
             Color.rgb(
@@ -316,6 +319,7 @@ class BMWMenu(
                 235
             )
 
+
         canvas.drawCircle(
             cx,
             cy,
@@ -324,18 +328,18 @@ class BMWMenu(
         )
 
 
-        // --------------------------------------------------
-        // CENTER AI BORDER
-        // --------------------------------------------------
 
         paint.style =
             Paint.Style.STROKE
 
+
         paint.strokeWidth =
             3f
 
+
         paint.color =
             Color.CYAN
+
 
         canvas.drawCircle(
             cx,
@@ -345,24 +349,26 @@ class BMWMenu(
         )
 
 
-        // --------------------------------------------------
-        // AI TEXT
-        // --------------------------------------------------
 
         paint.style =
             Paint.Style.FILL
 
+
         paint.textAlign =
             Paint.Align.CENTER
+
 
         paint.typeface =
             Typeface.DEFAULT_BOLD
 
+
         paint.textSize =
             25f
 
+
         paint.color =
             Color.WHITE
+
 
         canvas.drawText(
             "AI",
@@ -372,12 +378,10 @@ class BMWMenu(
         )
 
 
-        // --------------------------------------------------
-        // SELECTED LABEL
-        // --------------------------------------------------
 
         paint.textSize =
             11f
+
 
         paint.color =
             Color.argb(
@@ -387,127 +391,194 @@ class BMWMenu(
                 255
             )
 
+
         canvas.drawText(
             items[selected],
             cx,
             cy + 88f,
             paint
         )
+
     }
+
+
+
 
 
     override fun onTouchEvent(
         event: MotionEvent
     ): Boolean {
 
-        if (
-            event.action ==
-            MotionEvent.ACTION_UP
-        ) {
 
-            val cx =
-                width / 2f
-
-            val cy =
-                height / 2f
+        when(event.action){
 
 
-            val dx =
-                event.x - cx
+            MotionEvent.ACTION_DOWN -> {
 
-            val dy =
-                event.y - cy
+                downX =
+                    event.x
 
-
-            val distance =
-                kotlin.math.sqrt(
-                    dx * dx +
-                            dy * dy
-                )
+                downY =
+                    event.y
 
 
-            // Center AI button
+                return true
+            }
 
-            if (
-                distance < 65f
-            ) {
+
+
+            MotionEvent.ACTION_UP -> {
+
+
+                val diffX =
+                    event.x - downX
+
+
+                val diffY =
+                    event.y - downY
+
+
+
+                // SWIPE
+
+                if(
+                    kotlin.math.abs(diffX) >
+                    kotlin.math.abs(diffY)
+                    &&
+                    kotlin.math.abs(diffX) >
+                    swipeThreshold
+                ){
+
+                    if(diffX > 0){
+
+                        onSwipeRight?.invoke()
+
+                    }else{
+
+                        onSwipeLeft?.invoke()
+
+                    }
+
+
+                    performClick()
+
+                    return true
+                }
+
+
+
+
+                // CLICK MENU
+
+
+                val cx =
+                    width / 2f
+
+
+                val cy =
+                    height / 2f
+
+
+                val dx =
+                    event.x - cx
+
+
+                val dy =
+                    event.y - cy
+
+
+
+                val distance =
+                    kotlin.math.sqrt(
+                        dx * dx +
+                                dy * dy
+                    )
+
+
+
+                if(distance < 65f){
+
+                    selected = 5
+
+                    invalidate()
+
+                    onMenuClick?.invoke(
+                        "AI"
+                    )
+
+                    performClick()
+
+                    return true
+                }
+
+
+
+                if(
+                    distance < 70f ||
+                    distance >
+                    minOf(width,height)*0.45f
+                ){
+
+                    performClick()
+
+                    return true
+                }
+
+
+
+                val angle =
+                    Math.toDegrees(
+                        atan2(
+                            dy,
+                            dx
+                        ).toDouble()
+                    )
+
+
+                var normalized =
+                    angle + 90.0
+
+
+                if(normalized < 0)
+                    normalized += 360.0
+
+
+
+                val index =
+                    (
+                            (normalized + 30.0) /
+                                    60.0
+                            ).toInt() % items.size
+
+
 
                 selected =
-                    5
+                    index
+
+
 
                 invalidate()
 
+
+
                 onMenuClick?.invoke(
-                    "AI"
+                    items[selected]
                 )
+
+
 
                 performClick()
 
                 return true
             }
 
-
-            // Outside menu
-
-            if (
-                distance < 70f ||
-                distance > minOf(
-                    width,
-                    height
-                ) * 0.45f
-            ) {
-
-                performClick()
-
-                return true
-            }
-
-
-            val angle =
-                Math.toDegrees(
-                    atan2(
-                        dy,
-                        dx
-                    ).toDouble()
-                )
-
-
-            var normalized =
-                angle + 90.0
-
-            if (
-                normalized < 0.0
-            ) {
-                normalized += 360.0
-            }
-
-
-            val index =
-                (
-                    (normalized + 30.0) / 60.0
-                ).toInt() % items.size
-
-
-            selected =
-                index
-
-
-            invalidate()
-
-
-            onMenuClick?.invoke(
-                items[selected]
-            )
-
-
-            performClick()
-
-            return true
         }
 
 
         return true
     }
+
+
 
 
     override fun performClick():
@@ -517,4 +588,5 @@ class BMWMenu(
 
         return true
     }
+
 }
