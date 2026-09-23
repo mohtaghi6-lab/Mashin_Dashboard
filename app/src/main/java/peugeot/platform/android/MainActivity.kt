@@ -393,40 +393,7 @@ onSwipeLeft = {
         /*
          * SET CONTENT
          */
-val swipeController =
-    SwipeController(
 
-        onSwipeRight = {
-
-            runOnUiThread {
-
-                showPage(
-                    MainMenuPage.CLOCK
-                )
-
-            }
-
-        },
-
-
-        onSwipeLeft = {
-
-            runOnUiThread {
-
-                showPage(
-                    MainMenuPage.HOME
-                )
-
-            }
-
-        }
-
-    )
-
-
-root.setOnTouchListener(
-    swipeController
-)
 startupView.onFinished = {
 
     runOnUiThread {
