@@ -335,7 +335,36 @@ class MainActivity : Activity() {
          */
 
         setContentView(root)
+val swipeController =
+    SwipeController(
+        root
+    )
 
+
+swipeController.onSwipeRight = {
+
+    runOnUiThread {
+
+        showPage(
+            MainMenuPage.CLOCK
+        )
+
+    }
+
+}
+
+
+swipeController.onSwipeLeft = {
+
+    runOnUiThread {
+
+        showPage(
+            MainMenuPage.HOME
+        )
+
+    }
+
+}
 
         /*
          * STARTUP SCREEN
