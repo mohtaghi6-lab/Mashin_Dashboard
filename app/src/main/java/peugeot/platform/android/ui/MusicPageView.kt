@@ -25,11 +25,11 @@ class MusicPageView(
     private var heightPx = 0f
 
    private var isPlaying = false
-private var progress = 0.42f
+private var playbackProgress = 0.42f
 
 private var vehicleData =
     VehicleData.demo()
-private var progress = 0.42f
+    private var playbackplaybackProgress = 0.42f
     private val albumRect = RectF()
     private val playRect = RectF()
     private val previousRect = RectF()
@@ -74,7 +74,7 @@ fun setVehicleData(
         drawHeader(canvas)
         drawAlbum(canvas)
         drawTrackInfo(canvas)
-        drawProgress(canvas)
+        drawplaybackProgress(canvas)
         drawControls(canvas)
         drawConnectionPanel(canvas)
         drawBottomBar(canvas)
@@ -230,7 +230,8 @@ fun setVehicleData(
         textPaint.textAlign = Paint.Align.LEFT
     }
 
-    private fun drawProgress(canvas: Canvas) {
+    private fun drawplaybackProgress
+    (canvas: Canvas) {
         val left = 72f
         val right = widthPx - 72f
         val y = albumRect.bottom + 108f
@@ -242,15 +243,17 @@ fun setVehicleData(
         canvas.drawLine(left, y, right, y, trackPaint)
 
         trackPaint.color = Color.rgb(75, 170, 255)
-        canvas.drawLine(left, y, left + (right - left) * progress, y, trackPaint)
+        canvas.drawLine(left, y, left + (right - left) * playbackProgress, y, trackPaint)
 
         val knobPaint = Paint(Paint.ANTI_ALIAS_FLAG)
         knobPaint.color = Color.WHITE
         canvas.drawCircle(
-            left + (right - left) * progress,
-            y,
-            8f,
-            knobPaint
+           canvas.drawCircle(
+    left + (right - left) * playbackplaybackProgress,
+    y,
+    8f,
+    knobPaint
+)
         )
 
         textPaint.color = Color.argb(180, 210, 225, 245)
@@ -425,7 +428,7 @@ fun setVehicleData(
 
             y >= albumRect.bottom + 80f &&
                 y <= albumRect.bottom + 140f -> {
-                progress = ((x - 72f) / (widthPx - 144f))
+               playbackProgress = ((x - 72f) / (widthPx - 144f))
                     .coerceIn(0f, 1f)
                 invalidate()
             }
