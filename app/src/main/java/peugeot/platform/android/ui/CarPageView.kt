@@ -1,4 +1,3 @@
-```kotlin
 package peugeot.platform.android.ui
 
 import android.content.Context
@@ -662,4 +661,4 @@ class CarPageView(
         return true
     }
 }
-```
+
