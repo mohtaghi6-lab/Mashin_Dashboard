@@ -333,13 +333,40 @@ class MainActivity : Activity() {
         /*
          * SET CONTENT
          */
-
-        setContentView(root)
 val swipeController =
     SwipeController(
-        root
+
+        onSwipeRight = {
+
+            runOnUiThread {
+
+                showPage(
+                    MainMenuPage.CLOCK
+                )
+
+            }
+
+        },
+
+
+        onSwipeLeft = {
+
+            runOnUiThread {
+
+                showPage(
+                    MainMenuPage.HOME
+                )
+
+            }
+
+        }
+
     )
 
+
+root.setOnTouchListener(
+    swipeController
+)
 
 swipeController.onSwipeRight = {
 
