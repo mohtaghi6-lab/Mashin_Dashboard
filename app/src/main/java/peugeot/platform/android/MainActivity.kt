@@ -376,6 +376,12 @@ class MainActivity : Activity() {
             NavigationPageView(this).apply {
 
                 visibility = View.GONE
+
+                onBackClick = {
+                    showPage(
+                        MainMenuPage.HOME
+                    )
+                }
             }
 
         root.addView(
