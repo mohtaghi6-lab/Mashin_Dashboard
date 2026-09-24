@@ -3,6 +3,7 @@ package peugeot.platform.android
 import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
+import android.content.Intent
 import android.media.AudioManager
 import android.os.Bundle
 import android.view.KeyEvent
@@ -399,6 +400,25 @@ class MainActivity : Activity() {
             CallPageView(this).apply {
 
                 visibility = View.GONE
+
+                onBackClick = {
+                    showPage(
+                        MainMenuPage.HOME
+                    )
+                }
+
+                onCallClick = {
+                    openPhoneDialer()
+                }
+
+                onDialerClick = {
+                    openPhoneDialer()
+                }
+
+                onEndClick = {
+                    // پایان وضعیت تماس داخل رابط خودرو.
+                    // قطع تماس واقعی توسط Phone/Telecom سیستم انجام می‌شود.
+                }
             }
 
         root.addView(
@@ -837,6 +857,18 @@ class MainActivity : Activity() {
                         .startContinuousListening()
                 }
             }
+        }
+    }
+
+    private fun openPhoneDialer() {
+
+        try {
+            startActivity(
+                Intent(
+                    Intent.ACTION_DIAL
+                )
+            )
+        } catch (_: Exception) {
         }
     }
 
