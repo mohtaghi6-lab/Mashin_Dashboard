@@ -70,6 +70,7 @@ class MainActivity : Activity() {
     private lateinit var aiEngine: AIEngine
 
     private var pendingVoiceStart = false
+    private var pendingVoiceCallName: String? = null
 
     companion object {
         private const val AUDIO_PERMISSION_REQUEST = 1001
@@ -659,6 +660,10 @@ class MainActivity : Activity() {
                             AIState.THINKING
                         )
 
+                        if (handleVoiceCallCommand(text)) {
+                            return@runOnUiThread
+                        }
+
                         aiEngine.process(
 
                             text = text,
@@ -876,12 +881,108 @@ class MainActivity : Activity() {
             grantResults[0] ==
             PackageManager.PERMISSION_GRANTED
         ) {
-            if (::callPageView.isInitialized) {
+            if (!pendingVoiceCallName.isNullOrBlank()) {
+                val name = pendingVoiceCallName
+                pendingVoiceCallName = null
+                if (!name.isNullOrBlank()) {
+                    dialContactByVoiceName(name)
+                }
+            } else if (::callPageView.isInitialized) {
                 callPageView.showContacts()
             }
         }
     }
 
+    private fun handleVoiceCallCommand(text: String): Boolean {
+        val normalized = normalizePersianText(text)
+
+        val isCallCommand =
+            normalized.contains("زنگ بزن") ||
+            normalized.contains("تماس بگیر") ||
+            normalized.contains("شماره بگیر") ||
+            normalized.contains("شماره گیری کن")
+
+        if (!isCallCommand) return false
+
+        val number = extractPhoneNumber(normalized)
+        if (!number.isNullOrBlank()) {
+            openPhoneDialer(number)
+            speechManager.speak("شماره آماده تماس شد")
+            return true
+        }
+
+        val name = extractContactName(normalized)
+        if (name.isBlank()) {
+            speechManager.speak("نام مخاطب یا شماره تلفن را متوجه نشدم")
+            return true
+        }
+
+        if (checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+            pendingVoiceCallName = name
+            requestPermissions(arrayOf(Manifest.permission.READ_CONTACTS), CONTACTS_PERMISSION_REQUEST)
+            return true
+        }
+
+        dialContactByVoiceName(name)
+        return true
+    }
+
+    private fun normalizePersianText(value: String): String {
+        return value.replace('۰','0').replace('۱','1').replace('۲','2').replace('۳','3').replace('۴','4')
+            .replace('۵','5').replace('۶','6').replace('۷','7').replace('۸','8').replace('۹','9')
+            .replace('ي','ی').replace('ى','ی').replace('ك','ک').replace("‌"," ").trim()
+    }
+
+    private fun extractPhoneNumber(text: String): String? {
+        val digits = text.filter { it.isDigit() }
+        return if (digits.length >= 7) digits else null
+    }
+
+    private fun extractContactName(text: String): String {
+        var value = text
+        listOf("به ","با ","شماره ","شماره‌گیری ","شماره گیری ","زنگ بزن","تماس بگیر","شماره بگیر","کن")
+            .forEach { value = value.replace(it, " ") }
+        return value.replace(Regex("\\s+"), " ").trim()
+    }
+
+    private fun dialContactByVoiceName(name: String) {
+        val cursor = contentResolver.query(
+            android.provider.ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+            arrayOf(android.provider.ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, android.provider.ContactsContract.CommonDataKinds.Phone.NUMBER),
+            android.provider.ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " LIKE ?",
+            arrayOf("%" + name + "%"),
+            android.provider.ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC"
+        )
+
+        val matches = ArrayList<Pair<String,String>>()
+        cursor?.use {
+            val ni = it.getColumnIndex(android.provider.ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
+            val pi = it.getColumnIndex(android.provider.ContactsContract.CommonDataKinds.Phone.NUMBER)
+            while (it.moveToNext()) {
+                val n = if (ni >= 0) it.getString(ni) else null
+                val p = if (pi >= 0) it.getString(pi) else null
+                if (!n.isNullOrBlank() && !p.isNullOrBlank()) matches.add(n to p)
+            }
+        }
+
+        if (matches.isEmpty()) {
+            speechManager.speak("مخاطب مورد نظر پیدا نشد")
+            return
+        }
+
+        if (matches.size == 1) {
+            speechManager.speak("مخاطب پیدا شد")
+            openPhoneDialer(matches[0].second)
+            return
+        }
+
+        val names = matches.map { it.first }.distinct().toTypedArray()
+        android.app.AlertDialog.Builder(this).setTitle("انتخاب مخاطب").setItems(names) { _, which ->
+            val selectedName = names[which]
+            val selected = matches.first { it.first == selectedName }
+            openPhoneDialer(selected.second)
+        }.setNegativeButton("انصراف", null).show()
+    }
     private fun openContacts() {
         if (
             checkSelfPermission(
