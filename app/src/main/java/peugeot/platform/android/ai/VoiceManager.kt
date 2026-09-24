@@ -75,9 +75,12 @@ class VoiceManager(
                 )
 
             val bestIndex =
-                if (!confidence.isNullOrEmpty()) {
+                if (candidates.isNotEmpty() &&
+                    confidence != null &&
+                    confidence.isNotEmpty()
+                ) {
                     confidence.indices
-                        .maxByOrNull { confidence[it] }
+                        .maxByOrNull { index -> confidence[index] }
                         ?.coerceIn(0, candidates.lastIndex)
                         ?: 0
                 } else {
