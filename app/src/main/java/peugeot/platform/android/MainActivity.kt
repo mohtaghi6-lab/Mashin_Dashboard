@@ -552,6 +552,14 @@ class MainActivity : Activity() {
                             state
                         )
                     }
+                },
+
+                onFinished = {
+                    runOnUiThread {
+                        if (::voiceManager.isInitialized) {
+                            voiceManager.resumeContinuousListening()
+                        }
+                    }
                 }
             )
 
@@ -603,9 +611,6 @@ class MainActivity : Activity() {
                                     speechManager.speak(
                                         "خطا در پردازش درخواست"
                                     )
-
-                                    voiceManager
-                                        .resumeContinuousListening()
                                 }
                             }
                         )
