@@ -104,15 +104,17 @@ class VoiceManager(
     }
 
     fun startContinuousListening() {
-        if (destroyed) {
-            return
-        }
+        handler.post {
+            if (destroyed) {
+                return@post
+            }
 
-        listening = true
-        handler.removeCallbacks(restartRunnable)
+            listening = true
+            handler.removeCallbacks(restartRunnable)
 
-        if (!recognitionActive) {
-            startListeningInternal()
+            if (!recognitionActive) {
+                startListeningInternal()
+            }
         }
     }
 
@@ -190,29 +192,33 @@ class VoiceManager(
     }
 
     fun resumeContinuousListening() {
-        if (destroyed) {
-            return
-        }
+        handler.post {
+            if (destroyed) {
+                return@post
+            }
 
-        listening = true
-        handler.removeCallbacks(restartRunnable)
+            listening = true
+            handler.removeCallbacks(restartRunnable)
 
-        if (!recognitionActive) {
-            startListeningInternal()
+            if (!recognitionActive) {
+                startListeningInternal()
+            }
         }
     }
 
     fun stopListening() {
-        listening = false
-        recognitionActive = false
-        handler.removeCallbacks(restartRunnable)
+        handler.post {
+            listening = false
+            recognitionActive = false
+            handler.removeCallbacks(restartRunnable)
 
-        try {
-            speechRecognizer?.cancel()
-        } catch (_: Exception) {
+            try {
+                speechRecognizer?.cancel()
+            } catch (_: Exception) {
+            }
+
+            onStateChanged(AIState.IDLE)
         }
-
-        onStateChanged(AIState.IDLE)
     }
 
     fun destroy() {
