@@ -459,8 +459,7 @@ class MainActivity : Activity() {
                 }
 
                 onEndClick = {
-                    // پایان وضعیت تماس داخل رابط خودرو.
-                    // قطع تماس واقعی توسط Phone/Telecom سیستم انجام می‌شود.
+                    endActiveCall()
                 }
 
                 onContactsClick = {
@@ -1043,6 +1042,25 @@ class MainActivity : Activity() {
                 getSystemService(TELECOM_SERVICE) as android.telecom.TelecomManager
             if (android.os.Build.VERSION.SDK_INT >= 26) {
                 telecomManager.acceptRingingCall()
+            }
+        } catch (_: Exception) {
+        }
+    }
+
+    private fun endActiveCall() {
+        if (checkSelfPermission(Manifest.permission.ANSWER_PHONE_CALLS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(
+                arrayOf(Manifest.permission.ANSWER_PHONE_CALLS),
+                PHONE_STATE_PERMISSION_REQUEST
+            )
+            return
+        }
+
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= 28) {
+                val telecomManager =
+                    getSystemService(TELECOM_SERVICE) as android.telecom.TelecomManager
+                telecomManager.endCall()
             }
         } catch (_: Exception) {
         }
