@@ -466,6 +466,14 @@ class MainActivity : Activity() {
                 onContactsClick = {
                     openContacts()
                 }
+
+                onIncomingAnswerClick = {
+                    answerIncomingCall()
+                }
+
+                onIncomingDeclineClick = {
+                    declineIncomingCall()
+                }
             }
 
         root.addView(
@@ -1021,6 +1029,40 @@ class MainActivity : Activity() {
             openPhoneDialer(selected.second)
         }.setNegativeButton("انصراف", null).show()
     }
+    private fun answerIncomingCall() {
+        if (checkSelfPermission(Manifest.permission.ANSWER_PHONE_CALLS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(
+                arrayOf(Manifest.permission.ANSWER_PHONE_CALLS),
+                PHONE_STATE_PERMISSION_REQUEST
+            )
+            return
+        }
+
+        try {
+            val telecomManager =
+                getSystemService(TELECOM_SERVICE) as android.telecom.TelecomManager
+            if (android.os.Build.VERSION.SDK_INT >= 26) {
+                telecomManager.acceptRingingCall()
+            }
+        } catch (_: Exception) {
+        }
+    }
+
+    private fun declineIncomingCall() {
+        if (checkSelfPermission(Manifest.permission.ANSWER_PHONE_CALLS) != PackageManager.PERMISSION_GRANTED) {
+            return
+        }
+
+        try {
+            val telecomManager =
+                getSystemService(TELECOM_SERVICE) as android.telecom.TelecomManager
+            if (android.os.Build.VERSION.SDK_INT >= 28) {
+                telecomManager.endCall()
+            }
+        } catch (_: Exception) {
+        }
+    }
+
     private fun findContactName(number: String): String {
         if (number.isBlank() ||
             checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED
