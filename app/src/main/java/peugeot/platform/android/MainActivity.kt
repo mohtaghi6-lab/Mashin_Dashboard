@@ -42,6 +42,8 @@ import peugeot.platform.android.ui.VehicleSettingsPageView
 import peugeot.platform.android.vehicle.ErrorScannerEngine
 import peugeot.platform.android.vehicle.VehicleData
 import peugeot.platform.android.vehicle.VehicleDataController
+import peugeot.platform.android.steering.SteeringAction
+import peugeot.platform.android.steering.SteeringWheelManager
 
 
 class MainActivity : Activity() {
@@ -629,6 +631,16 @@ class MainActivity : Activity() {
             }
 
         vehicleDataController.useDemoMode()
+
+        // Steering-wheel controller: آماده برای کلیدهای واقعی مانیتور/فرمان
+        SteeringWheelManager.connect()
+        SteeringWheelManager.bind(KeyEvent.KEYCODE_VOLUME_UP, SteeringAction.VOLUME_UP)
+        SteeringWheelManager.bind(KeyEvent.KEYCODE_VOLUME_DOWN, SteeringAction.VOLUME_DOWN)
+        SteeringWheelManager.bind(KeyEvent.KEYCODE_MEDIA_NEXT, SteeringAction.NEXT_TRACK)
+        SteeringWheelManager.bind(KeyEvent.KEYCODE_MEDIA_PREVIOUS, SteeringAction.PREVIOUS_TRACK)
+        SteeringWheelManager.bind(KeyEvent.KEYCODE_CALL, SteeringAction.ANSWER_CALL)
+        SteeringWheelManager.bind(KeyEvent.KEYCODE_ENDCALL, SteeringAction.END_CALL)
+        SteeringWheelManager.bind(KeyEvent.KEYCODE_HEADSETHOOK, SteeringAction.VOICE_ASSISTANT)
 
         /*
          * =========================================================
@@ -1459,6 +1471,54 @@ class MainActivity : Activity() {
             .start()
     }
 
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (event.action != KeyEvent.ACTION_DOWN) {
+            return super.dispatchKeyEvent(event)
+        }
+
+        val action = SteeringWheelManager.getAction(event.keyCode)
+        when (action) {
+            SteeringAction.VOLUME_UP -> {
+                sendMediaKey(KeyEvent.KEYCODE_VOLUME_UP)
+                return true
+            }
+            SteeringAction.VOLUME_DOWN -> {
+                sendMediaKey(KeyEvent.KEYCODE_VOLUME_DOWN)
+                return true
+            }
+            SteeringAction.NEXT_TRACK -> {
+                sendMediaKey(KeyEvent.KEYCODE_MEDIA_NEXT)
+                return true
+            }
+            SteeringAction.PREVIOUS_TRACK -> {
+                sendMediaKey(KeyEvent.KEYCODE_MEDIA_PREVIOUS)
+                return true
+            }
+            SteeringAction.ANSWER_CALL -> {
+                if (::callPageView.isInitialized) {
+                    showPage(MainMenuPage.CALL)
+                    answerIncomingCall()
+                }
+                return true
+            }
+            SteeringAction.END_CALL -> {
+                endActiveCall()
+                return true
+            }
+            SteeringAction.VOICE_ASSISTANT -> {
+                startVoiceFromUser()
+                return true
+            }
+            SteeringAction.MUTE -> {
+                sendMediaKey(KeyEvent.KEYCODE_MUTE)
+                return true
+            }
+            null -> Unit
+        }
+
+        return super.dispatchKeyEvent(event)
+    }
+
     /*
      * =============================================================
      * BACK BUTTON
@@ -1505,6 +1565,8 @@ class MainActivity : Activity() {
 
             displayBootManager.destroy()
         }
+
+        SteeringWheelManager.disconnect()
 
         if (
             CANReceiver.isConnected()
