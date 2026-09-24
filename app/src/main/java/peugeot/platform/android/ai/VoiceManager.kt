@@ -72,13 +72,10 @@ class VoiceManager(
             val confidence =
                 results?.getFloatArray(
                     SpeechRecognizer.CONFIDENCE_SCORES
-                )
+                ) ?: floatArrayOf()
 
             val bestIndex =
-                if (candidates.isNotEmpty() &&
-                    confidence != null &&
-                    confidence.isNotEmpty()
-                ) {
+                if (confidence.isNotEmpty() && candidates.isNotEmpty()) {
                     confidence.indices
                         .maxByOrNull { index -> confidence[index] }
                         ?.coerceIn(0, candidates.lastIndex)
