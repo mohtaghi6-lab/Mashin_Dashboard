@@ -57,15 +57,9 @@ class CarPageView(
 
         speed = data.speedKmh.toFloat()
         rpm = data.rpm.toFloat()
-
-        /*
-         * این مقادیر در صورت وجود در VehicleData
-         * از مدل خودرو گرفته می‌شوند.
-         *
-         * برای جلوگیری از وابستگی به نام فیلدهای
-         * احتمالی مختلف، مقادیر فعلی دمو برای
-         * temperature / fuel / voltage حفظ شده‌اند.
-         */
+        temperature = data.engineTempC.toFloat()
+        fuel = data.fuelPercent.toFloat()
+        voltage = data.batteryVoltage
 
         invalidate()
     }
