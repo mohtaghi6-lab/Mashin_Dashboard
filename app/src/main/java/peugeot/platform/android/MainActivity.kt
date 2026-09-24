@@ -91,7 +91,7 @@ class MainActivity : Activity() {
 
                 TelephonyManager.EXTRA_STATE_OFFHOOK -> {
                     if (::callPageView.isInitialized) {
-                        callPageView.showIncomingCall(
+                        callPageView.showActiveCall(
                             findContactName(number),
                             number
                         )
