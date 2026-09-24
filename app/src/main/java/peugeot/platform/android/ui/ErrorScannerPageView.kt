@@ -21,7 +21,7 @@ class ErrorScannerPageView(
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val rect = RectF()
-    private val errorScannerEngine = ErrorScannerEngine()
+    private var errorScannerEngine = ErrorScannerEngine()
 
     private var vehicleData: VehicleData = VehicleData.demo()
     private var errors: List<VehicleError> = emptyList()
@@ -41,6 +41,17 @@ class ErrorScannerPageView(
 
     fun setVehicleData(data: VehicleData) {
         vehicleData = data
+        invalidate()
+    }
+
+    fun bindEngine(engine: ErrorScannerEngine) {
+        errorScannerEngine.onErrorUpdated = null
+        errorScannerEngine = engine
+        errorScannerEngine.onErrorUpdated = { list ->
+            errors = list
+            invalidate()
+        }
+        errors = errorScannerEngine.getErrors()
         invalidate()
     }
 
