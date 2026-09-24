@@ -3,7 +3,9 @@ package peugeot.platform.android
 import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
+import android.media.AudioManager
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
@@ -333,6 +335,30 @@ class MainActivity : Activity() {
             MusicPageView(this).apply {
 
                 visibility = View.GONE
+
+                onBackClick = {
+                    showPage(
+                        MainMenuPage.HOME
+                    )
+                }
+
+                onPlayPauseClick = {
+                    sendMediaKey(
+                        KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE
+                    )
+                }
+
+                onPreviousClick = {
+                    sendMediaKey(
+                        KeyEvent.KEYCODE_MEDIA_PREVIOUS
+                    )
+                }
+
+                onNextClick = {
+                    sendMediaKey(
+                        KeyEvent.KEYCODE_MEDIA_NEXT
+                    )
+                }
             }
 
         root.addView(
@@ -805,6 +831,33 @@ class MainActivity : Activity() {
                         .startContinuousListening()
                 }
             }
+        }
+    }
+
+    private fun sendMediaKey(
+        keyCode: Int
+    ) {
+
+        val audioManager =
+            getSystemService(
+                AUDIO_SERVICE
+            ) as AudioManager
+
+        try {
+            audioManager.dispatchMediaKeyEvent(
+                KeyEvent(
+                    KeyEvent.ACTION_DOWN,
+                    keyCode
+                )
+            )
+
+            audioManager.dispatchMediaKeyEvent(
+                KeyEvent(
+                    KeyEvent.ACTION_UP,
+                    keyCode
+                )
+            )
+        } catch (_: Exception) {
         }
     }
 
