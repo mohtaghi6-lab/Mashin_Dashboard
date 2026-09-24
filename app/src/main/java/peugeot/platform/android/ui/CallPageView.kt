@@ -26,6 +26,8 @@ class CallPageView(
     var onContactNumberReady: ((String) -> Unit)? = null
     var onEndClick: (() -> Unit)? = null
     var onContactsClick: (() -> Unit)? = null
+    var onIncomingAnswerClick: (() -> Unit)? = null
+    var onIncomingDeclineClick: (() -> Unit)? = null
 
 
     private val paint =
@@ -803,7 +805,7 @@ class CallPageView(
                 if (callRect.contains(event.x, event.y)) {
                     incomingCall = false
                     inCall = true
-                    onCallClick?.invoke()
+                    onIncomingAnswerClick?.invoke()
                     invalidate()
                     return true
                 }
@@ -811,7 +813,7 @@ class CallPageView(
                 if (endRect.contains(event.x, event.y)) {
                     incomingCall = false
                     inCall = false
-                    onEndClick?.invoke()
+                    onIncomingDeclineClick?.invoke()
                     invalidate()
                     return true
                 }
