@@ -42,6 +42,7 @@ import peugeot.platform.android.ui.VehicleSettingsPageView
 import peugeot.platform.android.vehicle.ErrorScannerEngine
 import peugeot.platform.android.vehicle.VehicleData
 import peugeot.platform.android.vehicle.VehicleDataController
+import peugeot.platform.android.weather.WeatherManager
 import peugeot.platform.android.steering.SteeringAction
 import peugeot.platform.android.steering.SteeringWheelManager
 
@@ -68,6 +69,7 @@ class MainActivity : Activity() {
     private lateinit var mainMenuController: MainMenuController
 
     private lateinit var vehicleDataController: VehicleDataController
+    private lateinit var weatherManager: WeatherManager
     private lateinit var errorScannerEngine: ErrorScannerEngine
 
     private lateinit var voiceManager: VoiceManager
@@ -631,6 +633,22 @@ class MainActivity : Activity() {
             }
 
         vehicleDataController.useDemoMode()
+
+        /*
+         * =========================================================
+         * ONLINE WEATHER
+         * =========================================================
+         */
+
+        weatherManager = WeatherManager { data ->
+            runOnUiThread {
+                if (::dashboard.isInitialized) {
+                    dashboard.setWeatherData(data)
+                }
+            }
+        }
+
+        weatherManager.start()
 
         // Steering-wheel controller: آماده برای کلیدهای واقعی مانیتور/فرمان
         SteeringWheelManager.connect()
@@ -1564,6 +1582,10 @@ class MainActivity : Activity() {
         ) {
 
             displayBootManager.destroy()
+        }
+
+        if (::weatherManager.isInitialized) {
+            weatherManager.stop()
         }
 
         SteeringWheelManager.disconnect()
