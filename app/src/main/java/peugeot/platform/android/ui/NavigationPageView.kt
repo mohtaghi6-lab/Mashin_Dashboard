@@ -17,6 +17,8 @@ class NavigationPageView(
     context: Context
 ) : android.view.View(context) {
 
+    var onBackClick: (() -> Unit)? = null
+
     private val paint =
         Paint(Paint.ANTI_ALIAS_FLAG)
 
@@ -248,6 +250,17 @@ class NavigationPageView(
             statusText(),
             w - 38f,
             50f,
+            paint
+        )
+
+        paint.textAlign = Paint.Align.LEFT
+        paint.textSize = 26f
+        paint.color = Color.WHITE
+
+        canvas.drawText(
+            "‹",
+            12f,
+            48f,
             paint
         )
     }
@@ -848,6 +861,16 @@ class NavigationPageView(
             event.action ==
             MotionEvent.ACTION_UP
         ) {
+
+            if (
+                event.x <= 70f &&
+                event.y <= 80f
+            ) {
+                onBackClick?.invoke()
+                pressedButton = -1
+                invalidate()
+                return true
+            }
 
             val button =
                 getButtonAt(
