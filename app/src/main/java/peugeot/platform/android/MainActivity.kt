@@ -812,7 +812,7 @@ class MainActivity : Activity() {
                     View.VISIBLE
 
                 bmwMenu.visibility =
-                    View.VISIBLE
+                    View.GONE
 
                 dashboard.translationX = 0f
                 dashboard.alpha = 1f
