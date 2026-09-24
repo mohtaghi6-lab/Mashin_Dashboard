@@ -138,54 +138,287 @@ class MainActivity : Activity() {
 
         root = FrameLayout(this)
 
-        /*
-         * =========================================================
-         * BMW 3D DASHBOARD
-         * =========================================================
+              /*
+         * =====================================================
+         * BMW DASHBOARD LAYER
+         * =====================================================
          */
 
-        dashboard = Dashboard3DView(this).apply {
+        dashboard =
+            Dashboard3DView(this).apply {
 
-            visibility = View.VISIBLE
 
-            onAIOrbClick = {
-                startVoiceFromUser()
+                visibility =
+                    View.GONE
+
+
+                onAIOrbClick = {
+
+                    startVoiceFromUser()
+
+                }
+
+
+                onCarClick = {
+
+                    showPage(
+                        MainMenuPage.CAR
+                    )
+
+                }
+
+
+                onMusicClick = {
+
+                    showPage(
+                        MainMenuPage.MUSIC
+                    )
+
+                }
+
+
+                onNavigationClick = {
+
+                    showPage(
+                        MainMenuPage.NAVIGATION
+                    )
+
+                }
+
+
+                onPhoneClick = {
+
+                    showPage(
+                        MainMenuPage.CALL
+                    )
+
+                }
+
+
+                onScanClick = {
+
+                    showPage(
+                        MainMenuPage.SCAN
+                    )
+
+                }
+
             }
 
-            onCarClick = {
-                showPage(
-                    MainMenuPage.CAR
-                )
-            }
 
-            onMusicClick = {
-                showPage(
-                    MainMenuPage.MUSIC
-                )
-            }
-
-            onNavigationClick = {
-                showPage(
-                    MainMenuPage.NAVIGATION
-                )
-            }
-
-            onPhoneClick = {
-                showPage(
-                    MainMenuPage.CALL
-                )
-            }
-
-            onScanClick = {
-                showPage(
-                    MainMenuPage.SCAN
-                )
-            }
-        }
 
         root.addView(
             dashboard,
             fullScreenParams()
+        )
+
+
+
+
+        /*
+         * =====================================================
+         * BMW HOME PAGE
+         * =====================================================
+         */
+
+        homePageView =
+            HomePageView(this).apply {
+
+
+                visibility =
+                    View.GONE
+
+
+
+                setVehicleData(
+                    VehicleData.demo()
+                )
+
+
+
+                onAIOrbClick = {
+
+                    startVoiceFromUser()
+
+                }
+
+
+
+                onCarClick = {
+
+                    showPage(
+                        MainMenuPage.CAR
+                    )
+
+                }
+
+
+
+                onMusicClick = {
+
+                    showPage(
+                        MainMenuPage.MUSIC
+                    )
+
+                }
+
+
+
+                onNavigationClick = {
+
+                    showPage(
+                        MainMenuPage.NAVIGATION
+                    )
+
+                }
+
+
+
+                onPhoneClick = {
+
+                    showPage(
+                        MainMenuPage.CALL
+                    )
+
+                }
+
+
+
+                onScannerClick = {
+
+                    showPage(
+                        MainMenuPage.SCAN
+                    )
+
+                }
+
+
+            }
+
+
+
+        root.addView(
+            homePageView,
+            fullScreenParams()
+        )
+
+
+
+
+        /*
+         * =====================================================
+         * CLOCK PAGE
+         * =====================================================
+         */
+
+        clockPageView =
+            ClockPageView(this).apply {
+
+
+                visibility =
+                    View.GONE
+
+            }
+
+
+
+        root.addView(
+            clockPageView,
+            fullScreenParams()
+        )
+
+
+
+
+        /*
+         * =====================================================
+         * BMW MENU
+         * =====================================================
+         */
+
+        bmwMenu =
+            BMWMenu(this).apply {
+
+
+                visibility =
+                    View.GONE
+
+
+
+                onSwipeRight = {
+
+                    showPage(
+                        MainMenuPage.CLOCK
+                    )
+
+                }
+
+
+
+                onSwipeLeft = {
+
+                    showPage(
+                        MainMenuPage.HOME
+                    )
+
+                }
+
+
+
+                onMenuClick = { item ->
+
+
+                    when(item) {
+
+
+                        "CAR" ->
+                            showPage(
+                                MainMenuPage.CAR
+                            )
+
+
+                        "MUSIC" ->
+                            showPage(
+                                MainMenuPage.MUSIC
+                            )
+
+
+                        "NAVI" ->
+                            showPage(
+                                MainMenuPage.NAVIGATION
+                            )
+
+
+                        "PHONE" ->
+                            showPage(
+                                MainMenuPage.CALL
+                            )
+
+
+                        "SCAN" ->
+                            showPage(
+                                MainMenuPage.SCAN
+                            )
+
+
+                        "AI" ->
+                            startVoiceFromUser()
+
+                    }
+
+
+                }
+
+
+            }
+
+
+
+        root.addView(
+            bmwMenu,
+            fullScreenParams()
+        )
+
         )
 
         /*
