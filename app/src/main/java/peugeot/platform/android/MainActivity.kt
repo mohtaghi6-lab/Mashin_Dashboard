@@ -4,9 +4,12 @@ import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
 import android.content.Intent
+import android.content.BroadcastReceiver
+import android.content.IntentFilter
 import android.net.Uri
 import android.media.AudioManager
 import android.os.Bundle
+import android.telephony.TelephonyManager
 import android.view.KeyEvent
 import android.view.View
 import android.view.Window
@@ -72,9 +75,42 @@ class MainActivity : Activity() {
     private var pendingVoiceStart = false
     private var pendingVoiceCallName: String? = null
 
+    private val phoneUpdateReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: android.content.Context?, intent: Intent?) {
+            if (intent?.action != "peugeot.platform.android.PHONE_STATE_UPDATE") return
+
+            val state = intent.getStringExtra("state") ?: return
+            val number = intent.getStringExtra("number") ?: ""
+
+            when (state) {
+                TelephonyManager.EXTRA_STATE_RINGING -> {
+                    val name = findContactName(number)
+                    callPageView.showIncomingCall(name, number)
+                    showPage(MainMenuPage.CALL)
+                }
+
+                TelephonyManager.EXTRA_STATE_OFFHOOK -> {
+                    if (::callPageView.isInitialized) {
+                        callPageView.showIncomingCall(
+                            findContactName(number),
+                            number
+                        )
+                    }
+                }
+
+                TelephonyManager.EXTRA_STATE_IDLE -> {
+                    if (::callPageView.isInitialized) {
+                        callPageView.clearIncomingCall()
+                    }
+                }
+            }
+        }
+    }
+
     companion object {
         private const val AUDIO_PERMISSION_REQUEST = 1001
         private const val CONTACTS_PERMISSION_REQUEST = 1002
+        private const val PHONE_STATE_PERMISSION_REQUEST = 1003
     }
 
     override fun onCreate(
@@ -510,6 +546,8 @@ class MainActivity : Activity() {
          */
 
         setContentView(root)
+
+        registerPhoneStateReceiver()
 
         /*
          * =========================================================
@@ -983,6 +1021,59 @@ class MainActivity : Activity() {
             openPhoneDialer(selected.second)
         }.setNegativeButton("انصراف", null).show()
     }
+    private fun findContactName(number: String): String {
+        if (number.isBlank() ||
+            checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return "تماس ورودی"
+        }
+
+        val cursor = contentResolver.query(
+            android.provider.ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+            arrayOf(
+                android.provider.ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+                android.provider.ContactsContract.CommonDataKinds.Phone.NUMBER
+            ),
+            android.provider.ContactsContract.CommonDataKinds.Phone.NUMBER + " LIKE ?",
+            arrayOf("%" + number.takeLast(7) + "%"),
+            null
+        )
+
+        var result = "تماس ورودی"
+        cursor?.use {
+            if (it.moveToFirst()) {
+                val index = it.getColumnIndex(
+                    android.provider.ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
+                )
+                if (index >= 0) {
+                    result = it.getString(index) ?: result
+                }
+            }
+        }
+        return result
+    }
+
+    private fun ensurePhoneStatePermission() {
+        if (
+            checkSelfPermission(Manifest.permission.READ_PHONE_STATE) !=
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissions(
+                arrayOf(Manifest.permission.READ_PHONE_STATE),
+                PHONE_STATE_PERMISSION_REQUEST
+            )
+        }
+    }
+
+    private fun registerPhoneStateReceiver() {
+        val filter = IntentFilter("peugeot.platform.android.PHONE_STATE_UPDATE")
+        if (android.os.Build.VERSION.SDK_INT >= 33) {
+            registerReceiver(phoneUpdateReceiver, filter, RECEIVER_NOT_EXPORTED)
+        } else {
+            registerReceiver(phoneUpdateReceiver, filter)
+        }
+    }
+
     private fun openContacts() {
         if (
             checkSelfPermission(
@@ -1149,6 +1240,8 @@ class MainActivity : Activity() {
 
                 callPageView.visibility =
                     View.VISIBLE
+
+                ensurePhoneStatePermission()
             }
 
             /*
@@ -1326,6 +1419,11 @@ class MainActivity : Activity() {
      */
 
     override fun onDestroy() {
+
+        try {
+            unregisterReceiver(phoneUpdateReceiver)
+        } catch (_: Exception) {
+        }
 
         if (
             ::voiceManager.isInitialized
