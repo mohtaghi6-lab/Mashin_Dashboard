@@ -465,6 +465,15 @@ class CallPageView(
         invalidate()
     }
 
+    fun showActiveCall(name: String, number: String) {
+        incomingCall = false
+        inCall = true
+        connected = true
+        contactName = if (name.isBlank()) "تماس" else name
+        incomingNumber = number
+        invalidate()
+    }
+
     fun clearIncomingCall() {
         incomingCall = false
         incomingNumber = ""
