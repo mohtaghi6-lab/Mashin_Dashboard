@@ -64,13 +64,31 @@ class VoiceManager(
         override fun onResults(results: Bundle?) {
             recognitionActive = false
 
-            val text = results
-                ?.getStringArrayList(
+            val candidates =
+                results?.getStringArrayList(
                     SpeechRecognizer.RESULTS_RECOGNITION
+                ).orEmpty()
+
+            val confidence =
+                results?.getFloatArray(
+                    SpeechRecognizer.CONFIDENCE_SCORES
                 )
-                ?.firstOrNull()
-                ?.trim()
-                .orEmpty()
+
+            val bestIndex =
+                if (!confidence.isNullOrEmpty()) {
+                    confidence.indices
+                        .maxByOrNull { confidence[it] }
+                        ?.coerceIn(0, candidates.lastIndex)
+                        ?: 0
+                } else {
+                    0
+                }
+
+            val text =
+                candidates
+                    .getOrNull(bestIndex)
+                    ?.trim()
+                    .orEmpty()
 
             if (text.isNotBlank()) {
                 onStateChanged(AIState.THINKING)
@@ -155,9 +173,17 @@ class VoiceManager(
                 true
             )
 
+            // برای تشخیص دقیق‌تر، مخصوصاً در محیط خودرو،
+            // اجازه می‌دهیم موتور چند نتیجه بدهد و بهترین نتیجه را
+            // بر اساس confidence انتخاب می‌کنیم.
+            putExtra(
+                RecognizerIntent.EXTRA_PREFER_OFFLINE,
+                false
+            )
+
             putExtra(
                 RecognizerIntent.EXTRA_MAX_RESULTS,
-                1
+                5
             )
 
             putExtra(
