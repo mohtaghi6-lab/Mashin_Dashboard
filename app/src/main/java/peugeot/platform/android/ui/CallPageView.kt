@@ -3,6 +3,11 @@ package peugeot.platform.android.ui
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.graphics.*
+import android.text.InputType
+import android.view.inputmethod.InputMethodManager
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.widget.EditText
 import android.view.MotionEvent
 import android.view.View
 
@@ -17,6 +22,7 @@ class CallPageView(
     var onBackClick: (() -> Unit)? = null
     var onCallClick: (() -> Unit)? = null
     var onDialerClick: (() -> Unit)? = null
+    var onContactNumberReady: ((String) -> Unit)? = null
     var onEndClick: (() -> Unit)? = null
 
 
@@ -54,6 +60,9 @@ class CallPageView(
 
 
     private val backRect =
+        RectF()
+
+    private val numberRect =
         RectF()
 
     private val callRect =
@@ -137,6 +146,12 @@ class CallPageView(
 
 
         drawControls(
+            canvas,
+            w,
+            h
+        )
+
+        drawNumberHint(
             canvas,
             w,
             h
@@ -427,6 +442,40 @@ class CallPageView(
 
 
 
+    private fun showNumberInput() {
+        val input = EditText(context).apply {
+            hint = "شماره تلفن"
+            inputType = InputType.TYPE_CLASS_PHONE
+            setSingleLine(true)
+        }
+
+        val dialog = android.app.AlertDialog.Builder(context)
+            .setTitle("شماره‌گیری")
+            .setView(input)
+            .setNegativeButton("انصراف", null)
+            .setPositiveButton("تماس") { _, _ ->
+                val number = input.text.toString().trim()
+                if (number.isNotEmpty()) {
+                    contactName = number
+                    connected = true
+                    inCall = true
+                    onContactNumberReady?.invoke(number)
+                    onDialerClick?.invoke()
+                    invalidate()
+                }
+            }
+            .create()
+
+        dialog.setOnShowListener {
+            input.requestFocus()
+            dialog.window?.setSoftInputMode(
+                android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE
+            )
+        }
+
+        dialog.show()
+    }
+
     private fun updateBluetoothStatus() {
         bluetoothReady = try {
             BluetoothAdapter.getDefaultAdapter()?.isEnabled == true
@@ -462,6 +511,22 @@ class CallPageView(
 
 
 
+
+    private fun drawNumberHint(
+        canvas: Canvas,
+        w: Float,
+        h: Float
+    ) {
+        paint.textAlign = Paint.Align.CENTER
+        paint.textSize = 11f
+        paint.color = Color.LTGRAY
+        canvas.drawText(
+            "برای شماره‌گیری، دکمه CALL را بزن",
+            w / 2f,
+            h * 0.90f,
+            paint
+        )
+    }
 
     private fun drawControls(
         canvas: Canvas,
@@ -671,6 +736,11 @@ class CallPageView(
                     event.x,
                     event.y
                 )){
+                showNumberInput()
+                return true
+            }
+
+            if(numberRect.contains(event.x, event.y)){
 
 
                 connected=true
