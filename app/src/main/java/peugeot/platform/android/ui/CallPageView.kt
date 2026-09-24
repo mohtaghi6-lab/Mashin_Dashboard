@@ -58,10 +58,6 @@ class CallPageView(
     private val endRect =
         RectF()
 
-    private val backRect =
-        RectF()
-        RectF()
-
 
 
     init {
