@@ -6,6 +6,7 @@ import android.view.MotionEvent
 import android.view.View
 import peugeot.platform.android.ai.AIState
 import peugeot.platform.android.vehicle.VehicleData
+import peugeot.platform.android.weather.WeatherData
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -18,6 +19,7 @@ class Dashboard3DView(context: Context) : View(context) {
 
     private var vehicleData = VehicleData.demo()
     private var aiState = AIState.IDLE
+    private var weatherData = WeatherData.demo()
 
     var onAIOrbClick: (() -> Unit)? = null
     var onCarClick: (() -> Unit)? = null
@@ -44,6 +46,7 @@ class Dashboard3DView(context: Context) : View(context) {
 
         drawBackground(canvas, w, h)
         drawTopStatus(canvas, w, h)
+        drawWeatherCard(canvas, w, h)
 
         drawLeftGauge(
             canvas,
@@ -81,6 +84,11 @@ class Dashboard3DView(context: Context) : View(context) {
 
     fun setAIState(state: AIState) {
         aiState = state
+        invalidate()
+    }
+
+    fun setWeatherData(data: WeatherData) {
+        weatherData = data
         invalidate()
     }
 
@@ -258,6 +266,55 @@ class Dashboard3DView(context: Context) : View(context) {
             62f,
             textPaint
         )
+    }
+
+    // ---------------------------------------------------------
+    // WEATHER
+    // ---------------------------------------------------------
+
+    private fun drawWeatherCard(
+        canvas: Canvas,
+        w: Float,
+        h: Float
+    ) {
+        val rect = RectF(
+            w / 2f - 150f,
+            92f,
+            w / 2f + 150f,
+            150f
+        )
+
+        drawGlass(
+            canvas, rect, 24f,
+            Color.argb(45, 255, 255, 255),
+            Color.argb(75, 70, 190, 255)
+        )
+
+        textPaint.textAlign = Paint.Align.LEFT
+        textPaint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+        textPaint.textSize = 20f
+        textPaint.color = Color.WHITE
+        canvas.drawText(weatherData.icon, rect.left + 18f, rect.top + 37f, textPaint)
+
+        textPaint.textSize = 18f
+        canvas.drawText(weatherData.temperatureC.toString() + "°", rect.left + 58f, rect.top + 27f, textPaint)
+
+        textPaint.textSize = 9f
+        textPaint.color = lightBlue
+        canvas.drawText(weatherData.description, rect.left + 59f, rect.top + 43f, textPaint)
+
+        textPaint.textAlign = Paint.Align.RIGHT
+        textPaint.textSize = 9f
+        textPaint.color = Color.LTGRAY
+        canvas.drawText(weatherData.city, rect.right - 18f, rect.top + 22f, textPaint)
+        canvas.drawText(
+            "حس‌شده " + weatherData.feelsLikeC + "°  •  باد " + weatherData.windKmh + " km/h",
+            rect.right - 18f, rect.top + 39f, textPaint
+        )
+
+        textPaint.textSize = 8f
+        textPaint.color = Color.argb(150, 210, 230, 245)
+        canvas.drawText("ONLINE WEATHER", rect.right - 18f, rect.top + 52f, textPaint)
     }
 
     // ---------------------------------------------------------
