@@ -384,6 +384,17 @@ class MainActivity : Activity() {
             ErrorScannerPageView(this).apply {
 
                 visibility = View.GONE
+
+                onBackClick = {
+                    showPage(
+                        MainMenuPage.HOME
+                    )
+                }
+
+                onRescanClick = {
+                    clearErrors()
+                    startScan()
+                }
             }
 
         root.addView(
