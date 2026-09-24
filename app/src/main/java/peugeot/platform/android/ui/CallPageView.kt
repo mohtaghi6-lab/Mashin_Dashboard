@@ -1,5 +1,6 @@
 package peugeot.platform.android.ui
 
+import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.graphics.*
 import android.view.MotionEvent
@@ -46,6 +47,9 @@ class CallPageView(
 
     private var contactName =
         "No Device"
+
+    private var bluetoothReady =
+        false
 
 
 
@@ -115,6 +119,8 @@ class CallPageView(
             h
         )
 
+
+        updateBluetoothStatus()
 
         drawStatus(
             canvas,
@@ -407,7 +413,10 @@ class CallPageView(
         paint.textSize = 11f
         paint.color = Color.LTGRAY
         canvas.drawText(
-            "HANDSFREE • BLUETOOTH AUDIO",
+            if (bluetoothReady)
+                "BLUETOOTH • READY"
+            else
+                "BLUETOOTH • CHECK SYSTEM",
             w / 2f,
             h * 0.67f,
             paint
@@ -417,6 +426,14 @@ class CallPageView(
 
 
 
+
+    private fun updateBluetoothStatus() {
+        bluetoothReady = try {
+            BluetoothAdapter.getDefaultAdapter()?.isEnabled == true
+        } catch (_: Exception) {
+            false
+        }
+    }
 
     private fun drawVehicleInfo(
         canvas: Canvas,
