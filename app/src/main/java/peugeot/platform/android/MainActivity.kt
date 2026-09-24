@@ -17,6 +17,7 @@ import peugeot.platform.android.ai.VoiceManager
 import peugeot.platform.android.can.CANReceiver
 
 import peugeot.platform.android.dashboard.BMWMenu
+import peugeot.platform.android.dashboard.Dashboard3DView
 
 import peugeot.platform.android.ui.CallPageView
 import peugeot.platform.android.ui.CarPageView
