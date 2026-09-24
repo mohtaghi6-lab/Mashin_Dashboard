@@ -540,7 +540,6 @@ class CallPageView(
                 connected = true
                 inCall = true
                 onContactNumberReady?.invoke(number)
-                onDialerClick?.invoke()
                 invalidate()
             }
             .setNegativeButton("انصراف", null)
@@ -565,7 +564,6 @@ class CallPageView(
                     connected = true
                     inCall = true
                     onContactNumberReady?.invoke(number)
-                    onDialerClick?.invoke()
                     invalidate()
                 }
             }
