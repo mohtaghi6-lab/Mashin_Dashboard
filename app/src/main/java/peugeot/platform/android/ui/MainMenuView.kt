@@ -1,190 +1,226 @@
-package peugeot.platform.android.ui
+package peugeot.platform.android
 
+import android.Manifest
+import android.app.Activity
+import android.content.BroadcastReceiver
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Typeface
-import android.graphics.drawable.ColorDrawable
-import android.view.MotionEvent
+import android.content.Intent
+import android.content.IntentFilter
+import android.content.pm.PackageManager
+import android.media.AudioManager
+import android.net.Uri
+import android.os.Bundle
+import android.telephony.TelephonyManager
+import android.view.KeyEvent
 import android.view.View
+import android.view.Window
+import android.view.WindowManager
+import android.widget.FrameLayout
 
-class MainMenuView(
-    context: Context
-) : View(context) {
+import peugeot.platform.android.ai.AIEngine
+import peugeot.platform.android.ai.AIState
+import peugeot.platform.android.ai.SpeechManager
+import peugeot.platform.android.ai.VoiceManager
 
-    private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+import peugeot.platform.android.can.CANReceiver
 
-    private var currentPage = MainMenuPage.HOME
+import peugeot.platform.android.dashboard.BMWMenu
+import peugeot.platform.android.dashboard.Dashboard3DView
 
-    var onPageSelected:
-        ((MainMenuPage) -> Unit)? = null
+import peugeot.platform.android.ui.CallPageView
+import peugeot.platform.android.ui.CarPageView
+import peugeot.platform.android.ui.ClockPageView
+import peugeot.platform.android.ui.ErrorScannerPageView
+import peugeot.platform.android.ui.HomePageView
+import peugeot.platform.android.ui.MainMenuPage
+import peugeot.platform.android.ui.MusicPageView
+import peugeot.platform.android.ui.NavigationPageView
+import peugeot.platform.android.ui.StartupView
+import peugeot.platform.android.ui.VehicleSettingsPageView
 
-    private val menuItems = arrayOf(
-        MainMenuPage.HOME,
-        MainMenuPage.CAR,
-        MainMenuPage.MUSIC,
-        MainMenuPage.NAVIGATION,
-        MainMenuPage.CALL,
-        MainMenuPage.SCAN,
-        MainMenuPage.SETTINGS
-    )
+import peugeot.platform.android.vehicle.ErrorScannerEngine
+import peugeot.platform.android.vehicle.VehicleData
+import peugeot.platform.android.vehicle.VehicleDataController
 
-    private val labels = arrayOf(
-        "HOME",
-        "CAR",
-        "MUSIC",
-        "NAV",
-        "CALL",
-        "SCAN",
-        "SET"
-    )
+import peugeot.platform.android.weather.WeatherManager
 
-    private val icons = arrayOf(
-        "⌂",
-        "◉",
-        "♫",
-        "⌖",
-        "☎",
-        "⌁",
-        "⚙"
-    )
+import peugeot.platform.android.steering.SteeringAction
+import peugeot.platform.android.steering.SteeringWheelManager
 
-    init {
-        background = ColorDrawable(Color.TRANSPARENT)
-        isClickable = true
+
+class MainActivity : Activity() {
+
+
+    private lateinit var root: FrameLayout
+
+    private lateinit var startupView: StartupView
+
+    // BMW MAIN
+    private lateinit var dashboard: Dashboard3DView
+    private lateinit var bmwMenu: BMWMenu
+    private lateinit var homePageView: HomePageView
+    private lateinit var clockPageView: ClockPageView
+
+
+    // Pages
+    private lateinit var carPageView: CarPageView
+    private lateinit var musicPageView: MusicPageView
+    private lateinit var navigationPageView: NavigationPageView
+    private lateinit var callPageView: CallPageView
+    private lateinit var errorScannerPageView: ErrorScannerPageView
+    private lateinit var vehicleSettingsPageView: VehicleSettingsPageView
+
+
+    // Vehicle
+    private lateinit var vehicleDataController: VehicleDataController
+    private lateinit var errorScannerEngine: ErrorScannerEngine
+    private lateinit var weatherManager: WeatherManager
+
+
+    // AI
+    private lateinit var aiEngine: AIEngine
+    private lateinit var voiceManager: VoiceManager
+    private lateinit var speechManager: SpeechManager
+
+
+    private lateinit var displayBootManager: DisplayBootManager
+
+
+    private var pendingVoiceStart = false
+    private var pendingVoiceCallName: String? = null
+
+
+
+    companion object {
+
+        private const val AUDIO_PERMISSION_REQUEST = 1001
+        private const val CONTACTS_PERMISSION_REQUEST = 1002
+        private const val PHONE_STATE_PERMISSION_REQUEST = 1003
+
     }
 
-    override fun onDraw(canvas: Canvas) {
-        super.onDraw(canvas)
 
-        val w = width.toFloat()
-        val h = height.toFloat()
 
-        val barHeight = 78f
-        val barLeft = 24f
-        val barRight = w - 24f
-        val barTop = h - barHeight - 18f
-        val barBottom = h - 18f
-        val radius = 26f
+    private val phoneUpdateReceiver =
+        object : BroadcastReceiver() {
 
-        paint.style = Paint.Style.FILL
-        paint.color = Color.argb(198, 8, 18, 31)
 
-        canvas.drawRoundRect(
-            barLeft,
-            barTop,
-            barRight,
-            barBottom,
-            radius,
-            radius,
-            paint
-        )
+            override fun onReceive(
+                context: Context?,
+                intent: Intent?
+            ) {
 
-        paint.style = Paint.Style.STROKE
-        paint.strokeWidth = 1.2f
-        paint.color = Color.argb(
-            100,
-            95,
-            200,
-            255
-        )
 
-        canvas.drawRoundRect(
-            barLeft,
-            barTop,
-            barRight,
-            barBottom,
-            radius,
-            radius,
-            paint
-        )
+                if (
+                    intent?.action !=
+                    "peugeot.platform.android.PHONE_STATE_UPDATE"
+                ) return
 
-        val itemWidth =
-            (barRight - barLeft) / menuItems.size
 
-        for (i in menuItems.indices) {
-            val cx =
-                barLeft + itemWidth * i + itemWidth / 2f
 
-            val selected =
-                menuItems[i] == currentPage
+                val state =
+                    intent.getStringExtra("state")
+                        ?: return
 
-            paint.style = Paint.Style.FILL
 
-            if (selected) {
-                paint.color = Color.argb(
-                    90,
-                    35,
-                    175,
-                    245
-                )
+                val number =
+                    intent.getStringExtra("number")
+                        ?: ""
 
-                canvas.drawRoundRect(
-                    cx - itemWidth * 0.39f,
-                    barTop + 8f,
-                    cx + itemWidth * 0.39f,
-                    barBottom - 8f,
-                    18f,
-                    18f,
-                    paint
-                )
+
+
+                when(state) {
+
+
+                    TelephonyManager.EXTRA_STATE_RINGING -> {
+
+
+                        val name =
+                            findContactName(number)
+
+
+                        if (::callPageView.isInitialized) {
+
+                            callPageView
+                                .showIncomingCall(
+                                    name,
+                                    number
+                                )
+
+                        }
+
+
+                        showPage(
+                            MainMenuPage.CALL
+                        )
+
+                    }
+
+
+
+                    TelephonyManager.EXTRA_STATE_OFFHOOK -> {
+
+
+                        if (::callPageView.isInitialized) {
+
+                            callPageView
+                                .showActiveCall(
+                                    findContactName(number),
+                                    number
+                                )
+
+                        }
+
+                    }
+
+
+
+                    TelephonyManager.EXTRA_STATE_IDLE -> {
+
+
+                        if (::callPageView.isInitialized) {
+
+                            callPageView
+                                .clearIncomingCall()
+
+                        }
+
+                    }
+
+                }
+
             }
 
-            paint.textAlign = Paint.Align.CENTER
-            paint.typeface = Typeface.DEFAULT_BOLD
-            paint.textSize = 20f
-            paint.color =
-                if (selected) Color.rgb(145, 235, 255)
-                else Color.rgb(160, 180, 195)
-
-            canvas.drawText(
-                icons[i],
-                cx,
-                barTop + 31f,
-                paint
-            )
-
-            paint.typeface = Typeface.DEFAULT
-            paint.textSize = 8.5f
-            paint.color =
-                if (selected) Color.WHITE
-                else Color.rgb(120, 145, 160)
-
-            canvas.drawText(
-                labels[i],
-                cx,
-                barTop + 52f,
-                paint
-            )
-        }
-    }
-
-    fun setPage(page: MainMenuPage) {
-        currentPage = page
-        invalidate()
-    }
-
-    override fun onTouchEvent(event: MotionEvent): Boolean {
-        val barTop = height.toFloat() - 96f
-
-        if (event.y < barTop) {
-            return false
         }
 
-        if (event.action == MotionEvent.ACTION_UP) {
-            val itemWidth =
-                width.toFloat() / menuItems.size
 
-            val index =
-                (event.x / itemWidth).toInt()
-                    .coerceIn(0, menuItems.lastIndex)
 
-            currentPage = menuItems[index]
-            onPageSelected?.invoke(currentPage)
-            invalidate()
-        }
+    override fun onCreate(
+        savedInstanceState: Bundle?
+    ) {
 
-        return true
-    }
-}
+        super.onCreate(savedInstanceState)
+
+
+
+        requestWindowFeature(
+            Window.FEATURE_NO_TITLE
+        )
+
+
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN
+        )
+
+
+        window.decorView.systemUiVisibility =
+            View.SYSTEM_UI_FLAG_FULLSCREEN or
+                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+
+
+
+        root =
+            FrameLayout(this)
+
