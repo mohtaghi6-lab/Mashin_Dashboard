@@ -2,6 +2,7 @@ package peugeot.platform.android.ui
 
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.*
 import android.text.InputType
 import android.view.inputmethod.InputMethodManager
@@ -24,6 +25,7 @@ class CallPageView(
     var onDialerClick: (() -> Unit)? = null
     var onContactNumberReady: ((String) -> Unit)? = null
     var onEndClick: (() -> Unit)? = null
+    var onContactsClick: (() -> Unit)? = null
 
 
     private val paint =
@@ -441,6 +443,70 @@ class CallPageView(
 
 
 
+
+    fun showContacts() {
+        if (
+            android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M &&
+            context.checkSelfPermission(android.Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+
+        val names = ArrayList<String>()
+        val numbers = ArrayList<String>()
+
+        val cursor = context.contentResolver.query(
+            android.provider.ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+            arrayOf(
+                android.provider.ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+                android.provider.ContactsContract.CommonDataKinds.Phone.NUMBER
+            ),
+            null,
+            null,
+            android.provider.ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC"
+        )
+
+        cursor?.use {
+            val nameIndex = it.getColumnIndex(
+                android.provider.ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
+            )
+            val numberIndex = it.getColumnIndex(
+                android.provider.ContactsContract.CommonDataKinds.Phone.NUMBER
+            )
+
+            while (it.moveToNext()) {
+                val name = if (nameIndex >= 0) it.getString(nameIndex) else "بدون نام"
+                val number = if (numberIndex >= 0) it.getString(numberIndex) else ""
+                if (number.isNotBlank()) {
+                    names.add(name ?: "بدون نام")
+                    numbers.add(number)
+                }
+            }
+        }
+
+        if (names.isEmpty()) {
+            android.app.AlertDialog.Builder(context)
+                .setTitle("مخاطبین")
+                .setMessage("مخاطبی برای نمایش پیدا نشد.")
+                .setPositiveButton("باشه", null)
+                .show()
+            return
+        }
+
+        android.app.AlertDialog.Builder(context)
+            .setTitle("مخاطبین")
+            .setItems(names.toTypedArray()) { _, which ->
+                val number = numbers[which]
+                contactName = names[which]
+                connected = true
+                inCall = true
+                onContactNumberReady?.invoke(number)
+                onDialerClick?.invoke()
+                invalidate()
+            }
+            .setNegativeButton("انصراف", null)
+            .show()
+    }
 
     private fun showNumberInput() {
         val input = EditText(context).apply {
