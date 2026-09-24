@@ -95,16 +95,23 @@ class Dashboard3DView(context: Context) : View(context) {
     ) {
         paint.style = Paint.Style.FILL
 
-        paint.shader = LinearGradient(
-            0f,
-            0f,
-            0f,
-            h,
-            Color.rgb(1, 4, 10),
-            Color.rgb(2, 13, 24),
-            Color.rgb(5, 25, 42),
-            Shader.TileMode.CLAMP
-        )
+       paint.shader = LinearGradient(
+    0f,
+    0f,
+    0f,
+    h,
+    intArrayOf(
+        Color.rgb(1, 4, 10),
+        Color.rgb(2, 13, 24),
+        Color.rgb(5, 25, 42)
+    ),
+    floatArrayOf(
+        0f,
+        0.5f,
+        1f
+    ),
+    Shader.TileMode.CLAMP
+)
 
         canvas.drawRect(
             0f,
