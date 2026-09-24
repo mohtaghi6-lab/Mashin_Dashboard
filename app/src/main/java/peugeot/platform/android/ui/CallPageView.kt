@@ -52,6 +52,12 @@ class CallPageView(
     private var inCall =
         false
 
+    private var incomingCall =
+        false
+
+    private var incomingNumber =
+        ""
+
 
     private var contactName =
         "No Device"
@@ -329,7 +335,9 @@ class CallPageView(
 
 
         paint.color =
-            if(inCall)
+            if (incomingCall)
+                blue
+            else if(inCall)
                 green
             else
                 blue
@@ -418,7 +426,9 @@ class CallPageView(
 
 
         canvas.drawText(
-            if(inCall)
+            if (incomingCall)
+                "INCOMING CALL"
+            else if(inCall)
                 "CALL IN PROGRESS"
             else
                 "READY",
@@ -443,6 +453,24 @@ class CallPageView(
 
 
 
+
+    fun showIncomingCall(name: String, number: String) {
+        incomingCall = true
+        inCall = false
+        connected = true
+        contactName = if (name.isBlank()) "تماس‌گیرنده" else name
+        incomingNumber = number
+        invalidate()
+    }
+
+    fun clearIncomingCall() {
+        incomingCall = false
+        incomingNumber = ""
+        connected = false
+        inCall = false
+        contactName = "No Device"
+        invalidate()
+    }
 
     fun showContacts() {
         if (
@@ -600,48 +628,24 @@ class CallPageView(
         h: Float
     ){
 
-        val y =
-            h*0.78f
+        val y = h * 0.78f
 
+        if (incomingCall) {
+            callRect.set(w * 0.10f, y - 35f, w * 0.43f, y + 35f)
+            endRect.set(w * 0.57f, y - 35f, w * 0.90f, y + 35f)
 
+            drawButton(canvas, callRect, "ANSWER", green)
+            drawButton(canvas, endRect, "DECLINE", red)
+        } else {
+            callRect.set(w * 0.08f, y - 35f, w * 0.33f, y + 35f)
+            numberRect.set(w * 0.38f, y - 35f, w * 0.62f, y + 35f)
+            endRect.set(w * 0.67f, y - 35f, w * 0.92f, y + 35f)
 
-        callRect.set(
-            w*0.25f,
-            y-35f,
-            w*0.45f,
-            y+35f
-        )
-
-
-        endRect.set(
-            w*0.55f,
-            y-35f,
-            w*0.75f,
-            y+35f
-        )
-
-
-
-        drawButton(
-            canvas,
-            callRect,
-            "CALL",
-            green
-        )
-
-
-        drawButton(
-            canvas,
-            endRect,
-            "END",
-            red
-        )
-
+            drawButton(canvas, callRect, "DIAL", green)
+            drawButton(canvas, numberRect, "CONTACTS", blue)
+            drawButton(canvas, endRect, "END", red)
+        }
     }
-
-
-
-
 
     private fun drawButton(
         canvas: Canvas,
@@ -784,72 +788,56 @@ class CallPageView(
 
     override fun onTouchEvent(
         event: MotionEvent
-    ):Boolean{
+    ): Boolean {
 
+        if (event.action == MotionEvent.ACTION_UP) {
 
-        if(event.action ==
-            MotionEvent.ACTION_UP){
-
-
-            if(backRect.contains(event.x, event.y)){
+            if (backRect.contains(event.x, event.y)) {
                 onBackClick?.invoke()
                 invalidate()
                 performClick()
                 return true
             }
 
-            if(callRect.contains(
-                    event.x,
-                    event.y
-                )){
-                showNumberInput()
-                return true
+            if (incomingCall) {
+                if (callRect.contains(event.x, event.y)) {
+                    incomingCall = false
+                    inCall = true
+                    onCallClick?.invoke()
+                    invalidate()
+                    return true
+                }
+
+                if (endRect.contains(event.x, event.y)) {
+                    incomingCall = false
+                    inCall = false
+                    onEndClick?.invoke()
+                    invalidate()
+                    return true
+                }
+            } else {
+                if (callRect.contains(event.x, event.y)) {
+                    showNumberInput()
+                    return true
+                }
+
+                if (numberRect.contains(event.x, event.y)) {
+                    onContactsClick?.invoke()
+                    return true
+                }
+
+                if (endRect.contains(event.x, event.y)) {
+                    inCall = false
+                    onEndClick?.invoke()
+                    invalidate()
+                    return true
+                }
             }
-
-            if(numberRect.contains(event.x, event.y)){
-
-
-                connected=true
-                inCall=true
-
-                contactName =
-                    "Bluetooth Phone"
-
-
-                onCallClick?.invoke()
-                onDialerClick?.invoke()
-
-                invalidate()
-
-            }
-
-
-
-            if(endRect.contains(
-                    event.x,
-                    event.y
-                )){
-
-
-                inCall=false
-
-                onEndClick?.invoke()
-
-                invalidate()
-
-            }
-
-
         }
 
-
         performClick()
-
         return true
     }
-
-
-
 
     override fun performClick():
             Boolean {
