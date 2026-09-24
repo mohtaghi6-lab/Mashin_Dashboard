@@ -15,6 +15,7 @@ class CallPageView(
 
     var onBackClick: (() -> Unit)? = null
     var onCallClick: (() -> Unit)? = null
+    var onDialerClick: (() -> Unit)? = null
     var onEndClick: (() -> Unit)? = null
 
 
@@ -55,6 +56,10 @@ class CallPageView(
         RectF()
 
     private val endRect =
+        RectF()
+
+    private val backRect =
+        RectF()
         RectF()
 
 
@@ -403,6 +408,15 @@ class CallPageView(
             paint
         )
 
+        paint.textSize = 11f
+        paint.color = Color.LTGRAY
+        canvas.drawText(
+            "HANDSFREE • BLUETOOTH AUDIO",
+            w / 2f,
+            h * 0.67f,
+            paint
+        )
+
     }
 
 
@@ -633,6 +647,13 @@ class CallPageView(
             MotionEvent.ACTION_UP){
 
 
+            if(backRect.contains(event.x, event.y)){
+                onBackClick?.invoke()
+                invalidate()
+                performClick()
+                return true
+            }
+
             if(callRect.contains(
                     event.x,
                     event.y
@@ -647,6 +668,7 @@ class CallPageView(
 
 
                 onCallClick?.invoke()
+                onDialerClick?.invoke()
 
                 invalidate()
 
