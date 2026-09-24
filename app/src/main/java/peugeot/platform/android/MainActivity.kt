@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
 import android.content.Intent
+import android.net.Uri
 import android.media.AudioManager
 import android.os.Bundle
 import android.view.KeyEvent
@@ -413,6 +414,10 @@ class MainActivity : Activity() {
 
                 onDialerClick = {
                     openPhoneDialer()
+                }
+
+                onContactNumberReady = { number ->
+                    openPhoneDialer(number)
                 }
 
                 onEndClick = {
@@ -860,14 +865,20 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun openPhoneDialer() {
+    private fun openPhoneDialer(number: String? = null) {
 
         try {
-            startActivity(
-                Intent(
-                    Intent.ACTION_DIAL
-                )
-            )
+            val intent =
+                if (number.isNullOrBlank()) {
+                    Intent(Intent.ACTION_DIAL)
+                } else {
+                    Intent(
+                        Intent.ACTION_DIAL,
+                        Uri.parse("tel:" + Uri.encode(number))
+                    )
+                }
+
+            startActivity(intent)
         } catch (_: Exception) {
         }
     }
