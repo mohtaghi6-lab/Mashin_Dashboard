@@ -164,17 +164,38 @@ class ErrorScannerPageView(
             )
 
 
+        val reportedErrors = if (vehicleData.ecuErrorCount > 0) vehicleData.ecuErrorCount else errors.size
+
         canvas.drawText(
-            "ACTIVE ERRORS : ${errors.size}",
+            "ACTIVE ERRORS : $reportedErrors",
             w / 2f,
             90f,
+            paint
+        )
+
+        paint.textAlign = Paint.Align.LEFT
+        paint.textSize = 13f
+        paint.color = if (vehicleData.canConnected) Color.GREEN else Color.CYAN
+        canvas.drawText(
+            if (vehicleData.canConnected) "CAN: ONLINE" else "CAN: READY / DEMO",
+            40f,
+            125f,
+            paint
+        )
+
+        paint.textAlign = Paint.Align.RIGHT
+        paint.color = if (vehicleData.obdConnected) Color.GREEN else Color.LTGRAY
+        canvas.drawText(
+            if (vehicleData.obdConnected) "OBD: CONNECTED" else "OBD: STANDBY",
+            w - 40f,
+            125f,
             paint
         )
 
 
 
         var y =
-            150f
+            175f
 
 
 
