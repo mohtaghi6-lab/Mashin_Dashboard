@@ -5,6 +5,10 @@ import android.graphics.*
 import android.view.MotionEvent
 import android.view.View
 import kotlin.math.abs
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 class BMWMenu(context: Context) : View(context) {
 
@@ -14,6 +18,8 @@ class BMWMenu(context: Context) : View(context) {
     var onSwipeLeft: (() -> Unit)? = null
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val glowPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     private var downX = 0f
     private var downY = 0f
@@ -31,6 +37,11 @@ class BMWMenu(context: Context) : View(context) {
 
     private var selectedIndex = 0
 
+    private var animationStart = System.currentTimeMillis()
+
+    private val blue = Color.rgb(0, 175, 255)
+    private val lightBlue = Color.rgb(110, 220, 255)
+
     init {
         isClickable = true
         setLayerType(View.LAYER_TYPE_SOFTWARE, null)
@@ -42,30 +53,87 @@ class BMWMenu(context: Context) : View(context) {
         val w = width.toFloat()
         val h = height.toFloat()
 
-        if (w <= 0f || h <= 0f) return
+        if (w <= 0f || h <= 0f) {
+            return
+        }
 
-        drawTopStatus(canvas, w, h)
-        drawCenterSelector(canvas, w, h)
-        drawMenuItems(canvas, w, h)
-        drawBottomHint(canvas, w, h)
+        val elapsed =
+            System.currentTimeMillis() - animationStart
+
+        val pulse =
+            ((sin(elapsed / 700.0) + 1.0) * 0.5)
+                .toFloat()
+
+        drawBackground(
+            canvas,
+            w,
+            h,
+            pulse
+        )
+
+        drawTopStatus(
+            canvas,
+            w,
+            h
+        )
+
+        drawOrbitRing(
+            canvas,
+            w,
+            h,
+            pulse
+        )
+
+        drawCenterSelector(
+            canvas,
+            w,
+            h,
+            pulse
+        )
+
+        drawMenuItems(
+            canvas,
+            w,
+            h,
+            pulse
+        )
+
+        drawBottomHint(
+            canvas,
+            w,
+            h
+        )
 
         postInvalidateDelayed(40L)
     }
 
-    private fun drawTopStatus(
+    // ---------------------------------------------------------
+    // BACKGROUND
+    // ---------------------------------------------------------
+
+    private fun drawBackground(
         canvas: Canvas,
         w: Float,
-        h: Float
+        h: Float,
+        pulse: Float
     ) {
         paint.style = Paint.Style.FILL
 
         paint.shader = LinearGradient(
             0f,
             0f,
-            w,
             0f,
-            Color.argb(0, 0, 180, 255),
-            Color.argb(90, 0, 180, 255),
+            h,
+            intArrayOf(
+                Color.rgb(1, 4, 10),
+                Color.rgb(2, 15, 28),
+                Color.rgb(4, 25, 42)
+            ),
+            floatArrayOf(
+                0f,
+                0.55f,
+                1f
+            ),
             Shader.TileMode.CLAMP
         )
 
@@ -73,48 +141,302 @@ class BMWMenu(context: Context) : View(context) {
             0f,
             0f,
             w,
-            4f,
+            h,
             paint
         )
 
         paint.shader = null
 
-        paint.textAlign = Paint.Align.LEFT
-        paint.typeface = Typeface.DEFAULT_BOLD
-        paint.textSize = 15f
-        paint.color = Color.WHITE
+        val cx = w / 2f
+        val cy = h * 0.50f
 
-        canvas.drawText(
-            "BMW LUXURY INTERFACE",
-            35f,
-            38f,
-            paint
+        val glow = RadialGradient(
+            cx,
+            cy,
+            minOf(w, h) * 0.48f,
+            intArrayOf(
+                Color.argb(
+                    (65 + pulse * 25f).toInt(),
+                    0,
+                    160,
+                    255
+                ),
+                Color.argb(
+                    25,
+                    0,
+                    110,
+                    190
+                ),
+                Color.TRANSPARENT
+            ),
+            floatArrayOf(
+                0f,
+                0.48f,
+                1f
+            ),
+            Shader.TileMode.CLAMP
         )
 
-        paint.textAlign = Paint.Align.RIGHT
-        paint.textSize = 12f
-        paint.color = Color.CYAN
+        glowPaint.shader = glow
 
-        canvas.drawText(
-            "VEHICLE OS",
-            w - 35f,
-            38f,
-            paint
+        canvas.drawCircle(
+            cx,
+            cy,
+            minOf(w, h) * 0.48f,
+            glowPaint
         )
+
+        glowPaint.shader = null
+
+        // خطوط ظریف محیطی
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = 1f
+        paint.color = Color.argb(
+            22,
+            100,
+            200,
+            255
+        )
+
+        for (i in 1..8) {
+            val y =
+                h * 0.12f +
+                    i * 58f
+
+            canvas.drawLine(
+                0f,
+                y,
+                w,
+                y,
+                paint
+            )
+        }
     }
 
-    private fun drawCenterSelector(
+    // ---------------------------------------------------------
+    // TOP STATUS
+    // ---------------------------------------------------------
+
+    private fun drawTopStatus(
         canvas: Canvas,
         w: Float,
         h: Float
     ) {
+        val rect = RectF(
+            30f,
+            18f,
+            w - 30f,
+            76f
+        )
+
+        drawGlassPanel(
+            canvas,
+            rect,
+            28f,
+            Color.argb(
+                45,
+                255,
+                255,
+                255
+            ),
+            Color.argb(
+                95,
+                60,
+                195,
+                255
+            )
+        )
+
+        textPaint.textAlign = Paint.Align.LEFT
+        textPaint.typeface = Typeface.create(
+            Typeface.DEFAULT,
+            Typeface.BOLD
+        )
+        textPaint.textSize = 15f
+        textPaint.color = Color.WHITE
+
+        canvas.drawText(
+            "BMW LUXURY",
+            55f,
+            43f,
+            textPaint
+        )
+
+        textPaint.textSize = 9f
+        textPaint.color = lightBlue
+
+        canvas.drawText(
+            "iDRIVE • VEHICLE OS",
+            55f,
+            61f,
+            textPaint
+        )
+
+        textPaint.textAlign = Paint.Align.RIGHT
+        textPaint.textSize = 11f
+        textPaint.color = Color.rgb(
+            100,
+            255,
+            170
+        )
+
+        canvas.drawText(
+            "● ONLINE",
+            w - 55f,
+            43f,
+            textPaint
+        )
+
+        textPaint.textSize = 9f
+        textPaint.color = Color.argb(
+            180,
+            200,
+            225,
+            240
+        )
+
+        canvas.drawText(
+            "DEMO / CAN READY",
+            w - 55f,
+            61f,
+            textPaint
+        )
+    }
+
+    // ---------------------------------------------------------
+    // ORBIT RING
+    // ---------------------------------------------------------
+
+    private fun drawOrbitRing(
+        canvas: Canvas,
+        w: Float,
+        h: Float,
+        pulse: Float
+    ) {
         val cx = w / 2f
         val cy = h * 0.50f
 
-        val radius = minOf(w, h) * 0.105f
+        val radius =
+            minOf(w, h) * 0.285f
 
-        paint.style = Paint.Style.FILL
-        paint.color = Color.argb(35, 0, 180, 255)
+        paint.style = Paint.Style.STROKE
+
+        paint.strokeWidth = 1f
+        paint.color = Color.argb(
+            60,
+            90,
+            200,
+            255
+        )
+
+        canvas.drawCircle(
+            cx,
+            cy,
+            radius,
+            paint
+        )
+
+        paint.strokeWidth = 2f
+        paint.color = Color.argb(
+            (75 + pulse * 60f).toInt(),
+            0,
+            180,
+            255
+        )
+
+        canvas.drawArc(
+            RectF(
+                cx - radius,
+                cy - radius,
+                cx + radius,
+                cy + radius
+            ),
+            -70f,
+            105f,
+            false,
+            paint
+        )
+
+        paint.strokeWidth = 1f
+        paint.color = Color.argb(
+            35,
+            255,
+            255,
+            255
+        )
+
+        canvas.drawCircle(
+            cx,
+            cy,
+            radius + 28f,
+            paint
+        )
+    }
+
+    // ---------------------------------------------------------
+    // CENTER SELECTOR
+    // ---------------------------------------------------------
+
+    private fun drawCenterSelector(
+        canvas: Canvas,
+        w: Float,
+        h: Float,
+        pulse: Float
+    ) {
+        val cx = w / 2f
+        val cy = h * 0.50f
+
+        val radius =
+            minOf(w, h) * 0.105f
+
+        // Outer glow
+        val glow = RadialGradient(
+            cx,
+            cy,
+            radius * 2.1f,
+            intArrayOf(
+                Color.argb(
+                    (120 + pulse * 70f).toInt(),
+                    0,
+                    160,
+                    255
+                ),
+                Color.argb(
+                    35,
+                    0,
+                    110,
+                    210
+                ),
+                Color.TRANSPARENT
+            ),
+            floatArrayOf(
+                0f,
+                0.45f,
+                1f
+            ),
+            Shader.TileMode.CLAMP
+        )
+
+        glowPaint.shader = glow
+
+        canvas.drawCircle(
+            cx,
+            cy,
+            radius * 2.1f,
+            glowPaint
+        )
+
+        glowPaint.shader = null
+
+        // Outer circle
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = 2f
+        paint.color = Color.argb(
+            150,
+            70,
+            205,
+            255
+        )
 
         canvas.drawCircle(
             cx,
@@ -123,16 +445,10 @@ class BMWMenu(context: Context) : View(context) {
             paint
         )
 
-        paint.style = Paint.Style.STROKE
-        paint.strokeWidth = 2f
-        paint.color = Color.argb(120, 0, 200, 255)
-
-        canvas.drawCircle(
-            cx,
-            cy,
-            radius * 1.35f,
-            paint
-        )
+        // Rotating light arc
+        val rotation =
+            ((System.currentTimeMillis() - animationStart) / 8L)
+                .toFloat() % 360f
 
         paint.strokeWidth = 5f
         paint.color = Color.CYAN
@@ -144,183 +460,354 @@ class BMWMenu(context: Context) : View(context) {
                 cx + radius * 1.45f,
                 cy + radius * 1.45f
             ),
-            -70f,
-            140f,
+            rotation,
+            95f,
             false,
             paint
         )
 
-        paint.style = Paint.Style.FILL
-
-        paint.setShadowLayer(
-            30f,
-            0f,
-            0f,
-            Color.argb(180, 0, 170, 255)
+        // Center glass
+        val centerRect = RectF(
+            cx - radius,
+            cy - radius,
+            cx + radius,
+            cy + radius
         )
 
-        paint.color = Color.rgb(5, 25, 45)
-
-        canvas.drawCircle(
-            cx,
-            cy,
+        drawGlassPanel(
+            canvas,
+            centerRect,
             radius,
-            paint
+            Color.argb(
+                100,
+                4,
+                28,
+                50
+            ),
+            Color.argb(
+                180,
+                100,
+                220,
+                255
+            )
         )
 
-        paint.clearShadowLayer()
-
-        paint.style = Paint.Style.STROKE
-        paint.strokeWidth = 2f
-        paint.color = Color.WHITE
-
-        canvas.drawCircle(
-            cx,
-            cy,
-            radius,
-            paint
+        textPaint.textAlign = Paint.Align.CENTER
+        textPaint.typeface = Typeface.create(
+            Typeface.DEFAULT,
+            Typeface.BOLD
         )
-
-        paint.style = Paint.Style.FILL
-
-        paint.textAlign = Paint.Align.CENTER
-        paint.typeface = Typeface.DEFAULT_BOLD
-        paint.textSize = 22f
-        paint.color = Color.WHITE
+        textPaint.textSize = 21f
+        textPaint.color = Color.WHITE
 
         canvas.drawText(
             items[selectedIndex],
             cx,
-            cy + 8f,
-            paint
+            cy + 5f,
+            textPaint
         )
 
-        paint.textSize = 10f
-        paint.color = Color.CYAN
+        textPaint.textSize = 9f
+        textPaint.color = lightBlue
 
         canvas.drawText(
             "SELECT",
             cx,
-            cy + 30f,
-            paint
+            cy + 25f,
+            textPaint
         )
     }
+
+    // ---------------------------------------------------------
+    // MENU ITEMS
+    // ---------------------------------------------------------
 
     private fun drawMenuItems(
         canvas: Canvas,
         w: Float,
-        h: Float
+        h: Float,
+        pulse: Float
     ) {
         val cx = w / 2f
         val cy = h * 0.50f
 
-        val orbitRadius = minOf(w, h) * 0.27f
+        val orbitRadius =
+            minOf(w, h) * 0.285f
+
+        val step =
+            360f / items.size.toFloat()
 
         for (i in items.indices) {
 
-            if (i == selectedIndex) continue
+            if (i == selectedIndex) {
+                continue
+            }
 
             val angle =
                 Math.toRadians(
-                    (-90.0 + i * (360.0 / items.size))
+                    (-90f + i * step).toDouble()
                 )
 
             val x =
                 cx +
-                    kotlin.math.cos(angle).toFloat() *
+                    cos(angle).toFloat() *
                     orbitRadius
 
             val y =
                 cy +
-                    kotlin.math.sin(angle).toFloat() *
+                    sin(angle).toFloat() *
                     orbitRadius
 
-            val itemRadius = 42f
-
-            paint.style = Paint.Style.FILL
-            paint.color = Color.argb(
-                70,
-                255,
-                255,
-                255
-            )
-
-            canvas.drawCircle(
+            drawMenuItem(
+                canvas,
                 x,
                 y,
-                itemRadius,
-                paint
-            )
-
-            paint.style = Paint.Style.STROKE
-            paint.strokeWidth = 1.5f
-            paint.color = Color.argb(
-                150,
-                0,
-                200,
-                255
-            )
-
-            canvas.drawCircle(
-                x,
-                y,
-                itemRadius,
-                paint
-            )
-
-            paint.style = Paint.Style.FILL
-            paint.textAlign = Paint.Align.CENTER
-            paint.typeface = Typeface.DEFAULT_BOLD
-            paint.textSize = 11f
-            paint.color = Color.WHITE
-
-            canvas.drawText(
-                items[i],
-                x,
-                y + 4f,
-                paint
+                items[i]
             )
         }
+
+        // Selected item indicator
+        val selectedAngle =
+            Math.toRadians(
+                (-90f + selectedIndex * step).toDouble()
+            )
+
+        val selectedX =
+            cx +
+                cos(selectedAngle).toFloat() *
+                orbitRadius
+
+        val selectedY =
+            cy +
+                sin(selectedAngle).toFloat() *
+                orbitRadius
+
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = 2f
+        paint.color = Color.argb(
+            (90 + pulse * 90f).toInt(),
+            0,
+            210,
+            255
+        )
+
+        canvas.drawCircle(
+            selectedX,
+            selectedY,
+            48f + pulse * 4f,
+            paint
+        )
     }
+
+    private fun drawMenuItem(
+        canvas: Canvas,
+        x: Float,
+        y: Float,
+        label: String
+    ) {
+        val radius = 43f
+
+        val gradient = RadialGradient(
+            x - 10f,
+            y - 12f,
+            radius * 1.4f,
+            intArrayOf(
+                Color.argb(
+                    100,
+                    60,
+                    180,
+                    255
+                ),
+                Color.argb(
+                    45,
+                    255,
+                    255,
+                    255
+                ),
+                Color.argb(
+                    25,
+                    0,
+                    80,
+                    130
+                )
+            ),
+            floatArrayOf(
+                0f,
+                0.5f,
+                1f
+            ),
+            Shader.TileMode.CLAMP
+        )
+
+        paint.style = Paint.Style.FILL
+        paint.shader = gradient
+
+        canvas.drawCircle(
+            x,
+            y,
+            radius,
+            paint
+        )
+
+        paint.shader = null
+
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = 1.5f
+        paint.color = Color.argb(
+            145,
+            80,
+            205,
+            255
+        )
+
+        canvas.drawCircle(
+            x,
+            y,
+            radius,
+            paint
+        )
+
+        // مرکز نقطه نور
+        paint.style = Paint.Style.FILL
+        paint.color = blue
+
+        canvas.drawCircle(
+            x,
+            y - 18f,
+            3f,
+            paint
+        )
+
+        textPaint.textAlign = Paint.Align.CENTER
+        textPaint.typeface = Typeface.create(
+            Typeface.DEFAULT,
+            Typeface.BOLD
+        )
+        textPaint.textSize = 10f
+        textPaint.color = Color.WHITE
+
+        canvas.drawText(
+            label,
+            x,
+            y + 5f,
+            textPaint
+        )
+    }
+
+    // ---------------------------------------------------------
+    // BOTTOM HINT
+    // ---------------------------------------------------------
 
     private fun drawBottomHint(
         canvas: Canvas,
         w: Float,
         h: Float
     ) {
-        paint.style = Paint.Style.FILL
-        paint.textAlign = Paint.Align.CENTER
-        paint.typeface = Typeface.DEFAULT
-        paint.textSize = 12f
-        paint.color = Color.argb(
-            190,
-            200,
-            230,
-            255
+        val rect = RectF(
+            w / 2f - 125f,
+            h - 70f,
+            w / 2f + 125f,
+            h - 25f
         )
+
+        drawGlassPanel(
+            canvas,
+            rect,
+            22f,
+            Color.argb(
+                30,
+                255,
+                255,
+                255
+            ),
+            Color.argb(
+                55,
+                80,
+                190,
+                255
+            )
+        )
+
+        textPaint.textAlign = Paint.Align.CENTER
+        textPaint.typeface = Typeface.DEFAULT_BOLD
+        textPaint.textSize = 11f
+        textPaint.color = Color.WHITE
 
         canvas.drawText(
             "←  SWIPE  →",
             w / 2f,
-            h - 35f,
-            paint
+            h - 48f,
+            textPaint
         )
 
-        paint.textSize = 9f
-        paint.color = Color.argb(
-            130,
+        textPaint.textSize = 8f
+        textPaint.color = Color.argb(
+            150,
             180,
-            210,
-            230
+            215,
+            235
         )
 
         canvas.drawText(
             "BMW iDRIVE CONTROL",
             w / 2f,
-            h - 18f,
+            h - 33f,
+            textPaint
+        )
+    }
+
+    // ---------------------------------------------------------
+    // GLASS
+    // ---------------------------------------------------------
+
+    private fun drawGlassPanel(
+        canvas: Canvas,
+        rect: RectF,
+        radius: Float,
+        fillColor: Int,
+        strokeColor: Int
+    ) {
+        paint.style = Paint.Style.FILL
+        paint.color = fillColor
+
+        canvas.drawRoundRect(
+            rect,
+            radius,
+            radius,
+            paint
+        )
+
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = 1.4f
+        paint.color = strokeColor
+
+        canvas.drawRoundRect(
+            rect,
+            radius,
+            radius,
+            paint
+        )
+
+        paint.strokeWidth = 1f
+        paint.color = Color.argb(
+            50,
+            255,
+            255,
+            255
+        )
+
+        canvas.drawLine(
+            rect.left + radius,
+            rect.top + 1f,
+            rect.right - radius,
+            rect.top + 1f,
             paint
         )
     }
+
+    // ---------------------------------------------------------
+    // TOUCH
+    // ---------------------------------------------------------
 
     override fun onTouchEvent(
         event: MotionEvent
@@ -329,10 +816,8 @@ class BMWMenu(context: Context) : View(context) {
         when (event.actionMasked) {
 
             MotionEvent.ACTION_DOWN -> {
-
                 downX = event.x
                 downY = event.y
-
                 return true
             }
 
@@ -344,10 +829,7 @@ class BMWMenu(context: Context) : View(context) {
                 val diffY =
                     event.y - downY
 
-                /*
-                 * اول Swipe را بررسی می‌کنیم.
-                 */
-
+                // Swipe
                 if (
                     abs(diffX) > swipeLimit &&
                     abs(diffX) > abs(diffY)
@@ -360,22 +842,16 @@ class BMWMenu(context: Context) : View(context) {
                     }
 
                     performClick()
-
                     return true
                 }
 
-                /*
-                 * اگر Swipe نبود،
-                 * بررسی لمس منو انجام می‌شود.
-                 */
-
+                // Menu touch
                 handleMenuTouch(
                     event.x,
                     event.y
                 )
 
                 performClick()
-
                 return true
             }
         }
@@ -397,15 +873,13 @@ class BMWMenu(context: Context) : View(context) {
         val dy = y - cy
 
         val distance =
-            kotlin.math.sqrt(
-                dx * dx + dy * dy
+            sqrt(
+                dx * dx +
+                    dy * dy
             )
 
-        /*
-         * لمس مرکز = AI
-         */
-
-        if (distance < 100f) {
+        // مرکز
+        if (distance < 105f) {
 
             onMenuClick?.invoke("AI")
 
@@ -413,16 +887,18 @@ class BMWMenu(context: Context) : View(context) {
         }
 
         val orbitRadius =
-            minOf(w, h) * 0.27f
+            minOf(w, h) * 0.285f
 
         if (
-            distance < orbitRadius + 60f &&
-            distance > orbitRadius - 60f
+            distance <
+            orbitRadius + 65f &&
+            distance >
+            orbitRadius - 65f
         ) {
 
             var angle =
                 Math.toDegrees(
-                    kotlin.math.atan2(
+                    atan2(
                         dy.toDouble(),
                         dx.toDouble()
                     )
@@ -435,14 +911,19 @@ class BMWMenu(context: Context) : View(context) {
             }
 
             val sector =
-                (angle / (360.0 / items.size))
-                    .toInt()
+                (
+                    angle /
+                        (360.0 / items.size)
+                    ).toInt()
                     .coerceIn(
                         0,
                         items.size - 1
                     )
 
             selectedIndex = sector
+
+            animationStart =
+                System.currentTimeMillis()
 
             invalidate()
 
@@ -457,3 +938,4 @@ class BMWMenu(context: Context) : View(context) {
         return true
     }
 }
+
