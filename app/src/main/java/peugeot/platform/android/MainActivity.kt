@@ -499,6 +499,10 @@ class MainActivity : Activity() {
             errorScannerEngine
         )
 
+        errorScannerPageView.bindEngine(
+            errorScannerEngine
+        )
+
         /*
          * =========================================================
          * VEHICLE DATA
