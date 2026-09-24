@@ -73,6 +73,7 @@ class MainActivity : Activity() {
 
     companion object {
         private const val AUDIO_PERMISSION_REQUEST = 1001
+        private const val CONTACTS_PERMISSION_REQUEST = 1002
     }
 
     override fun onCreate(
@@ -423,6 +424,10 @@ class MainActivity : Activity() {
                 onEndClick = {
                     // پایان وضعیت تماس داخل رابط خودرو.
                     // قطع تماس واقعی توسط Phone/Telecom سیستم انجام می‌شود.
+                }
+
+                onContactsClick = {
+                    openContacts()
                 }
             }
 
@@ -863,6 +868,34 @@ class MainActivity : Activity() {
                 }
             }
         }
+
+        if (
+            requestCode ==
+            CONTACTS_PERMISSION_REQUEST &&
+            grantResults.isNotEmpty() &&
+            grantResults[0] ==
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            if (::callPageView.isInitialized) {
+                callPageView.showContacts()
+            }
+        }
+    }
+
+    private fun openContacts() {
+        if (
+            checkSelfPermission(
+                Manifest.permission.READ_CONTACTS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissions(
+                arrayOf(Manifest.permission.READ_CONTACTS),
+                CONTACTS_PERMISSION_REQUEST
+            )
+            return
+        }
+
+        callPageView.showContacts()
     }
 
     private fun openPhoneDialer(number: String? = null) {
