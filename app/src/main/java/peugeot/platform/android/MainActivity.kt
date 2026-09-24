@@ -16,7 +16,7 @@ import peugeot.platform.android.ai.VoiceManager
 
 import peugeot.platform.android.can.CANReceiver
 
-import peugeot.platform.android.dashboard.BMWMenu
+import peuugeot.platform.android.dashboard.BMWMenu
 import peugeot.platform.android.dashboard.Dashboard3DView
 
 import peugeot.platform.android.ui.CallPageView
@@ -71,8 +71,9 @@ class MainActivity : Activity() {
         private const val AUDIO_PERMISSION_REQUEST = 1001
     }
 
-
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(
+        savedInstanceState: Bundle?
+    ) {
         super.onCreate(savedInstanceState)
 
         requestWindowFeature(
@@ -89,12 +90,12 @@ class MainActivity : Activity() {
                     View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
                     View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
 
-
         root = FrameLayout(this)
 
-
         /*
+         * =========================================================
          * BMW 3D DASHBOARD
+         * =========================================================
          */
 
         dashboard = Dashboard3DView(this).apply {
@@ -102,29 +103,37 @@ class MainActivity : Activity() {
             visibility = View.VISIBLE
 
             onAIOrbClick = {
-                if (::voiceManager.isInitialized) {
-                    voiceManager.startContinuousListening()
-                }
+                startVoiceFromUser()
             }
 
             onCarClick = {
-                showPage(MainMenuPage.CAR)
+                showPage(
+                    MainMenuPage.CAR
+                )
             }
 
             onMusicClick = {
-                showPage(MainMenuPage.MUSIC)
+                showPage(
+                    MainMenuPage.MUSIC
+                )
             }
 
             onNavigationClick = {
-                showPage(MainMenuPage.NAVIGATION)
+                showPage(
+                    MainMenuPage.NAVIGATION
+                )
             }
 
             onPhoneClick = {
-                showPage(MainMenuPage.CALL)
+                showPage(
+                    MainMenuPage.CALL
+                )
             }
 
             onScanClick = {
-                showPage(MainMenuPage.SCAN)
+                showPage(
+                    MainMenuPage.SCAN
+                )
             }
         }
 
@@ -133,9 +142,10 @@ class MainActivity : Activity() {
             fullScreenParams()
         )
 
-
         /*
-         * BMW ROTARY MENU
+         * =========================================================
+         * BMW iDRIVE MENU
+         * =========================================================
          */
 
         bmwMenu = BMWMenu(this).apply {
@@ -145,35 +155,34 @@ class MainActivity : Activity() {
             isClickable = true
             isFocusable = true
 
-
             /*
-             * SWIPE RIGHT
              * HOME -> CLOCK
              */
 
             onSwipeRight = {
 
                 runOnUiThread {
-                    showPage(MainMenuPage.CLOCK)
+                    showPage(
+                        MainMenuPage.CLOCK
+                    )
                 }
             }
 
-
             /*
-             * SWIPE LEFT
              * CLOCK -> HOME
              */
 
             onSwipeLeft = {
 
                 runOnUiThread {
-                    showPage(MainMenuPage.HOME)
+                    showPage(
+                        MainMenuPage.HOME
+                    )
                 }
             }
 
-
             /*
-             * BMW MENU ITEMS
+             * BMW ORBIT MENU
              */
 
             onMenuClick = { item ->
@@ -213,13 +222,7 @@ class MainActivity : Activity() {
                         }
 
                         "AI" -> {
-
-                            if (
-                                ::voiceManager.isInitialized
-                            ) {
-                                voiceManager
-                                    .startContinuousListening()
-                            }
+                            startVoiceFromUser()
                         }
                     }
                 }
@@ -231,9 +234,10 @@ class MainActivity : Activity() {
             fullScreenParams()
         )
 
-
         /*
+         * =========================================================
          * HOME PAGE
+         * =========================================================
          */
 
         homePageView =
@@ -244,6 +248,40 @@ class MainActivity : Activity() {
                 setVehicleData(
                     VehicleData.demo()
                 )
+
+                onAIOrbClick = {
+                    startVoiceFromUser()
+                }
+
+                onCarClick = {
+                    showPage(
+                        MainMenuPage.CAR
+                    )
+                }
+
+                onMusicClick = {
+                    showPage(
+                        MainMenuPage.MUSIC
+                    )
+                }
+
+                onNavigationClick = {
+                    showPage(
+                        MainMenuPage.NAVIGATION
+                    )
+                }
+
+                onPhoneClick = {
+                    showPage(
+                        MainMenuPage.CALL
+                    )
+                }
+
+                onScannerClick = {
+                    showPage(
+                        MainMenuPage.SCAN
+                    )
+                }
             }
 
         root.addView(
@@ -251,9 +289,10 @@ class MainActivity : Activity() {
             fullScreenParams()
         )
 
-
         /*
-         * CLOCK PAGE
+         * =========================================================
+         * CLOCK
+         * =========================================================
          */
 
         clockPageView =
@@ -267,9 +306,10 @@ class MainActivity : Activity() {
             fullScreenParams()
         )
 
-
         /*
-         * CAR PAGE
+         * =========================================================
+         * CAR
+         * =========================================================
          */
 
         carPageView =
@@ -283,9 +323,10 @@ class MainActivity : Activity() {
             fullScreenParams()
         )
 
-
         /*
-         * MUSIC PAGE
+         * =========================================================
+         * MUSIC
+         * =========================================================
          */
 
         musicPageView =
@@ -299,9 +340,10 @@ class MainActivity : Activity() {
             fullScreenParams()
         )
 
-
         /*
-         * NAVIGATION PAGE
+         * =========================================================
+         * NAVIGATION
+         * =========================================================
          */
 
         navigationPageView =
@@ -315,9 +357,10 @@ class MainActivity : Activity() {
             fullScreenParams()
         )
 
-
         /*
-         * CALL PAGE
+         * =========================================================
+         * PHONE
+         * =========================================================
          */
 
         callPageView =
@@ -331,9 +374,10 @@ class MainActivity : Activity() {
             fullScreenParams()
         )
 
-
         /*
-         * ERROR SCANNER PAGE
+         * =========================================================
+         * ERROR SCANNER
+         * =========================================================
          */
 
         errorScannerPageView =
@@ -347,9 +391,10 @@ class MainActivity : Activity() {
             fullScreenParams()
         )
 
-
         /*
-         * SETTINGS PAGE
+         * =========================================================
+         * SETTINGS
+         * =========================================================
          */
 
         vehicleSettingsPageView =
@@ -363,9 +408,10 @@ class MainActivity : Activity() {
             fullScreenParams()
         )
 
-
         /*
+         * =========================================================
          * MAIN MENU VIEW
+         * =========================================================
          */
 
         mainMenuView =
@@ -383,16 +429,18 @@ class MainActivity : Activity() {
             fullScreenParams()
         )
 
-
         /*
-         * CONTENT
+         * =========================================================
+         * SET CONTENT
+         * =========================================================
          */
 
         setContentView(root)
 
-
         /*
+         * =========================================================
          * STARTUP SCREEN
+         * =========================================================
          */
 
         startupView =
@@ -416,9 +464,10 @@ class MainActivity : Activity() {
             }
         }
 
-
         /*
+         * =========================================================
          * DISPLAY BOOT
+         * =========================================================
          */
 
         displayBootManager =
@@ -426,9 +475,10 @@ class MainActivity : Activity() {
 
         displayBootManager.onWindowReady()
 
-
         /*
+         * =========================================================
          * ERROR SCANNER ENGINE
+         * =========================================================
          */
 
         errorScannerEngine =
@@ -438,9 +488,10 @@ class MainActivity : Activity() {
             errorScannerEngine
         )
 
-
         /*
+         * =========================================================
          * VEHICLE DATA
+         * =========================================================
          */
 
         vehicleDataController =
@@ -456,9 +507,10 @@ class MainActivity : Activity() {
 
         vehicleDataController.useDemoMode()
 
-
         /*
-         * BMW MENU CONTROLLER
+         * =========================================================
+         * MAIN MENU CONTROLLER
+         * =========================================================
          */
 
         mainMenuController =
@@ -466,21 +518,25 @@ class MainActivity : Activity() {
 
                 runOnUiThread {
 
-                    showPage(page)
+                    showPage(
+                        page
+                    )
                 }
             }
 
-
         /*
+         * =========================================================
          * AI ENGINE
+         * =========================================================
          */
 
         aiEngine =
             AIEngine(this)
 
-
         /*
+         * =========================================================
          * SPEECH MANAGER
+         * =========================================================
          */
 
         speechManager =
@@ -492,20 +548,17 @@ class MainActivity : Activity() {
 
                     runOnUiThread {
 
-                        dashboard.setAIState(
-                            state
-                        )
-
-                        homePageView.setAIState(
+                        updateAIState(
                             state
                         )
                     }
                 }
             )
 
-
         /*
+         * =========================================================
          * VOICE MANAGER
+         * =========================================================
          */
 
         voiceManager =
@@ -517,7 +570,7 @@ class MainActivity : Activity() {
 
                     runOnUiThread {
 
-                        dashboard.setAIState(
+                        updateAIState(
                             AIState.THINKING
                         )
 
@@ -529,7 +582,7 @@ class MainActivity : Activity() {
 
                                 runOnUiThread {
 
-                                    dashboard.setAIState(
+                                    updateAIState(
                                         AIState.SPEAKING
                                     )
 
@@ -543,7 +596,7 @@ class MainActivity : Activity() {
 
                                 runOnUiThread {
 
-                                    dashboard.setAIState(
+                                    updateAIState(
                                         AIState.ERROR
                                     )
 
@@ -563,28 +616,62 @@ class MainActivity : Activity() {
 
                     runOnUiThread {
 
-                        dashboard.setAIState(
-                            state
-                        )
-
-                        homePageView.setAIState(
+                        updateAIState(
                             state
                         )
                     }
                 }
             )
 
-
         /*
-         * AUTO VOICE START
+         * =========================================================
+         * AUTO VOICE
+         * =========================================================
          */
 
         startVoiceSystem()
     }
 
+    /*
+     * =============================================================
+     * START VOICE
+     * =============================================================
+     */
+
+    private fun startVoiceFromUser() {
+
+        if (
+            ::voiceManager.isInitialized
+        ) {
+
+            voiceManager
+                .startContinuousListening()
+        }
+    }
 
     /*
-     * VEHICLE DATA UPDATE
+     * =============================================================
+     * AI STATE
+     * =============================================================
+     */
+
+    private fun updateAIState(
+        state: AIState
+    ) {
+
+        dashboard.setAIState(
+            state
+        )
+
+        homePageView.setAIState(
+            state
+        )
+    }
+
+    /*
+     * =============================================================
+     * VEHICLE DATA
+     * =============================================================
      */
 
     private fun updateVehicleViews(
@@ -608,9 +695,10 @@ class MainActivity : Activity() {
         )
     }
 
-
     /*
+     * =============================================================
      * FULL SCREEN PARAMETERS
+     * =============================================================
      */
 
     private fun fullScreenParams():
@@ -622,9 +710,10 @@ class MainActivity : Activity() {
         )
     }
 
-
     /*
+     * =============================================================
      * VOICE SYSTEM
+     * =============================================================
      */
 
     private fun startVoiceSystem() {
@@ -656,6 +745,11 @@ class MainActivity : Activity() {
         }
     }
 
+    /*
+     * =============================================================
+     * PERMISSION RESULT
+     * =============================================================
+     */
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -694,9 +788,10 @@ class MainActivity : Activity() {
         }
     }
 
-
     /*
+     * =============================================================
      * PAGE MANAGEMENT
+     * =============================================================
      */
 
     private fun showPage(
@@ -711,21 +806,20 @@ class MainActivity : Activity() {
 
             MainMenuPage.HOME -> {
 
-                hideNormalPages()
-
-                bmwMenu.visibility =
-                    View.VISIBLE
+                hideAllMainLayers()
 
                 dashboard.visibility =
                     View.VISIBLE
 
-                animateToPage(
-                    clockPageView,
-                    dashboard,
-                    -1
-                )
-            }
+                bmwMenu.visibility =
+                    View.VISIBLE
 
+                dashboard.translationX = 0f
+                dashboard.alpha = 1f
+
+                bmwMenu.translationX = 0f
+                bmwMenu.alpha = 1f
+            }
 
             /*
              * CLOCK
@@ -733,12 +827,15 @@ class MainActivity : Activity() {
 
             MainMenuPage.CLOCK -> {
 
-                hideNormalPages()
-
-                bmwMenu.visibility =
-                    View.GONE
+                hideAllMainLayers()
 
                 dashboard.visibility =
+                    View.VISIBLE
+
+                clockPageView.visibility =
+                    View.VISIBLE
+
+                bmwMenu.visibility =
                     View.VISIBLE
 
                 animateToPage(
@@ -747,7 +844,6 @@ class MainActivity : Activity() {
                     1
                 )
             }
-
 
             /*
              * CAR
@@ -761,7 +857,6 @@ class MainActivity : Activity() {
                     View.VISIBLE
             }
 
-
             /*
              * MUSIC
              */
@@ -773,7 +868,6 @@ class MainActivity : Activity() {
                 musicPageView.visibility =
                     View.VISIBLE
             }
-
 
             /*
              * NAVIGATION
@@ -789,7 +883,6 @@ class MainActivity : Activity() {
                 navigationPageView.refresh()
             }
 
-
             /*
              * CALL
              */
@@ -801,7 +894,6 @@ class MainActivity : Activity() {
                 callPageView.visibility =
                     View.VISIBLE
             }
-
 
             /*
              * SCAN
@@ -817,7 +909,6 @@ class MainActivity : Activity() {
                 errorScannerPageView.startScan()
             }
 
-
             /*
              * SETTINGS
              */
@@ -832,41 +923,10 @@ class MainActivity : Activity() {
         }
     }
 
-
     /*
-     * HIDE NORMAL PAGES
-     */
-
-    private fun hideNormalPages() {
-
-        homePageView.visibility =
-            View.GONE
-
-        carPageView.visibility =
-            View.GONE
-
-        musicPageView.visibility =
-            View.GONE
-
-        navigationPageView.visibility =
-            View.GONE
-
-        callPageView.visibility =
-            View.GONE
-
-        errorScannerPageView.visibility =
-            View.GONE
-
-        vehicleSettingsPageView.visibility =
-            View.GONE
-
-        mainMenuView.visibility =
-            View.GONE
-    }
-
-
-    /*
-     * HIDE ALL MAIN LAYERS
+     * =============================================================
+     * HIDE EVERYTHING
+     * =============================================================
      */
 
     private fun hideAllMainLayers() {
@@ -905,9 +965,10 @@ class MainActivity : Activity() {
             View.GONE
     }
 
-
     /*
+     * =============================================================
      * PAGE ANIMATION
+     * =============================================================
      */
 
     private fun animateToPage(
@@ -928,11 +989,6 @@ class MainActivity : Activity() {
                     .toFloat()
             }
 
-
-        /*
-         * TARGET
-         */
-
         to.visibility =
             View.VISIBLE
 
@@ -941,18 +997,10 @@ class MainActivity : Activity() {
 
         to.translationX =
             if (direction > 0) {
-
                 screenWidth
-
             } else {
-
                 -screenWidth
             }
-
-
-        /*
-         * SOURCE
-         */
 
         if (
             from.visibility ==
@@ -962,11 +1010,8 @@ class MainActivity : Activity() {
             from.animate()
                 .translationX(
                     if (direction > 0) {
-
                         -screenWidth
-
                     } else {
-
                         screenWidth
                     }
                 )
@@ -974,11 +1019,6 @@ class MainActivity : Activity() {
                 .setDuration(450L)
                 .start()
         }
-
-
-        /*
-         * TARGET ANIMATION
-         */
 
         to.animate()
             .translationX(0f)
@@ -1010,9 +1050,10 @@ class MainActivity : Activity() {
             .start()
     }
 
-
     /*
+     * =============================================================
      * BACK BUTTON
+     * =============================================================
      */
 
     override fun onBackPressed() {
@@ -1022,9 +1063,10 @@ class MainActivity : Activity() {
         )
     }
 
-
     /*
+     * =============================================================
      * DESTROY
+     * =============================================================
      */
 
     override fun onDestroy() {
