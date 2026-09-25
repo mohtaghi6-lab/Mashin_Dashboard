@@ -1,4 +1,4 @@
-package peugeot.platform.android.vehicle
+package peugeot.platform.android.MainActivity
 
 import android.os.Handler
 import android.os.Looper
