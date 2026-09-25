@@ -1,1173 +1,687 @@
-package peugeot.platform.android.MainActivity.kt
+package peugeot.platform.android
 
-import android.os.Handler
-import android.os.Looper
+import android.Manifest
+import android.app.Activity
+import android.content.pm.PackageManager
+import android.os.Bundle
+import android.view.View
+import android.view.Window
+import android.view.WindowManager
+import android.widget.FrameLayout
 
-import peugeot.platform.android.can.CANDataParser
-import peugeot.platform.android.can.CANFrame
+import peugeot.platform.android.ai.AIEngine
+import peugeot.platform.android.ai.AIState
+import peugeot.platform.android.ai.SpeechManager
+import peugeot.platform.android.ai.VoiceManager
+
 import peugeot.platform.android.can.CANReceiver
 
+import peugeot.platform.android.dashboard.DashboardView
 
-class VehicleDataController(
-    private val onDataChanged: (VehicleData) -> Unit
-) {
+import peugeot.platform.android.ui.CallPageView
+import peugeot.platform.android.ui.CarPageView
+import peugeot.platform.android.ui.ClockPageView
+import peugeot.platform.android.ui.ErrorScannerPageView
+import peugeot.platform.android.ui.HomePageView
+import peugeot.platform.android.ui.MainMenuController
+import peugeot.platform.android.ui.MainMenuPage
+import peugeot.platform.android.ui.MainMenuView
+import peugeot.platform.android.ui.MusicPageView
+import peugeot.platform.android.ui.NavigationPageView
+import peugeot.platform.android.ui.VehicleSettingsPageView
 
-    private var currentData =
-        VehicleData.demo()
+import peugeot.platform.android.vehicle.ErrorScannerEngine
+import peugeot.platform.android.vehicle.VehicleData
+import peugeot.platform.android.vehicle.VehicleDataController
 
-    private var demoMode =
-        false
 
-    private var started =
-        false
+class MainActivity : Activity() {
 
-    private val handler =
-        Handler(Looper.getMainLooper())
 
-    private var demoSpeed =
-        0
+    private lateinit var root: FrameLayout
 
-    private var demoRpm =
-        850
+    private lateinit var dashboard: DashboardView
+    private lateinit var homePageView: HomePageView
 
-    private var demoTemperature =
-        82
+    private lateinit var clockPageView: ClockPageView
+    private lateinit var carPageView: CarPageView
+    private lateinit var musicPageView: MusicPageView
+    private lateinit var navigationPageView: NavigationPageView
+    private lateinit var callPageView: CallPageView
+    private lateinit var errorScannerPageView: ErrorScannerPageView
+    private lateinit var vehicleSettingsPageView: VehicleSettingsPageView
 
-    private var demoFuel =
-        72
+    private lateinit var mainMenuView: MainMenuView
+    private lateinit var mainMenuController: MainMenuController
 
-    private var demoVoltage =
-        13.9f
+    private lateinit var vehicleDataController: VehicleDataController
 
-    private var speedDirection =
-        1
+    private lateinit var errorScannerEngine: ErrorScannerEngine
 
-    init {
 
-        CANReceiver.setFrameListener { frame ->
+    private lateinit var voiceManager: VoiceManager
+    private lateinit var speechManager: SpeechManager
+    private lateinit var aiEngine: AIEngine
 
-            processFrame(frame)
 
-        }
-    }
-
-
-    /*
-     * =========================================================
-     * START CAN
-     * =========================================================
-     */
-
-    fun start() {
-
-        if (started) {
-            return
-        }
-
-        started = true
-
-        try {
-
-            CANReceiver.connect()
-
-            CANReceiver.startReceiving()
-
-        } catch (_: Exception) {
-        }
-    }
-
-
-    /*
-     * =========================================================
-     * STOP
-     * =========================================================
-     */
-
-    fun stop() {
-
-        started = false
-
-        stopDemo()
-
-        try {
-
-            CANReceiver.stopReceiving()
-
-            CANReceiver.disconnect()
-
-        } catch (_: Exception) {
-        }
-    }
-
-
-    /*
-     * =========================================================
-     * CAN FRAME
-     * =========================================================
-     */
-
-    private fun processFrame(
-        frame: CANFrame
-    ) {
-
-        if (!CANDataParser.isValidFrame(frame)) {
-            return
-        }
-
-        /*
-         * اگر CAN واقعی اطلاعات فرستاد،
-         * Demo متوقف می‌شود.
-         */
-        if (demoMode) {
-
-            demoMode = false
-
-            stopDemo()
-        }
-
-        var updated =
-            currentData
-
-
-        CANDataParser.parseSpeed(frame)
-            ?.let { speed ->
-
-                updated =
-                    updated.copy(
-                        speedKmh = speed
-                    )
-            }
-
-
-        CANDataParser.parseRpm(frame)
-            ?.let { rpm ->
-
-                updated =
-                    updated.copy(
-                        rpm = rpm
-                    )
-            }
-
-
-        CANDataParser.parseTemperature(frame)
-            ?.let { temperature ->
-
-                updated =
-                    updated.copy(
-                        engineTempC = temperature
-                    )
-            }
-
-
-        CANDataParser.parseFuel(frame)
-            ?.let { fuel ->
-
-                updated =
-                    updated.copy(
-                        fuelPercent = fuel
-                    )
-            }
-
-
-        CANDataParser.parseBatteryVoltage(frame)
-            ?.let { voltage ->
-
-                updated =
-                    updated.copy(
-                        batteryVoltage = voltage
-                    )
-            }
-
-
-        currentData =
-            updated.copy(
-                canConnected = true,
-                lastUpdate = System.currentTimeMillis()
-            )
-
-
-        notifyDataChanged()
-    }
-
-
-    /*
-     * =========================================================
-     * CURRENT DATA
-     * =========================================================
-     */
-
-    fun getCurrentData(): VehicleData {
-
-        return currentData.copy()
-    }
-
-
-    /*
-     * =========================================================
-     * LIVE DEMO MODE
-     * =========================================================
-     */
-
-    fun useDemoMode() {
-
-        demoMode = true
-
-        started = true
-
-        demoSpeed =
-            0
-
-        demoRpm =
-            850
-
-        demoTemperature =
-            82
-
-        demoFuel =
-            72
-
-        demoVoltage =
-            13.9f
-
-        speedDirection =
-            1
-
-
-        currentData =
-            VehicleData.demo().copy(
-
-                speedKmh =
-                    demoSpeed,
-
-                rpm =
-                    demoRpm,
-
-                engineTempC =
-                    demoTemperature,
-
-                batteryVoltage =
-                    demoVoltage,
-
-                fuelPercent =
-                    demoFuel,
-
-                canConnected =
-                    false,
-
-                lastUpdate =
-                    System.currentTimeMillis()
-            )
-
-
-        notifyDataChanged()
-
-        startDemo()
-    }
-
-
-    /*
-     * =========================================================
-     * DEMO LOOP
-     * =========================================================
-     */
-
-    private val demoRunnable =
-        object : Runnable {
-
-            override fun run() {
-
-                if (!demoMode) {
-                    return
-                }
-
-                updateDemoData()
-
-                handler.postDelayed(
-                    this,
-                    DEMO_INTERVAL
-                )
-            }
-        }
-
-
-    private fun startDemo() {
-
-        handler.removeCallbacks(
-            demoRunnable
-        )
-
-        handler.post(
-            demoRunnable
-        )
-    }
-
-
-    private fun stopDemo() {
-
-        handler.removeCallbacks(
-            demoRunnable
-        )
-    }
-
-
-    /*
-     * =========================================================
-     * UPDATE DEMO DATA
-     * =========================================================
-     */
-
-    private fun updateDemoData() {
-
-        /*
-         * SPEED
-         *
-         * 0 -> 120 -> 0
-         */
-        demoSpeed +=
-            2 * speedDirection
-
-
-        if (demoSpeed >= 120) {
-
-            demoSpeed =
-                120
-
-            speedDirection =
-                -1
-        }
-
-
-        if (demoSpeed <= 0) {
-
-            demoSpeed =
-                0
-
-            speedDirection =
-                1
-        }
-
-
-        /*
-         * RPM
-         *
-         * تقریبی و متناسب با سرعت
-         */
-        val targetRpm =
-            850 +
-                    (demoSpeed * 30)
-
-
-        if (demoRpm < targetRpm) {
-
-            demoRpm +=
-                180
-
-        } else if (demoRpm > targetRpm) {
-
-            demoRpm -=
-                180
-        }
-
-
-        if (demoRpm < 850) {
-            demoRpm =
-                850
-        }
-
-
-        if (demoRpm > 4300) {
-            demoRpm =
-                4300
-        }
-
-
-        /*
-         * ENGINE TEMPERATURE
-         */
-        demoTemperature =
-            82 +
-                    (demoSpeed / 15)
-
-
-        if (demoTemperature > 96) {
-            demoTemperature =
-                96
-        }
-
-
-        /*
-         * FUEL
-         */
-        demoFuel -=
-            1
-
-
-        if (demoFuel < 65) {
-
-            demoFuel =
-                72
-        }
-
-
-        /*
-         * BATTERY
-         */
-        demoVoltage =
-            if (demoRpm > 1500) {
-
-                14.1f
-
-            } else {
-
-                13.7f
-            }
-
-
-        /*
-         * UPDATE VEHICLE DATA
-         */
-        currentData =
-            currentData.copy(
-
-                speedKmh =
-                    demoSpeed,
-
-                rpm =
-                    demoRpm,
-
-                engineTempC =
-                    demoTemperature,
-
-                fuelPercent =
-                    demoFuel,
-
-                batteryVoltage =
-                    demoVoltage,
-
-                canConnected =
-                    false,
-
-                lastUpdate =
-                    System.currentTimeMillis()
-            )
-
-
-        notifyDataChanged()
-    }
-
-
-    /*
-     * =========================================================
-     * NOTIFY UI
-     * =========================================================
-     */
-
-    private fun notifyDataChanged() {
-
-        onDataChanged(
-            currentData.copy()
-        )
-    }
-
-
-    /*
-     * =========================================================
-     * TEST CAN FRAME
-     * =========================================================
-     */
-
-    fun testFrame(
-        id: Int,
-        data: ByteArray
-    ) {
-
-        CANReceiver.simulateFrame(
-            id,
-            data
-        )
-    }
-
-
-    /*
-     * =========================================================
-     * DISABLE DEMO
-     * =========================================================
-     */
-
-    fun disableDemoMode() {
-
-        demoMode =
-            false
-
-        stopDemo()
-    }
-
-
-    /*
-     * =========================================================
-     * RESET
-     * =========================================================
-     */
-
-    fun reset() {
-
-        stopDemo()
-
-        try {
-
-            CANReceiver.reset()
-
-        } catch (_: Exception) {
-        }
-
-
-        demoMode =
-            true
-
-        started =
-            true
-
-        demoSpeed =
-            0
-
-        demoRpm =
-            850
-
-        demoTemperature =
-            82
-
-        demoFuel =
-            72
-
-        demoVoltage =
-            13.9f
-
-        speedDirection =
-            1
-
-
-        currentData =
-            VehicleData.demo().copy(
-
-                speedKmh =
-                    0,
-
-                rpm =
-                    850,
-
-                engineTempC =
-                    82,
-
-                fuelPercent =
-                    72,
-
-                batteryVoltage =
-                    13.9f,
-
-                canConnected =
-                    false,
-
-                lastUpdate =
-                    System.currentTimeMillis()
-            )
-
-
-        notifyDataChanged()
-
-        startDemo()
-    }
+    private var pendingVoiceStart = false
 
 
     companion object {
 
-        private const val DEMO_INTERVAL =
-            250L
+        private const val AUDIO_PERMISSION_REQUEST = 1001
 
     }
-}
-
-import android.os.Handler
-import android.os.Looper
-
-import peugeot.platform.android.can.CANDataParser
-import peugeot.platform.android.can.CANFrame
-import peugeot.platform.android.can.CANReceiver
 
 
-class VehicleDataController(
-    private val onDataChanged: (VehicleData) -> Unit
-) {
 
-    private var currentData =
-        VehicleData.demo()
-
-    private var demoMode =
-        false
-
-    private var started =
-        false
-
-    private val handler =
-        Handler(Looper.getMainLooper())
-
-    private var demoSpeed =
-        0
-
-    private var demoRpm =
-        850
-
-    private var demoTemperature =
-        82
-
-    private var demoFuel =
-        72
-
-    private var demoVoltage =
-        13.9f
-
-    private var speedDirection =
-        1
-
-    init {
-
-        CANReceiver.setFrameListener { frame ->
-
-            processFrame(frame)
-
-        }
-    }
-
-
-    /*
-     * =========================================================
-     * START CAN
-     * =========================================================
-     */
-
-    fun start() {
-
-        if (started) {
-            return
-        }
-
-        started = true
-
-        try {
-
-            CANReceiver.connect()
-
-            CANReceiver.startReceiving()
-
-        } catch (_: Exception) {
-        }
-    }
-
-
-    /*
-     * =========================================================
-     * STOP
-     * =========================================================
-     */
-
-    fun stop() {
-
-        started = false
-
-        stopDemo()
-
-        try {
-
-            CANReceiver.stopReceiving()
-
-            CANReceiver.disconnect()
-
-        } catch (_: Exception) {
-        }
-    }
-
-
-    /*
-     * =========================================================
-     * CAN FRAME
-     * =========================================================
-     */
-
-    private fun processFrame(
-        frame: CANFrame
+    override fun onCreate(
+        savedInstanceState: Bundle?
     ) {
 
-        if (!CANDataParser.isValidFrame(frame)) {
-            return
-        }
+        super.onCreate(savedInstanceState)
+
+
+        requestWindowFeature(
+            Window.FEATURE_NO_TITLE
+        )
+
+
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN
+        )
+
+
+        window.decorView.systemUiVisibility =
+            View.SYSTEM_UI_FLAG_FULLSCREEN or
+                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+
+
+
+        root =
+            FrameLayout(this)
+
+
 
         /*
-         * اگر CAN واقعی اطلاعات فرستاد،
-         * Demo متوقف می‌شود.
-         */
-        if (demoMode) {
-
-            demoMode = false
-
-            stopDemo()
-        }
-
-        var updated =
-            currentData
+        ==========================
+        DASHBOARD
+        ==========================
+        */
 
 
-        CANDataParser.parseSpeed(frame)
-            ?.let { speed ->
+        dashboard =
+            DashboardView(this).apply {
 
-                updated =
-                    updated.copy(
-                        speedKmh = speed
-                    )
+                setVehicleData(
+                    VehicleData.demo()
+                )
+
+                visibility =
+                    View.GONE
+
             }
 
 
-        CANDataParser.parseRpm(frame)
-            ?.let { rpm ->
+        root.addView(
+            dashboard,
+            fullScreenParams()
+        )
 
-                updated =
-                    updated.copy(
-                        rpm = rpm
-                    )
+
+
+        /*
+        ==========================
+        HOME PAGE
+        ==========================
+        */
+
+
+        homePageView =
+            HomePageView(this).apply {
+
+                setVehicleData(
+                    VehicleData.demo()
+                )
+
+                visibility =
+                    View.VISIBLE
+
             }
 
 
-        CANDataParser.parseTemperature(frame)
-            ?.let { temperature ->
+        root.addView(
+            homePageView,
+            fullScreenParams()
+        )
 
-                updated =
-                    updated.copy(
-                        engineTempC = temperature
-                    )
+
+
+        clockPageView =
+            ClockPageView(this)
+
+
+        carPageView =
+            CarPageView(this)
+
+
+        musicPageView =
+            MusicPageView(this)
+
+
+        navigationPageView =
+            NavigationPageView(this)
+
+
+        callPageView =
+            CallPageView(this)
+
+
+        errorScannerPageView =
+            ErrorScannerPageView(this)
+
+
+        vehicleSettingsPageView =
+            VehicleSettingsPageView(this)
+
+
+
+        addHiddenPage(clockPageView)
+        addHiddenPage(carPageView)
+        addHiddenPage(musicPageView)
+        addHiddenPage(navigationPageView)
+        addHiddenPage(callPageView)
+        addHiddenPage(errorScannerPageView)
+        addHiddenPage(vehicleSettingsPageView)
+
+
+
+
+        /*
+        ==========================
+        MAIN MENU
+        ==========================
+        */
+
+
+        mainMenuView =
+            MainMenuView(this).apply {
+
+                setPage(
+                    MainMenuPage.HOME
+                )
+
             }
 
 
-        CANDataParser.parseFuel(frame)
-            ?.let { fuel ->
+        root.addView(
+            mainMenuView,
+            fullScreenParams()
+        )
 
-                updated =
-                    updated.copy(
-                        fuelPercent = fuel
+
+        setContentView(root)
+
+
+
+        /*
+        ==========================
+        ERROR SCANNER
+        ==========================
+        */
+
+
+        errorScannerEngine =
+            ErrorScannerEngine()
+
+
+        CANReceiver.attachErrorScanner(
+            errorScannerEngine
+        )
+
+
+
+        /*
+        ==========================
+        VEHICLE DATA
+        ==========================
+        */
+
+
+        vehicleDataController =
+            VehicleDataController { data ->
+
+
+                runOnUiThread {
+
+                    updateVehicleViews(
+                        data
                     )
-            }
 
-
-        CANDataParser.parseBatteryVoltage(frame)
-            ?.let { voltage ->
-
-                updated =
-                    updated.copy(
-                        batteryVoltage = voltage
-                    )
-            }
-
-
-        currentData =
-            updated.copy(
-                canConnected = true,
-                lastUpdate = System.currentTimeMillis()
-            )
-
-
-        notifyDataChanged()
-    }
-
-
-    /*
-     * =========================================================
-     * CURRENT DATA
-     * =========================================================
-     */
-
-    fun getCurrentData(): VehicleData {
-
-        return currentData.copy()
-    }
-
-
-    /*
-     * =========================================================
-     * LIVE DEMO MODE
-     * =========================================================
-     */
-
-    fun useDemoMode() {
-
-        demoMode = true
-
-        started = true
-
-        demoSpeed =
-            0
-
-        demoRpm =
-            850
-
-        demoTemperature =
-            82
-
-        demoFuel =
-            72
-
-        demoVoltage =
-            13.9f
-
-        speedDirection =
-            1
-
-
-        currentData =
-            VehicleData.demo().copy(
-
-                speedKmh =
-                    demoSpeed,
-
-                rpm =
-                    demoRpm,
-
-                engineTempC =
-                    demoTemperature,
-
-                batteryVoltage =
-                    demoVoltage,
-
-                fuelPercent =
-                    demoFuel,
-
-                canConnected =
-                    false,
-
-                lastUpdate =
-                    System.currentTimeMillis()
-            )
-
-
-        notifyDataChanged()
-
-        startDemo()
-    }
-
-
-    /*
-     * =========================================================
-     * DEMO LOOP
-     * =========================================================
-     */
-
-    private val demoRunnable =
-        object : Runnable {
-
-            override fun run() {
-
-                if (!demoMode) {
-                    return
                 }
 
-                updateDemoData()
-
-                handler.postDelayed(
-                    this,
-                    DEMO_INTERVAL
-                )
             }
-        }
 
 
-    private fun startDemo() {
 
-        handler.removeCallbacks(
-            demoRunnable
-        )
+        // فعلاً Demo فعال است
+        vehicleDataController.useDemoMode()
 
-        handler.post(
-            demoRunnable
-        )
-    }
-
-
-    private fun stopDemo() {
-
-        handler.removeCallbacks(
-            demoRunnable
-        )
-    }
-
-
-    /*
-     * =========================================================
-     * UPDATE DEMO DATA
-     * =========================================================
-     */
-
-    private fun updateDemoData() {
-
-        /*
-         * SPEED
-         *
-         * 0 -> 120 -> 0
-         */
-        demoSpeed +=
-            2 * speedDirection
-
-
-        if (demoSpeed >= 120) {
-
-            demoSpeed =
-                120
-
-            speedDirection =
-                -1
-        }
-
-
-        if (demoSpeed <= 0) {
-
-            demoSpeed =
-                0
-
-            speedDirection =
-                1
-        }
 
 
         /*
-         * RPM
-         *
-         * تقریبی و متناسب با سرعت
-         */
-        val targetRpm =
-            850 +
-                    (demoSpeed * 30)
+        ==========================
+        MENU CONTROLLER
+        ==========================
+        */
 
 
-        if (demoRpm < targetRpm) {
+        mainMenuController =
+            MainMenuController {
 
-            demoRpm +=
-                180
+                page ->
 
-        } else if (demoRpm > targetRpm) {
+                runOnUiThread {
 
-            demoRpm -=
-                180
-        }
+                    showPage(page)
 
+                }
 
-        if (demoRpm < 850) {
-            demoRpm =
-                850
-        }
+            }
 
 
-        if (demoRpm > 4300) {
-            demoRpm =
-                4300
-        }
 
+        mainMenuView.onPageSelected =
+            {
 
-        /*
-         * ENGINE TEMPERATURE
-         */
-        demoTemperature =
-            82 +
-                    (demoSpeed / 15)
+                page ->
 
+                mainMenuController.open(
+                    page
+                )
 
-        if (demoTemperature > 96) {
-            demoTemperature =
-                96
-        }
+            }
+
 
 
         /*
-         * FUEL
-         */
-        demoFuel -=
-            1
+        ==========================
+        AI
+        ==========================
+        */
 
 
-        if (demoFuel < 65) {
-
-            demoFuel =
-                72
-        }
+        aiEngine =
+            AIEngine(this)
 
 
-        /*
-         * BATTERY
-         */
-        demoVoltage =
-            if (demoRpm > 1500) {
 
-                14.1f
+        speechManager =
+            SpeechManager(
+
+                context = this,
+
+                onStateChanged = {
+
+                    state ->
+
+                    dashboard.setAIState(state)
+
+                    homePageView.setAIState(state)
+
+                }
+
+            )
+
+
+
+        voiceManager =
+            VoiceManager(
+
+                context = this,
+
+
+                onResult = {
+
+                    text ->
+
+
+                    aiEngine.process(
+
+                        text,
+
+                        onResponse = {
+
+                            response ->
+
+                            speechManager.speak(
+                                response
+                            )
+
+                        },
+
+
+                        onError = {
+
+                            dashboard.setAIState(
+                                AIState.ERROR
+                            )
+
+                        }
+
+                    )
+
+                },
+
+
+                onStateChanged = {
+
+                    state ->
+
+                    dashboard.setAIState(
+                        state
+                    )
+
+                    homePageView.setAIState(
+                        state
+                    )
+
+                }
+
+            )
+
+
+
+        val startVoice = {
+
+
+            if (
+                checkSelfPermission(
+                    Manifest.permission.RECORD_AUDIO
+                )
+                ==
+                PackageManager.PERMISSION_GRANTED
+            ) {
+
+
+                voiceManager.startListening()
+
 
             } else {
 
-                13.7f
+
+                pendingVoiceStart = true
+
+                requestMicrophonePermission()
+
             }
 
 
-        /*
-         * UPDATE VEHICLE DATA
-         */
-        currentData =
-            currentData.copy(
-
-                speedKmh =
-                    demoSpeed,
-
-                rpm =
-                    demoRpm,
-
-                engineTempC =
-                    demoTemperature,
-
-                fuelPercent =
-                    demoFuel,
-
-                batteryVoltage =
-                    demoVoltage,
-
-                canConnected =
-                    false,
-
-                lastUpdate =
-                    System.currentTimeMillis()
-            )
-
-
-        notifyDataChanged()
-    }
-
-
-    /*
-     * =========================================================
-     * NOTIFY UI
-     * =========================================================
-     */
-
-    private fun notifyDataChanged() {
-
-        onDataChanged(
-            currentData.copy()
-        )
-    }
-
-
-    /*
-     * =========================================================
-     * TEST CAN FRAME
-     * =========================================================
-     */
-
-    fun testFrame(
-        id: Int,
-        data: ByteArray
-    ) {
-
-        CANReceiver.simulateFrame(
-            id,
-            data
-        )
-    }
-
-
-    /*
-     * =========================================================
-     * DISABLE DEMO
-     * =========================================================
-     */
-
-    fun disableDemoMode() {
-
-        demoMode =
-            false
-
-        stopDemo()
-    }
-
-
-    /*
-     * =========================================================
-     * RESET
-     * =========================================================
-     */
-
-    fun reset() {
-
-        stopDemo()
-
-        try {
-
-            CANReceiver.reset()
-
-        } catch (_: Exception) {
         }
 
 
-        demoMode =
-            true
 
-        started =
-            true
-
-        demoSpeed =
-            0
-
-        demoRpm =
-            850
-
-        demoTemperature =
-            82
-
-        demoFuel =
-            72
-
-        demoVoltage =
-            13.9f
-
-        speedDirection =
-            1
+        dashboard.onAIOrbClick =
+            startVoice
 
 
-        currentData =
-            VehicleData.demo().copy(
+        homePageView.onAIOrbClick =
+            startVoice
 
-                speedKmh =
-                    0,
 
-                rpm =
-                    850,
 
-                engineTempC =
-                    82,
+        requestMicrophonePermission()
 
-                fuelPercent =
-                    72,
+    }
 
-                batteryVoltage =
-                    13.9f,
 
-                canConnected =
-                    false,
 
-                lastUpdate =
-                    System.currentTimeMillis()
+
+
+    private fun addHiddenPage(
+        view: View
+    ) {
+
+        view.visibility =
+            View.GONE
+
+
+        root.addView(
+            view,
+            fullScreenParams()
+        )
+
+    }
+
+
+
+
+
+    private fun updateVehicleViews(
+        data: VehicleData
+    ) {
+
+
+        dashboard.setVehicleData(data)
+
+        homePageView.setVehicleData(data)
+
+        carPageView.setVehicleData(data)
+
+        errorScannerPageView.setVehicleData(data)
+
+    }
+
+
+
+
+
+    private fun showPage(
+        page: MainMenuPage
+    ) {
+
+
+        dashboard.visibility =
+            View.GONE
+
+
+        homePageView.visibility =
+            View.GONE
+
+
+        clockPageView.visibility =
+            View.GONE
+
+
+        carPageView.visibility =
+            View.GONE
+
+
+        musicPageView.visibility =
+            View.GONE
+
+
+        navigationPageView.visibility =
+            View.GONE
+
+
+        callPageView.visibility =
+            View.GONE
+
+
+        errorScannerPageView.visibility =
+            View.GONE
+
+
+        vehicleSettingsPageView.visibility =
+            View.GONE
+
+
+
+        when(page) {
+
+
+            MainMenuPage.HOME -> {
+
+                homePageView.visibility =
+                    View.VISIBLE
+
+                mainMenuView.visibility =
+                    View.VISIBLE
+
+            }
+
+
+            MainMenuPage.CLOCK -> {
+
+                clockPageView.visibility =
+                    View.VISIBLE
+
+            }
+
+
+            MainMenuPage.CAR -> {
+
+                carPageView.visibility =
+                    View.VISIBLE
+
+            }
+
+
+            MainMenuPage.MUSIC -> {
+
+                musicPageView.visibility =
+                    View.VISIBLE
+
+            }
+
+
+            MainMenuPage.NAVIGATION -> {
+
+                navigationPageView.visibility =
+                    View.VISIBLE
+
+                navigationPageView.refresh()
+
+            }
+
+
+            MainMenuPage.CALL -> {
+
+                callPageView.visibility =
+                    View.VISIBLE
+
+            }
+
+
+            MainMenuPage.SCAN -> {
+
+                errorScannerPageView.visibility =
+                    View.VISIBLE
+
+                errorScannerPageView.startScan()
+
+            }
+
+
+            MainMenuPage.SETTINGS -> {
+
+                vehicleSettingsPageView.visibility =
+                    View.VISIBLE
+
+            }
+
+        }
+
+    }
+
+
+
+
+
+    private fun fullScreenParams():
+            FrameLayout.LayoutParams {
+
+
+        return FrameLayout.LayoutParams(
+
+            FrameLayout.LayoutParams.MATCH_PARENT,
+
+            FrameLayout.LayoutParams.MATCH_PARENT
+
+        )
+
+    }
+
+
+
+
+
+    private fun requestMicrophonePermission() {
+
+
+        if (
+            checkSelfPermission(
+                Manifest.permission.RECORD_AUDIO
+            )
+            !=
+            PackageManager.PERMISSION_GRANTED
+        ) {
+
+
+            requestPermissions(
+
+                arrayOf(
+                    Manifest.permission.RECORD_AUDIO
+                ),
+
+                AUDIO_PERMISSION_REQUEST
+
             )
 
-
-        notifyDataChanged()
-
-        startDemo()
-    }
-
-
-    companion object {
-
-        private const val DEMO_INTERVAL =
-            250L
+        }
 
     }
+
+
+
+
+
+    override fun onDestroy() {
+
+
+        if (::vehicleDataController.isInitialized) {
+
+            vehicleDataController.stop()
+
+        }
+
+
+        if (::voiceManager.isInitialized) {
+
+            voiceManager.destroy()
+
+        }
+
+
+        if (::speechManager.isInitialized) {
+
+            speechManager.destroy()
+
+        }
+
+
+        if (CANReceiver.isConnected()) {
+
+            CANReceiver.disconnect()
+
+        }
+
+
+        super.onDestroy()
+
+    }
+
 }
